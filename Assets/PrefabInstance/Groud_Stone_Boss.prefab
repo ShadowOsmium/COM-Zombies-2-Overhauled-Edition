@@ -1,0 +1,356 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1911136477145998}
+  m_IsPrefabParent: 1
+--- !u!1 &1911136477145998
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4199243087642954}
+  - component: {fileID: 111708647640979895}
+  m_Layer: 0
+  m_Name: Groud_Stone_Boss
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4199243087642954
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1911136477145998}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 4399460573068360}
+  - {fileID: 4301454306230368}
+  - {fileID: 4148716143594351}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: -0, z: -0}
+--- !u!111 &111708647640979895
+Animation:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1911136477145998}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 0}
+  m_Animations:
+  - {fileID: 7400000, guid: a00c8bf874cf12641b7899dfb4b3094d, type: 2}
+  - {fileID: 7400000, guid: 71be8b42086ad2340b3c8a218c481833, type: 2}
+  - {fileID: 7400000, guid: e8946f6b4ba880c43a2ed15c3bac20a1, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 0
+  m_AnimatePhysics: 0
+  m_CullingType: 0
+--- !u!1 &1638918334993600
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4399460573068360}
+  m_Layer: 0
+  m_Name: Dummy01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4399460573068360
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1638918334993600}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4199243087642954}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: -90, y: -0, z: 0}
+--- !u!1 &1133627858459650
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4301454306230368}
+  m_Layer: 0
+  m_Name: ROOT
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4301454306230368
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1133627858459650}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 1.4901161E-08, z: 0}
+  m_LocalScale: {x: 0.6210128, y: 0.6210128, z: 0.6210128}
+  m_Children:
+  - {fileID: 4442559019946459}
+  - {fileID: 4131070647744742}
+  - {fileID: 4058342803934405}
+  - {fileID: 4420897953961017}
+  - {fileID: 4905223875283202}
+  - {fileID: 4219011912244073}
+  - {fileID: 4373220543197933}
+  m_Father: {fileID: 4199243087642954}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: -90, y: -0, z: 0}
+--- !u!1 &1564521069280123
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4442559019946459}
+  m_Layer: 0
+  m_Name: Stone_Dummy01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4442559019946459
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1564521069280123}
+  m_LocalRotation: {x: 0, y: -0.008726536, z: -0, w: 0.9999619}
+  m_LocalPosition: {x: 1.921076, y: 0.7965002, z: -0.0152695635}
+  m_LocalScale: {x: 3.0897996, y: 3.0897996, z: 3.0897996}
+  m_Children: []
+  m_Father: {fileID: 4301454306230368}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 1.0000001, z: 0}
+--- !u!1 &1536558317331743
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4131070647744742}
+  m_Layer: 0
+  m_Name: Stone_Dummy02
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4131070647744742
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1536558317331743}
+  m_LocalRotation: {x: 0, y: 0, z: 0.27293426, w: 0.9620327}
+  m_LocalPosition: {x: -1.2454131, y: 0.717526, z: -0.014373579}
+  m_LocalScale: {x: 3.0898, y: 3.0898, z: 3.0897996}
+  m_Children: []
+  m_Father: {fileID: 4301454306230368}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: -0, z: -31.677895}
+--- !u!1 &1486869909305883
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4058342803934405}
+  m_Layer: 0
+  m_Name: Stone_Dummy03
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4058342803934405
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1486869909305883}
+  m_LocalRotation: {x: 0, y: 0, z: -0.14985797, w: 0.98870754}
+  m_LocalPosition: {x: -1.3146063, y: -2.4691057, z: -0.022497386}
+  m_LocalScale: {x: 1.7045288, y: 1.7045288, z: 1.7045289}
+  m_Children: []
+  m_Father: {fileID: 4301454306230368}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: -0, z: 17.237392}
+--- !u!1 &1355166469856869
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4420897953961017}
+  m_Layer: 0
+  m_Name: Stone_Dummy04
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4420897953961017
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1355166469856869}
+  m_LocalRotation: {x: -0.01391124, y: -0.00029189108, z: 0.99983215, w: -0.011922363}
+  m_LocalPosition: {x: 0.6421962, y: -1.5214808, z: 0.31878343}
+  m_LocalScale: {x: 3.0897996, y: 3.0897994, z: 3.0897996}
+  m_Children: []
+  m_Father: {fileID: 4301454306230368}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: -0.0144426655, y: -1.5944474, z: 178.63383}
+--- !u!1 &1807425283973050
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4905223875283202}
+  m_Layer: 0
+  m_Name: Stone_Dummy05
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4905223875283202
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1807425283973050}
+  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.5383751, y: -0.67092025, z: 0.04240924}
+  m_LocalScale: {x: 3.0897996, y: 3.0897996, z: 3.0897996}
+  m_Children: []
+  m_Father: {fileID: 4301454306230368}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: -0, z: 0}
+--- !u!1 &1786152018386814
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4219011912244073}
+  m_Layer: 0
+  m_Name: Stone_Dummy06
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4219011912244073
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1786152018386814}
+  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.12393848, y: -0.58423007, z: 0.089835174}
+  m_LocalScale: {x: 3.0897996, y: 3.0897996, z: 3.0897996}
+  m_Children: []
+  m_Father: {fileID: 4301454306230368}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: -0, z: 0}
+--- !u!1 &1567453371706185
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4373220543197933}
+  m_Layer: 0
+  m_Name: Stone_Dummy07
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4373220543197933
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1567453371706185}
+  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1.811626, y: -1.566718, z: 0.15792821}
+  m_LocalScale: {x: 3.0897996, y: 3.0897996, z: 3.0897996}
+  m_Children: []
+  m_Father: {fileID: 4301454306230368}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: -0, z: 0}
+--- !u!1 &1009594634287570
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4148716143594351}
+  - component: {fileID: 137647958840475097}
+  m_Layer: 0
+  m_Name: Stone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4148716143594351
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1009594634287570}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 0.6814853}
+  m_Children: []
+  m_Father: {fileID: 4199243087642954}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: -90, y: -0, z: 0}
+--- !u!137 &137647958840475097
+SkinnedMeshRenderer:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1009594634287570}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 1
+  m_Materials:
+  - {fileID: 2100000, guid: 6e92c3803c590ee4fab021db784e33be, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  serializedVersion: 2
+  m_Quality: 0
+  m_UpdateWhenOffscreen: 0
+  m_skinnedMotionVectors: 0
+  m_Mesh: {fileID: 4300000, guid: 44c35e11590696f44b31d9a0c12c25a2, type: 2}
+  m_Bones:
+  - {fileID: 4131070647744742}
+  - {fileID: 4058342803934405}
+  - {fileID: 4373220543197933}
+  - {fileID: 4301454306230368}
+  - {fileID: 4420897953961017}
+  - {fileID: 4219011912244073}
+  - {fileID: 4442559019946459}
+  - {fileID: 4905223875283202}
+  m_BlendShapeWeights: []
+  m_RootBone: {fileID: 4301454306230368}
+  m_AABB:
+    m_Center: {x: 1.707561, y: -3.2990327, z: 4.5941224}
+    m_Extent: {x: 7.9308, y: 7.910621, z: 4.9013085}
+  m_DirtyAABB: 0

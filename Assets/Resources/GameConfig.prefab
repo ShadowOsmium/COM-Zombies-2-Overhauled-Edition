@@ -1,0 +1,111 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1041265154486698}
+  m_IsPrefabParent: 1
+--- !u!1 &1041265154486698
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4361165325535653}
+  - component: {fileID: 114897128101422900}
+  m_Layer: 0
+  m_Name: GameConfig
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4361165325535653
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1041265154486698}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: -0, z: -0}
+--- !u!114 &114897128101422900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1041265154486698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60be67fb4d135824d9fd068ca954ab00, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  WeaponConfig_Set: {}
+  AvatarConfig_Set: {}
+  EnemyConfig_Set: {}
+  NpcConfig_Set: {}
+  EnemyWaveInfo_Normal_Set: {}
+  EnemyWaveInfo_Boss_Set: {}
+  EnemyWaveInfo_Npc_Set: {}
+  EnemyWaveInfo_Daily_Set: {}
+  EnemyWaveInfo_Boss_Coop_Set: {}
+  ProbsConfig_Set: {}
+  Side_Quest_Order: {}
+  Side_Quest_Order_Spare: {}
+  Main_Quest_Order: {}
+  Player_Combo_Buff_Info: {}
+  clean_mission_comment:
+  time_mission_comment:
+  convoy_mission_comment:
+  res_mission_comment:
+  boss_mission_comment:
+  Main_Quest_Difficulty_Set: {}
+  Side_Quest_Hp_Difficulty_Set: {}
+  Side_Quest_Dmg_Difficulty_Set: {}
+  Daily_Quest_Hp_Difficulty_Set: {}
+  Daily_Quest_Dmg_Difficulty_Set: {}
+  Standard_Weapon_Dps_Set: {}
+  Standard_Weapon_Price_Set: {}
+  Standard_Weapon_Price_Voucher_Set: {}
+  Standard_Weapon_Dps_Info: {}
+  Standard_Weapon_Price_Info: {}
+  Standard_Weapon_Price_Voucher_Info: {}
+  Avatar_Up_Info_Set: {}
+  Standary_Enemy_Count_Set: {}
+  Enemy_Loading_Set: {}
+  Config_Version_Set: {}
+  Remote_Config_Version_Set: {}
+  Channel_Scene_Color_Set: {}
+  monster_hatred_ratio: 0
+  bullet_package_ratio: 0
+  hp_package_ratio: 0
+  cash_package_val: 0
+  init_cash: 0
+  init_voucher: 0
+  init_crystal: 0
+  daily_price_easy1: 0
+  daily_price_easy2: 0
+  daily_price_hard1: 0
+  daily_price_hard2: 0
+  daily_price_cd: 0
+  rebirth_god_time: 0
+  Load_finished: 0
+  force_update_local: 0
+  chaisaw_skill_percent: 20
+  crystal_to_cash: 1
+  crystal_to_voucher: 1
+  Skill_Avatar_Set: {}
+  Skill_Monster_Set: {}
+  Skill_Enchant_Monster_List:
+  Coop_Boss_Cfg_Set: {}
+  Lottery_Seat_Count_Set: {}
+  Lottery_Seat_Weight_Set: {}
+  Lottery_AwardItem_Set: {}
+  lottery_free_percent: 0
+  lottery_crystal_percent: 0
+  server_group_index: 0

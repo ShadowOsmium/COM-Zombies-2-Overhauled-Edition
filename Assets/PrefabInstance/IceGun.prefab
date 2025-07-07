@@ -1,0 +1,349 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1903722212690198}
+  m_IsPrefabParent: 1
+--- !u!1 &1903722212690198
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4752160114841048}
+  - component: {fileID: 111270728829675559}
+  m_Layer: 0
+  m_Name: IceGun
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4752160114841048
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1903722212690198}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 4196465225206017}
+  - {fileID: 4073349999177941}
+  - {fileID: 4202302107575610}
+  - {fileID: 4101916786919908}
+  - {fileID: 4952583464794054}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 90, y: -0, z: -0}
+--- !u!111 &111270728829675559
+Animation:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1903722212690198}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 0}
+  m_Animations:
+  - {fileID: 7400000, guid: a8ab881433c3ffe448767eff0c8ba853, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_CullingType: 1
+--- !u!1 &1374332154201935
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4196465225206017}
+  m_Layer: 0
+  m_Name: Dummy01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4196465225206017
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1374332154201935}
+  m_LocalRotation: {x: 2.1855694E-08, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.0004234463, y: 0, z: -1.1720414E-10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4752160114841048}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 2.504478E-06, y: -0, z: -0}
+--- !u!1 &1981863942336487
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4073349999177941}
+  m_Layer: 0
+  m_Name: Dummy_Weapon_CryoGun_All
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4073349999177941
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1981863942336487}
+  m_LocalRotation: {x: 0.56830627, y: -0.50120205, z: 0.4893051, w: -0.4317465}
+  m_LocalPosition: {x: 0.069252476, y: 0.17219886, z: 0.2498078}
+  m_LocalScale: {x: 1.0000001, y: 1.0000001, z: 1.0000001}
+  m_Children:
+  - {fileID: 4169502342326133}
+  - {fileID: 4470634905808125}
+  - {fileID: 4027553722936659}
+  m_Father: {fileID: 4752160114841048}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: -98.59754, y: 7.0863953, z: 88.91714}
+--- !u!1 &1675036114525179
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4169502342326133}
+  m_Layer: 0
+  m_Name: Dummy_Weapon_CryoGun_02
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4169502342326133
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1675036114525179}
+  m_LocalRotation: {x: -5.66979E-09, y: -6.2573235E-10, z: -3.547771E-18, w: 1}
+  m_LocalPosition: {x: -0.8485366, y: 0.14992791, z: -8.940697E-08}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4073349999177941}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: -6.4971005E-07, y: 7.1703646E-08, z: 0}
+--- !u!1 &1087065136266438
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4470634905808125}
+  m_Layer: 0
+  m_Name: Dummy_Weapon_CryoGun_03
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4470634905808125
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1087065136266438}
+  m_LocalRotation: {x: -5.66979E-09, y: -6.2573235E-10, z: -3.547771E-18, w: 1}
+  m_LocalPosition: {x: -0.84853655, y: 0.5334133, z: -1.2293458E-07}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4073349999177941}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: -6.4971005E-07, y: 7.1703646E-08, z: 0}
+--- !u!1 &1541563113410047
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4027553722936659}
+  m_Layer: 0
+  m_Name: DummyWeapon_CryoGun_01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4027553722936659
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1541563113410047}
+  m_LocalRotation: {x: -5.66979E-09, y: -6.2573235E-10, z: -3.547771E-18, w: 1}
+  m_LocalPosition: {x: -1.2819717, y: 0.34184778, z: -1.7881393E-07}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4073349999177941}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: -6.4971005E-07, y: 7.1703646E-08, z: 0}
+--- !u!1 &1966912848867829
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4202302107575610}
+  m_Layer: 0
+  m_Name: fire_ori
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4202302107575610
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1966912848867829}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 1.4408286, z: -0.25563085}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4752160114841048}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: -90, y: -0, z: 0}
+--- !u!1 &1814089324615288
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4101916786919908}
+  - component: {fileID: 137257335930023439}
+  m_Layer: 0
+  m_Name: Weapon_CryoGun_01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4101916786919908
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1814089324615288}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 3.0931087E-09, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4752160114841048}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: -90, y: -0, z: 0}
+--- !u!137 &137257335930023439
+SkinnedMeshRenderer:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1814089324615288}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 1
+  m_Materials:
+  - {fileID: 2100000, guid: 28e31620b4b144249a808ccd9ad4c9e6, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  serializedVersion: 2
+  m_Quality: 0
+  m_UpdateWhenOffscreen: 0
+  m_skinnedMotionVectors: 0
+  m_Mesh: {fileID: 4300000, guid: 40bf18606cc69c949beaafe198f63dd9, type: 2}
+  m_Bones:
+  - {fileID: 4073349999177941}
+  - {fileID: 4169502342326133}
+  - {fileID: 4470634905808125}
+  - {fileID: 4027553722936659}
+  m_BlendShapeWeights: []
+  m_RootBone: {fileID: 4073349999177941}
+  m_AABB:
+    m_Center: {x: -0.5747986, y: 0.20623747, z: 4.4703484E-08}
+    m_Extent: {x: 0.9116639, y: 0.34056494, z: 0.20498389}
+  m_DirtyAABB: 0
+--- !u!1 &1900701567419140
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4952583464794054}
+  - component: {fileID: 137131838811877181}
+  m_Layer: 0
+  m_Name: Weapon_CryoGun_02
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4952583464794054
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1900701567419140}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 3.0931087E-09, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4752160114841048}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: -90, y: -0, z: 0}
+--- !u!137 &137131838811877181
+SkinnedMeshRenderer:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1900701567419140}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 1
+  m_Materials:
+  - {fileID: 2100000, guid: 28e31620b4b144249a808ccd9ad4c9e6, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  serializedVersion: 2
+  m_Quality: 0
+  m_UpdateWhenOffscreen: 0
+  m_skinnedMotionVectors: 0
+  m_Mesh: {fileID: 4300000, guid: 7e0a89f16fb717b45bef7f744680aeba, type: 2}
+  m_Bones:
+  - {fileID: 4073349999177941}
+  - {fileID: 4470634905808125}
+  - {fileID: 4027553722936659}
+  - {fileID: 4169502342326133}
+  m_BlendShapeWeights: []
+  m_RootBone: {fileID: 4073349999177941}
+  m_AABB:
+    m_Center: {x: -1.113881, y: 0.33998477, z: -1.7043203E-07}
+    m_Extent: {x: 0.30364797, y: 0.41852844, z: 0.03055901}
+  m_DirtyAABB: 0

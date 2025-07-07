@@ -1,0 +1,35 @@
+<GameProbsCfg>
+  <!--Battlehp-->
+  <HpPackage ratio="2" />
+  <!--CashPackage-->
+  <CashPackage val="2500" /> 
+  <!--BulletPackage-->
+  <BulletPackage ratio ="1" />
+  <!--Story-->
+  <GameStory name="story_1_1" level="1" weight="5" image="fgr" />
+  <GameStory name="story_1_2" level="1" weight="5" image="fgr" />
+  <GameStory name="story_2_1" level="2" weight="3" image="fgr" />
+  <GameStory name="story_2_2" level="2" weight="3" image="fgr" />
+  <GameStory name="story_2_3" level="2" weight="5" image="fgr" />
+  <GameStory name="story_3_1" level="3" weight="3" image="fgr" />
+  <GameStory name="story_4_2" level="4" weight="3" image="fgr" />
+  <GameStory name="story_5_3" level="5" weight="5" image="fgr" />
+  <!--WeaponFragment-->
+  <WeaponFragment name="FN2000_1" weapon="FN2000" weight="4" image="FN2000_1" type="1" sellPrice="17500" />
+  <WeaponFragment name="FN2000_2" weapon="FN2000" weight="4" image="FN2000_2" type="2" sellPrice="17500" />
+  <WeaponFragment name="FN2000_3" weapon="FN2000" weight="4" image="FN2000_3" type="3" sellPrice="17500" />
+  <WeaponFragment name="XM12_1" weapon="XM12" weight="4" image="XM12_1" type="1" sellPrice="35000" />
+  <WeaponFragment name="XM12_2" weapon="XM12" weight="4" image="XM12_2" type="2" sellPrice="35000" />
+  <WeaponFragment name="XM12_3" weapon="XM12" weight="4" image="XM12_3" type="3" sellPrice="35000" />
+  <WeaponFragment name="M32_1" weapon="M32" weight="4" image="M32_1" type="1" sellPrice="75000" />
+  <WeaponFragment name="M32_2" weapon="M32" weight="4" image="M32_2" type="2" sellPrice="75000" />
+  <WeaponFragment name="M32_3" weapon="M32" weight="4" image="M32_3" type="3" sellPrice="75000" />  
+  <WeaponFragment name="IonCannon_1" weapon="IonCannon" weight="5" image="IonCannon_1" type="1" sellPrice="150000" />
+  <WeaponFragment name="IonCannon_2" weapon="IonCannon" weight="5" image="IonCannon_2" type="2" sellPrice="150000" />
+  <WeaponFragment name="IonCannon_3" weapon="IonCannon" weight="5" image="IonCannon_3" type="3" sellPrice="150000" />
+  <WeaponFragment name="IceGun_1" weapon="IceGun" weight="5" image="IceGun_1" type="1" sellPrice="200000" />
+  <WeaponFragment name="IceGun_2" weapon="IceGun" weight="5" image="IceGun_2" type="2" sellPrice="200000" />
+  <WeaponFragment name="IceGun_3" weapon="IceGun" weight="5" image="IceGun_3" type="3" sellPrice="200000" />  
+    <!--WeaponIntensifier-->
+  <WeaponIntensifier name="rpg_up" weapon="RPG" weight="4" image="fgr" />
+</GameProbsCfg>

@@ -1,0 +1,24 @@
+public enum WeaponType
+{
+	NoGun,
+	AssaultRifle,
+	ShotGun,
+	RocketLauncher,
+	MachineGun,
+	Laser,
+	PGM,
+	Gatling,
+	Saw,
+	Baseball,
+	M32,
+	NurseSaliva,
+	Sword,
+	Pistol,
+	Mines,
+	Flame,
+	Medicine,
+	Shield,
+	IonCannon,
+	IceGun,
+	Gun_Count
+}

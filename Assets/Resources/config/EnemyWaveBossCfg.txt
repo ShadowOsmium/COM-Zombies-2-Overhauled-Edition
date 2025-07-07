@@ -1,0 +1,590 @@
+<EnemyWaveCfg>
+  <IntervalCfg wave="8" line="8" />
+  <WaveBoss level="1">  
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>  
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>			
+  </WaveBoss>
+  
+  <WaveBoss level="2">  
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+  </WaveBoss>  
+  
+ <WaveBoss level="3">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+  </WaveBoss>
+
+ <WaveBoss level="4">
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>  
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+  </WaveBoss>
+
+ <WaveBoss level="5">
+    <enemy type="Zombie" count="2" spawn="nest"/>  
+    <enemy type="Zombie_Commis" count="2" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>		
+  </WaveBoss>
+
+ <WaveBoss level="6">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>		
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>		
+  </WaveBoss>
+
+ <WaveBoss level="7">
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>  
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Zombie_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+  </WaveBoss>
+
+ <WaveBoss level="8">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>			
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>		
+    <enemy type="Boomer_E" count="1" spawn="nest"/>	
+  </WaveBoss>  
+  
+ <WaveBoss level="9">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Zombie_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+  </WaveBoss>  
+  
+ <WaveBoss level="10">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Clown_E" count="1" spawn="nest"/>		
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+  </WaveBoss>  
+  
+ <WaveBoss level="11">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>	
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+  </WaveBoss>  
+  
+ <WaveBoss level="12">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Nurse_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>		
+  </WaveBoss> 
+
+ <WaveBoss level="13">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>		
+    <enemy type="Boomer_E" count="1" spawn="nest"/>	
+  </WaveBoss>   
+  
+ <WaveBoss level="14">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>		
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>			
+  </WaveBoss>     
+  
+ <WaveBoss level="15">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>	
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+  </WaveBoss>
+
+ <WaveBoss level="16">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+  </WaveBoss>  
+  
+ <WaveBoss level="17">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>		
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+  </WaveBoss>  
+  
+ <WaveBoss level="18">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>		
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Nurse_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>		
+    <enemy type="Boomer" count="1" spawn="nest"/>
+    <enemy type="Boomer_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>		
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>		
+  </WaveBoss>  
+  
+ <WaveBoss level="19">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>		
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie_E" count="1" spawn="nest"/>			
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Boomer_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>		
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>		
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>	
+  </WaveBoss>  
+  
+  <WaveBoss level="20">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Clown" count="1" spawn="nest"/>		
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>		
+    <enemy type="Boomer_E" count="1" spawn="nest"/>
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie_E" count="1" spawn="nest"/>			
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Boomer_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>			
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+  </WaveBoss>
+  
+  <WaveBoss level="21">
+    <enemy type="Zombie" count="1" spawn="nest"/>  
+    <enemy type="Clown" count="1" spawn="nest"/>		
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>		
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>		
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Boomer_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>			
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Boomer_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>		
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+  </WaveBoss>  
+  
+  <WaveBoss level="22">
+    <enemy type="Zombie_Commis" count="3" spawn="nest"/> 
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>		
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>		
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Zombie_E" count="1" spawn="nest"/>		
+    <enemy type="Clown_E" count="1" spawn="nest"/>
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Nurse_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>		
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>			
+  </WaveBoss>  
+  
+  <WaveBoss level="23">
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/> 
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>		
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>			
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>		
+    <enemy type="Boomer_E" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+  </WaveBoss>  
+  
+ <WaveBoss level="24">
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/> 
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>		
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Clown_E" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>		
+    <enemy type="Boomer_E" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis_E" count="1" spawn="nest"/>		
+    <enemy type="Boomer_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+  </WaveBoss>  
+
+ <WaveBoss level="25">
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/> 
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>		
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>		
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Clown_E" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Zombie_E" count="1" spawn="nest"/>			
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>		
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+  </WaveBoss>
+  
+ <WaveBoss level="26">
+    <enemy type="Zombie" count="1" spawn="nest"/> 
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>		
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>		
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Clown_E" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>		
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+  </WaveBoss>  
+  
+ <WaveBoss level="9999">
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/> 
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/> 	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>		
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>			
+    <enemy type="Zombie_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Clown_E" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>		
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+  </WaveBoss>      
+
+ <WaveBoss level="9999">
+    <enemy type="Zombie" count="1" spawn="nest"/> 
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/> 	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>		
+    <enemy type="Clown" count="1" spawn="nest"/>		
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>			
+    <enemy type="Zombie_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>			
+    <enemy type="Zombie_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Clown" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Nurse_E" count="1" spawn="nest"/>		
+    <enemy type="Zombie_E" count="1" spawn="nest"/>	
+    <enemy type="Nurse" count="1" spawn="nest"/>	
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>
+    <enemy type="Zombie_Commis" count="1" spawn="nest"/>	
+    <enemy type="Boomer" count="1" spawn="nest"/>
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>
+    <enemy type="Zombie_E" count="1" spawn="nest"/>		
+    <enemy type="Boomer" count="1" spawn="nest"/>	
+    <enemy type="Clown_E" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+    <enemy type="Zombie" count="1" spawn="nest"/>	
+  </WaveBoss>
+  
+</EnemyWaveCfg>

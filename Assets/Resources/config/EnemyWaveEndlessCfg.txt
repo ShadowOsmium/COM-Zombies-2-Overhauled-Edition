@@ -1,0 +1,141 @@
+<EnemyWaveCfg>
+  <IntervalCfg wave="6" line="1" />
+
+  <WaveEndless level="30"> <!-- Max 12 -->
+    <enemy type="Zombie" count="5" spawntype="grave"/>  
+    <enemy type="Zombie_Commis" count="3" spawntype="grave"/>  
+    <enemy type="Nurse" count="4" spawntype="grave"/>
+  </WaveEndless>
+
+  <WaveEndless level="35"> <!-- Max 20 -->
+    <enemy type="Zombie" count="6" spawntype="grave"/>  
+    <enemy type="Zombie_Commis" count="5" spawntype="grave"/>
+    <enemy type="Nurse" count="4" spawntype="grave"/>	
+    <enemy type="Boomer" count="3" spawntype="grave"/>	
+    <enemy type="Zombie_E" count="2" spawntype="grave"/>
+  </WaveEndless>  
+  
+  <WaveEndless level="40"> <!-- Max 28 -->
+    <enemy type="Zombie" count="5" spawntype="grave"/>  
+    <enemy type="Zombie_Commis" count="5" spawntype="grave"/>	
+    <enemy type="Boomer" count="4" spawntype="grave"/>
+    <enemy type="Nurse" count="4" spawntype="grave"/>	
+    <enemy type="Clown" count="4" spawntype="grave"/>
+    <enemy type="Zombie_E" count="3" spawntype="grave"/>
+    <enemy type="Boomer_E" count="3" spawntype="grave"/>
+  </WaveEndless>
+
+  <WaveEndless level="45"> <!-- Max 36 -->
+    <enemy type="Zombie" count="4" spawntype="grave"/>  
+    <enemy type="Zombie_Commis" count="5" spawntype="grave"/>	
+    <enemy type="Zombie_E" count="5" spawntype="grave"/>
+    <enemy type="Nurse_E" count="6" spawntype="grave"/>	
+    <enemy type="Nurse" count="4" spawntype="grave"/>	
+    <enemy type="Boomer" count="4" spawntype="grave"/>
+    <enemy type="Clown" count="4" spawntype="grave"/>
+    <enemy type="Boomer_E" count="4" spawntype="grave"/>
+  </WaveEndless>
+
+  <WaveEndless level="50"> <!-- Max 44 -->
+    <enemy type="Zombie_Commis" count="6" spawntype="grave"/>	
+    <enemy type="Zombie_E" count="6" spawntype="grave"/>
+    <enemy type="Nurse_E" count="6" spawntype="grave"/>	
+    <enemy type="Nurse" count="5" spawntype="grave"/>	
+    <enemy type="Boomer" count="5" spawntype="grave"/>
+    <enemy type="Boomer_E" count="5" spawntype="grave"/>
+    <enemy type="Clown" count="5" spawntype="grave"/>
+    <enemy type="Clown_E" count="6" spawntype="grave"/>
+  </WaveEndless>
+
+  <WaveEndless level="55"> <!-- Max 52 -->
+    <enemy type="Zombie_E" count="8" spawntype="grave"/>
+    <enemy type="Nurse_E" count="8" spawntype="grave"/>	
+    <enemy type="Nurse" count="6" spawntype="grave"/>	
+    <enemy type="Boomer" count="6" spawntype="grave"/>
+    <enemy type="Boomer_E" count="8" spawntype="grave"/>
+    <enemy type="Clown" count="6" spawntype="grave"/>
+    <enemy type="Clown_E" count="6" spawntype="grave"/>
+    <enemy type="Zombie_Commis_E" count="4" spawntype="grave"/>
+  </WaveEndless>
+
+  <WaveEndless level="60"> <!-- Max 60 -->
+    <enemy type="Zombie_E" count="9" spawntype="grave"/>
+    <enemy type="Zombie_Commis_E" count="8" spawntype="grave"/>
+    <enemy type="Nurse_E" count="9" spawntype="grave"/>	
+    <enemy type="Boomer" count="6" spawntype="grave"/>
+    <enemy type="Boomer_E" count="9" spawntype="grave"/>
+    <enemy type="Clown" count="6" spawntype="grave"/>
+    <enemy type="Clown_E" count="8" spawntype="grave"/>
+    <enemy type="Nurse" count="5" spawntype="grave"/>
+  </WaveEndless>
+
+  <WaveEndless level="65"> <!-- Max 68 -->
+    <enemy type="Zombie_E" count="10" spawntype="grave"/>
+    <enemy type="Zombie_Commis_E" count="10" spawntype="grave"/>
+    <enemy type="Nurse_E" count="10" spawntype="grave"/>
+    <enemy type="Boomer_E" count="10" spawntype="grave"/>
+    <enemy type="Clown_E" count="10" spawntype="grave"/>
+    <enemy type="Nurse" count="8" spawntype="grave"/>
+    <enemy type="Boomer" count="5" spawntype="grave"/>
+    <enemy type="Clown" count="5" spawntype="grave"/>
+  </WaveEndless>
+
+  <WaveEndless level="70">
+    <enemy type="Zombie_E" count="12" spawntype="grave"/>
+    <enemy type="Zombie_Commis_E" count="12" spawntype="grave"/>
+    <enemy type="Nurse_E" count="12" spawntype="grave"/>
+    <enemy type="Boomer_E" count="12" spawntype="grave"/>
+    <enemy type="Clown_E" count="12" spawntype="grave"/>
+  </WaveEndless>
+
+  <WaveEndless level="75">
+    <enemy type="Zombie_E" count="13" spawntype="grave"/>
+    <enemy type="Zombie_Commis_E" count="13" spawntype="grave"/>
+    <enemy type="Nurse_E" count="13" spawntype="grave"/>
+    <enemy type="Boomer_E" count="13" spawntype="grave"/>
+    <enemy type="Clown_E" count="13" spawntype="grave"/>
+    <enemy type="Boomer" count="3" spawntype="grave"/>
+    <enemy type="Clown" count="3" spawntype="grave"/>
+  </WaveEndless>
+
+  <WaveEndless level="80">
+    <enemy type="Zombie_E" count="15" spawntype="grave"/>
+    <enemy type="Zombie_Commis_E" count="15" spawntype="grave"/>
+    <enemy type="Nurse_E" count="15" spawntype="grave"/>
+    <enemy type="Boomer_E" count="15" spawntype="grave"/>
+    <enemy type="Clown_E" count="15" spawntype="grave"/>
+  </WaveEndless>
+
+  <WaveEndless level="85">
+    <enemy type="Zombie_E" count="17" spawntype="grave"/>
+    <enemy type="Zombie_Commis_E" count="17" spawntype="grave"/>
+    <enemy type="Nurse_E" count="17" spawntype="grave"/>
+    <enemy type="Boomer_E" count="17" spawntype="grave"/>
+    <enemy type="Clown_E" count="17" spawntype="grave"/>
+  </WaveEndless>
+
+  <WaveEndless level="90">
+    <enemy type="Zombie_E" count="19" spawntype="grave"/>
+    <enemy type="Zombie_Commis_E" count="19" spawntype="grave"/>
+    <enemy type="Nurse_E" count="19" spawntype="grave"/>
+    <enemy type="Boomer_E" count="19" spawntype="grave"/>
+    <enemy type="Clown_E" count="19" spawntype="grave"/>
+  </WaveEndless>
+
+  <WaveEndless level="95">
+    <enemy type="Zombie_E" count="21" spawntype="grave"/>
+    <enemy type="Zombie_Commis_E" count="21" spawntype="grave"/>
+    <enemy type="Nurse_E" count="21" spawntype="grave"/>
+    <enemy type="Boomer_E" count="21" spawntype="grave"/>
+    <enemy type="Clown_E" count="21" spawntype="grave"/>
+  </WaveEndless>
+
+  <WaveEndless level="100">
+    <enemy type="Zombie_E" count="24" spawntype="grave"/>
+    <enemy type="Zombie_Commis_E" count="24" spawntype="grave"/>
+    <enemy type="Nurse_E" count="24" spawntype="grave"/>
+    <enemy type="Boomer_E" count="24" spawntype="grave"/>
+    <enemy type="Clown_E" count="24" spawntype="grave"/>
+  </WaveEndless>
+
+</EnemyWaveCfg>

@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1071945105696290}
+  m_IsPrefabParent: 1
+--- !u!1 &1071945105696290
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4034394218175407}
+  - component: {fileID: 114225142272614855}
+  m_Layer: 0
+  m_Name: GameData
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4034394218175407
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1071945105696290}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: -0, z: -0}
+--- !u!114 &114225142272614855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1071945105696290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73756f1eb0d521e4ea5e04496b7b43e7, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  cur_save_date:
+  save_date:
+  daily_mission_count: 0
+  lottery_reset_count: 0
+  lottery_count: 0
+  daily_mode_enable: 0
+  is_crazy_daily: 0
+  tapjoyPoints: 0
+  day_level: 0
+  cur_avatar: -1
+  WeaponData_Set: {}
+  AvatarData_Set: {}
+  GameStoryProbs_Set: {}
+  WeaponFragmentProbs_Set: {}
+  WeaponIntensifierProbs_Set: {}
+  Enemy_Loading_Set: {}
+  Iap_failed_info: {}
+  Iap_failed_info_count: 0
+  scene_state: 0
+  loading_to_scene: test_new1
+  sensitivity_ratio: 0.4
+  is_enter_tutorial: 1
+  show_ui_tutorial: 1
+  show_ui_tutorial_weapon: 1
+  is_daily_cd_crystal: 0
+  NickName:
+  FightStrength: 0
+  enter_shop_count: 0
+  timeserver_url: http://72.167.165.221:7600/gameapi/GameCommonNo.do?action=groovy&json=%7B%22cmd%22:%22GetServerTime%22%7D
+  statistics_url: http://208.109.176.89:8081/gameapi/turboPlatform2.do?action=logAllInfo&json=
+  iap_check_url: http://192.225.224.97:7600/gameapi/GameCommon.do?action=groovy&json=
+  redeem_get_url: http://184.168.72.188:9218/gameapi/comzb.do?action=comzb/GetGiftPackage&json=
+  redeem_accept_url: http://184.168.72.188:9218/gameapi/comzb.do?action=comzb/AcceptGiftPackage&json=
+  redeem_change_ratio: 0.2
+  TRINITI_IAP_CEHCK: 0
+  Skill_Avatar_Set: {}
+  showUpdatePoster: 0
+  cur_game_type: 0
+  cur_coop_boss: -1
+  lottery_seat_state: []

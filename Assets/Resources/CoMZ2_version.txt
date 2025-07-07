@@ -1,0 +1,64 @@
+[CoMZ2]
+Ver = 2.0.1
+TestVer = 2.1
+TimeserverUrl = http://72.167.165.221:7600/gameapi/GameCommonNo.do?action=groovy&json=%7B%22cmd%22:%22GetServerTime%22%7D
+StatisticsUrl = http://208.109.176.89:8081/gameapi/turboPlatform2.do?action=logAllInfo&json=
+IapUrl = http://72.167.165.221:7600/gameapi/GameCommon.do?action=groovy&json=
+IapCheck = 1
+
+RedeemGetUrl = http://184.168.72.188:9218/gameapi/comzb.do?action=comzb/GetGiftPackage&json=
+RedeemAcceptUrl = http://184.168.72.188:9218/gameapi/comzb.do?action=comzb/AcceptGiftPackage&json=
+RedeemAwardRatio = 0.25
+
+CoopIP = 96.43.101.74
+CoopPort = 8030
+
+ConfigVersion = (
+	(AvatarCfg 2.0.1)
+	(WeaponCfg 2.0.1)
+	(EnemyCfg 2.0.1)
+	(NpcCfg 2.0.1)
+	(GameProbsCfg 2.0.1)
+	(EnemyWaveBossCfg 2.0.1)
+	(EnemyWaveNpcCfg 2.0.1)
+	(EnemyWaveNormalCfg 2.0.1)
+	(EnemyWaveDailyCfg 2.0.1)
+	(MainQuestCfg 2.0.1)
+	(SideQuestCfg 2.0.1)
+	(MainQuestDifficultyCfg 2.0.1)
+	(SideQuestDifficultyCfg 2.0.1)
+	(DailyQuestDifficultyCfg 2.0.1)
+	(StandardWeaponCfg 2.0.1)
+	(EditorModeCfg 2.0.1)
+	(CoopBossCfg 2.0.1)
+	(EnemyWaveBossCoopCfg 2.0.1)
+	(LotteryCfg 2.0.1)
+	(SideQuestSpareCfg 2.0.1)
+	(SkillCfg 2.0.1)
+)
+ConfigVersionCount = 21
+
+ConfigVersionTest = (
+	(AvatarCfg 2.1)
+	(WeaponCfg 2.1)
+	(EnemyCfg 2.1)
+	(NpcCfg 2.1)
+	(GameProbsCfg 2.1)
+	(EnemyWaveBossCfg 2.1)
+	(EnemyWaveNpcCfg 2.1)
+	(EnemyWaveNormalCfg 2.1)
+	(EnemyWaveDailyCfg 2.1)
+	(MainQuestCfg 2.1)
+	(SideQuestCfg 2.1)
+	(MainQuestDifficultyCfg 2.1)
+	(SideQuestDifficultyCfg 2.1)
+	(DailyQuestDifficultyCfg 2.1)
+	(StandardWeaponCfg 2.1)
+	(EditorModeCfg 2.1)
+	(CoopBossCfg 2.1)
+	(EnemyWaveBossCoopCfg 2.1)
+	(LotteryCfg 2.1)
+	(SideQuestSpareCfg 2.1)
+	(SkillCfg 2.1)
+)
+ConfigVersionCountTest = 21

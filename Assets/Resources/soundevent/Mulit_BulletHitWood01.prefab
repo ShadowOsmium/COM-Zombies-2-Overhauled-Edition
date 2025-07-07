@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1567738288720097}
+  m_IsPrefabParent: 1
+--- !u!1 &1567738288720097
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4702133337017340}
+  - component: {fileID: 114449320660961039}
+  m_Layer: 0
+  m_Name: Mulit_BulletHitWood01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4702133337017340
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1567738288720097}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: -0, z: -0}
+--- !u!114 &114449320660961039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1567738288720097}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efacec469294a2b4c80317293ab3fb10, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  audioEffectRefs:
+  - {fileID: 1461499958029468, guid: ecdc8767e6f02b946b674966e0d0244e, type: 2}
+  - {fileID: 1684127184656100, guid: 5fb3aa8aea0cbfe4aa7fe65e52b98c57, type: 2}
+  maxDelayTime: 100
+  useDelayPlay: 1
+  delayTimeArray:
+  - 0.212
+  - 0.316

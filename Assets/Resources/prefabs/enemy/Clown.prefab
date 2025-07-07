@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1173448384891485}
+  m_IsPrefabParent: 1
+--- !u!1 &1173448384891485
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4678740060855267}
+  - component: {fileID: 114958817227887440}
+  m_Layer: 0
+  m_Name: Clown
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4678740060855267
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1173448384891485}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: -0, z: -0}
+--- !u!114 &114958817227887440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1173448384891485}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ae51e91281be2d4d9b450edabe52aca, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  Instance: {fileID: 1363501550707696, guid: 314f8e15c9f822248aa7c1b390998cf5, type: 2}
+  Accessory:
+  - {fileID: 1882286224946641, guid: 97daec88463560a4e81e0540a3078b8f, type: 2}
+  - {fileID: 1046891019757448, guid: 7c1d845fd8d523845965db04a12dd525, type: 2}
+  - {fileID: 1867822013988221, guid: 6939d2e6cb6022d4d967bcadc6cc008d, type: 2}

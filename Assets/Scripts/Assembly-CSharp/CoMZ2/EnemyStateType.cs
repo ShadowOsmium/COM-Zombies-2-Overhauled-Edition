@@ -1,0 +1,38 @@
+namespace CoMZ2
+{
+	public enum EnemyStateType
+	{
+		None,
+		Idle,
+		Patrol,
+		Catching,
+		Shoot,
+		Injured,
+		Show,
+		AfterShoot,
+		Perceive,
+		Rail,
+		NurseSkill,
+		Crow_Rush,
+		FatCook_Combo,
+		FatCook_Summon,
+		FatCook_Miantuan,
+		FatCook_AfterAttack,
+		Haoke_Rush,
+		Haoke_Summon,
+		Haoke_Tank,
+		ChaisawInjured,
+		Dead,
+		HalfHp,
+		WrestlerWind,
+		WrestlerRush,
+		WrestlerBellow,
+		HalloweenReplication,
+		HalloweenWindSword,
+		HalloweenWindSwordSub,
+		SharkRush,
+		SharkMissile,
+		SharkDive,
+		Frozen
+	}
+}
