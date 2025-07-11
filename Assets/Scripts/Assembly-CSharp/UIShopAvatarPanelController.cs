@@ -17,7 +17,9 @@ public class UIShopAvatarPanelController : UIShopPanelController
 
 	public GameObject UnlockAvatar;
 
-	private GameMsgBoxController msgBox;
+    private AvatarType? lastSavedAvatarType = null;
+
+    private GameMsgBoxController msgBox;
 
 	private int upgradePropertyIdx = -1;
 
@@ -44,8 +46,12 @@ public class UIShopAvatarPanelController : UIShopPanelController
             case 1: // Damage
                 Properties[index].Name.Text = "Damage (LV " + currentPlayer.damage_level + " Out Of " + currentPlayer.config.max_level + ")";
 
-                // Calculate avatar damage multiplier only (no combo)
-                float avatarDamageMultiplier = 1f + (currentPlayer.damage_val / 100f);
+                float currentDamageVal = Mathf.Lerp(
+                    currentPlayer.config.damage_conf.base_data,
+                    currentPlayer.config.damage_conf.max_data,
+                    (float)currentPlayer.damage_level / currentPlayer.config.max_level
+                );
+                float avatarDamageMultiplier = 1f + (currentDamageVal / 100f);
 
                 Properties[index].Value.Text = avatarDamageMultiplier.ToString("F2") + "x";
 
@@ -53,16 +59,26 @@ public class UIShopAvatarPanelController : UIShopPanelController
 
                 if (!flag2)
                 {
-                    // Calculate next level avatar damage val (simplified)
-                    float nextDamageVal = Mathf.Lerp(currentPlayer.config.damage_conf.base_data, currentPlayer.config.damage_conf.max_data, (float)currentPlayer.damage_level / currentPlayer.config.max_level);
+                    float nextDamageVal = Mathf.Lerp(
+                        currentPlayer.config.damage_conf.base_data,
+                        currentPlayer.config.damage_conf.max_data,
+                        (float)(currentPlayer.damage_level + 1) / currentPlayer.config.max_level
+                    );
                     float nextDamageMultiplier = 1f + (nextDamageVal / 100f);
-                    float upgrade = nextDamageMultiplier - avatarDamageMultiplier;
-                    Properties[index].UpgradeValue.Text = "+" + upgrade.ToString("F2") + "x";
+
+                    float percentUpgrade = (nextDamageMultiplier - avatarDamageMultiplier) / avatarDamageMultiplier * 100f;
+
+                    // Avoid negative or zero display due to float error
+                    if (percentUpgrade > 0.01f)
+                        Properties[index].UpgradeValue.Text = "+" + percentUpgrade.ToString("F1") + "% Damage";
+                    else
+                        Properties[index].UpgradeValue.Text = "+<0.1% Damage";
                 }
                 else
                 {
                     Properties[index].UpgradeValue.Text = string.Empty;
                 }
+
                 text = currentPlayer.UpgradeDamagePrice.ToString("G");
                 break;
             case 2: // Armor
@@ -77,7 +93,7 @@ public class UIShopAvatarPanelController : UIShopPanelController
                 Debug.Log(string.Format("Armor Debug: baseArmor={0}, currentArmor={1}, armor_level={2}, damageReduction={3:F0}%",
                     baseArmor, currentArmor, currentPlayer.armor_level, percent));
 
-                Properties[index].Value.Text = "-" + percent.ToString("F0") + "% dmg";
+                Properties[index].Value.Text = "-" + percent.ToString("F1") + "% dmg";
 
                 flag2 = currentPlayer.armor_level >= currentPlayer.config.max_level;
 
@@ -86,7 +102,7 @@ public class UIShopAvatarPanelController : UIShopPanelController
                     float nextArmor = Mathf.Lerp(baseArmor, currentPlayer.config.armor_conf.max_data, (float)(currentPlayer.armor_level) / currentPlayer.config.max_level);
                     float nextReduction = GetArmorDamageReduction(nextArmor);
                     float upgrade = nextReduction - reduction;
-                    Properties[index].UpgradeValue.Text = "-" + (upgrade * 100f).ToString("F0") + "% dmg";
+                    Properties[index].UpgradeValue.Text = "-" + (upgrade * 100f).ToString("F1") + "% dmg";
                 }
                 else
                 {
@@ -166,37 +182,49 @@ public class UIShopAvatarPanelController : UIShopPanelController
 		avatar_level_tip.ResetTip();
 	}
 
-	public override void Show()
-	{
-		if (UIShopSceneController.Instance.PanelStack.Count == 0 || UIShopSceneController.Instance.PanelStack.Peek() != this)
-		{
-			AnimationUtil.PlayAnimate(base.gameObject, "AvatarPanelIn", WrapMode.Once);
-		}
-		base.Show();
-		ChangeMask("MaskAva");
-		currentPlayer = UIShopSceneController.Instance.CurrentAvatar.avatarData;
-		avatar_level_tip.Init(currentPlayer);
-		Name.Text = currentPlayer.show_name;
-		UpdateAvatarInfo();
-		PrimaryWeapon.texture = "weapon_" + currentPlayer.primary_equipment;
-		SecondaryWeapon.texture = "skill_" + currentPlayer.skill_list[0];
-		if (GameData.Instance.UnlockList.Count <= 0)
-		{
-			return;
-		}
-		foreach (UnlockInGame unlock in GameData.Instance.UnlockList)
-		{
-			if (unlock.Type == UnlockInGame.UnlockType.Weapon)
-			{
-				newLabel = Object.Instantiate(Resources.Load("Prefab/NewLabel")) as GameObject;
-				newLabel.transform.parent = PrimaryWeapon.transform.parent;
-				newLabel.transform.localPosition = new Vector3(-78f, 35f, -1f);
-				break;
-			}
-		}
-	}
+    public override void Show()
+    {
+        if (UIShopSceneController.Instance.PanelStack.Count == 0 || UIShopSceneController.Instance.PanelStack.Peek() != this)
+        {
+            AnimationUtil.PlayAnimate(base.gameObject, "AvatarPanelIn", WrapMode.Once);
+        }
+        base.Show();
+        ChangeMask("MaskAva");
 
-	public override void Hide(bool isPopFromStack)
+        currentPlayer = UIShopSceneController.Instance.CurrentAvatar.avatarData;
+        avatar_level_tip.Init(currentPlayer);
+
+        // Only save if avatar changed since last save
+        if (lastSavedAvatarType == null || lastSavedAvatarType != currentPlayer.avatar_type)
+        {
+            lastSavedAvatarType = currentPlayer.avatar_type;
+            GameData.Instance.SaveData();
+        }
+
+        Name.Text = currentPlayer.show_name;
+        UpdateAvatarInfo();
+
+        PrimaryWeapon.texture = "weapon_" + currentPlayer.primary_equipment;
+        SecondaryWeapon.texture = "skill_" + currentPlayer.skill_list[0];
+
+        if (GameData.Instance.UnlockList.Count <= 0)
+        {
+            return;
+        }
+
+        foreach (UnlockInGame unlock in GameData.Instance.UnlockList)
+        {
+            if (unlock.Type == UnlockInGame.UnlockType.Weapon)
+            {
+                newLabel = Object.Instantiate(Resources.Load("Prefab/NewLabel")) as GameObject;
+                newLabel.transform.parent = PrimaryWeapon.transform.parent;
+                newLabel.transform.localPosition = new Vector3(-78f, 35f, -1f);
+                break;
+            }
+        }
+    }
+
+    public override void Hide(bool isPopFromStack)
 	{
 		base.Hide(isPopFromStack);
 		if (isPopFromStack)

@@ -719,48 +719,56 @@ public class GameSceneController : MonoBehaviour
 		}
 	}
 
-	public virtual void InitMissionController()
-	{
-		game_main_panel.HidePanels();
-		switch (GameData.Instance.cur_quest_info.mission_type)
-		{
-		case MissionType.Cleaner:
-			mission_controller = base.gameObject.AddComponent<CleanerMissionController>();
-			cur_game_info_panel = game_main_panel.clean_panel;
-			game_main_panel.EnableNpcHpBar(false);
-			break;
-		case MissionType.Time_ALive:
-			mission_controller = base.gameObject.AddComponent<TimeAliveMissionController>();
-			cur_game_info_panel = game_main_panel.time_alive_panel;
-			game_main_panel.EnableNpcHpBar(false);
-			break;
-        case MissionType.Endless:
-			mission_controller = base.gameObject.AddComponent<EndlessMissionController>();
-            cur_game_info_panel = game_main_panel.time_alive_panel;
-			game_main_panel.EnableNpcHpBar(false);
-			break;
-		case MissionType.Npc_Resources:
-			mission_controller = base.gameObject.AddComponent<NPCResourcesMissionController>();
-			cur_game_info_panel = game_main_panel.npc_res_panel;
-			GameData.Instance.cur_quest_info.camera_roam_enable = true;
-			game_main_panel.EnableNpcHpBar(true);
-			break;
-		case MissionType.Npc_Convoy:
-			mission_controller = base.gameObject.AddComponent<NPCConvoyMissionController>();
-			cur_game_info_panel = game_main_panel.npc_convoy_panel;
-			game_main_panel.EnableNpcHpBar(true);
-			break;
-		case MissionType.Boss:
-			mission_controller = base.gameObject.AddComponent<BossMissionController>();
-			cur_game_info_panel = game_main_panel.boss_panel;
-			GameData.Instance.cur_quest_info.camera_roam_enable = true;
-			game_main_panel.EnableNpcHpBar(false);
-			break;
-		case MissionType.Tutorial:
-			mission_controller = base.gameObject.AddComponent<TutorialMissionController>();
-			game_main_panel.EnableNpcHpBar(false);
-			break;
-		}
+    public virtual void InitMissionController()
+    {
+        game_main_panel.HidePanels();
+        switch (GameData.Instance.cur_quest_info.mission_type)
+        {
+            case MissionType.Cleaner:
+                if (GameData.Instance.cur_quest_info.mission_day_type == MissionDayType.Daily)
+                {
+                    mission_controller = base.gameObject.AddComponent<DailyMissionController>();
+                    cur_game_info_panel = game_main_panel.clean_panel;
+                }
+                else
+                {
+                    mission_controller = base.gameObject.AddComponent<CleanerMissionController>();
+                    cur_game_info_panel = game_main_panel.clean_panel;
+                }
+                game_main_panel.EnableNpcHpBar(false);
+                break;
+            case MissionType.Time_ALive:
+                mission_controller = base.gameObject.AddComponent<TimeAliveMissionController>();
+                cur_game_info_panel = game_main_panel.time_alive_panel;
+                game_main_panel.EnableNpcHpBar(false);
+                break;
+            case MissionType.Endless:
+                mission_controller = base.gameObject.AddComponent<EndlessMissionController>();
+                cur_game_info_panel = game_main_panel.time_alive_panel;
+                game_main_panel.EnableNpcHpBar(false);
+                break;
+            case MissionType.Npc_Resources:
+                mission_controller = base.gameObject.AddComponent<NPCResourcesMissionController>();
+                cur_game_info_panel = game_main_panel.npc_res_panel;
+                GameData.Instance.cur_quest_info.camera_roam_enable = true;
+                game_main_panel.EnableNpcHpBar(true);
+                break;
+            case MissionType.Npc_Convoy:
+                mission_controller = base.gameObject.AddComponent<NPCConvoyMissionController>();
+                cur_game_info_panel = game_main_panel.npc_convoy_panel;
+                game_main_panel.EnableNpcHpBar(true);
+                break;
+            case MissionType.Boss:
+                mission_controller = base.gameObject.AddComponent<BossMissionController>();
+                cur_game_info_panel = game_main_panel.boss_panel;
+                GameData.Instance.cur_quest_info.camera_roam_enable = true;
+                game_main_panel.EnableNpcHpBar(false);
+                break;
+            case MissionType.Tutorial:
+                mission_controller = base.gameObject.AddComponent<TutorialMissionController>();
+                game_main_panel.EnableNpcHpBar(false);
+                break;
+        }
         List<EnemyType> missionEnemyTypeList = mission_controller.GetMissionEnemyTypeList();
 
         if (missionEnemyTypeList == null)
@@ -773,22 +781,22 @@ public class GameSceneController : MonoBehaviour
         enemy_ref_map.ResetEnemyMapInfo(missionEnemyTypeList);
 
         ResetMissionDifficulty();
-		CheckMissionDayType();
-		if (GameData.Instance.cur_quest_info.camera_roam_enable)
-		{
-			GamePlayingState = PlayingState.CG;
-			StartCameraRoam();
-			return;
-		}
-		GamePlayingState = PlayingState.Gaming;
-		if (cur_game_info_panel != null)
-		{
-			cur_game_info_panel.Show();
-		}
-		Invoke("ShowMissionLabel", 0.5f);
-	}
+        CheckMissionDayType();
+        if (GameData.Instance.cur_quest_info.camera_roam_enable)
+        {
+            GamePlayingState = PlayingState.CG;
+            StartCameraRoam();
+            return;
+        }
+        GamePlayingState = PlayingState.Gaming;
+        if (cur_game_info_panel != null)
+        {
+            cur_game_info_panel.Show();
+        }
+        Invoke("ShowMissionLabel", 0.5f);
+    }
 
-	public void CheckMineArea()
+    public void CheckMineArea()
 	{
 	}
 
@@ -834,9 +842,34 @@ public class GameSceneController : MonoBehaviour
 
         MissionStatistics();
 
-        if (GamePlayingState == PlayingState.Win && (mission_day_type == MissionDayType.Main || mission_day_type == MissionDayType.Side))
+        if (GamePlayingState == PlayingState.Win)
         {
-            GameData.Instance.day_level++;
+            bool shouldIncrement = false;
+
+            if (mission_day_type == MissionDayType.Main)
+            {
+                int level = GameData.Instance.day_level;
+
+                QuestInfo questInfo;
+                if (GameConfig.Instance.Main_Quest_Order.TryGetValue(level, out questInfo))
+                {
+                    shouldIncrement = ShouldIncrementMainDayLevel(level);
+                }
+                else
+                {
+                    shouldIncrement = true;
+                }
+            }
+            else if (mission_day_type == MissionDayType.Side || mission_day_type == MissionDayType.Daily)
+            {
+                shouldIncrement = true;
+            }
+
+            if (shouldIncrement)
+            {
+                GameData.Instance.day_level++;
+                Debug.Log("[MissionFinished] day_level incremented to: " + GameData.Instance.day_level);
+            }
         }
 
         if (GameData.Instance != null && GameData.Instance.blackname)
@@ -863,6 +896,19 @@ public class GameSceneController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+    }
+
+    private bool ShouldIncrementMainDayLevel(int level)
+    {
+        int[] blockList = new int[] { 2, 3, 6, 9, 12, 14, 15, 19, 25, 35 };
+        if (level == 1) return true;
+
+        for (int i = 0; i < blockList.Length; i++)
+        {
+            if (level == blockList[i])
+                return false;
+        }
+        return true;
     }
 
     private IEnumerator GrantDelayedRewardsCoroutine()
@@ -1679,15 +1725,26 @@ public class GameSceneController : MonoBehaviour
 		return GameConfig.Instance.Standard_Weapon_Dps_Set[num2].base_val + GameConfig.Instance.Standard_Weapon_Dps_Set[num2].para_val * (float)(weapon_lv - num2);
 	}
 
-	public virtual void OnEnemySpawn(EnemyData enemy_data)
-	{
-		if (mission_controller.mission_type == MissionType.Cleaner)
-		{
-			((CleanerMissionController)mission_controller).mission_life -= enemy_data.exp;
-		}
-	}
+    public virtual void OnEnemySpawn(EnemyData enemy_data)
+    {
+        if (mission_controller.mission_type == MissionType.Cleaner)
+        {
+            var cleaner = mission_controller as CleanerMissionController;
+            if (cleaner != null)
+            {
+                cleaner.mission_life -= enemy_data.exp;
+                return;
+            }
+            var daily = mission_controller as DailyMissionController;
+            if (daily != null)
+            {
+                daily.mission_life -= enemy_data.exp;
+                return;
+            }
+        }
+    }
 
-	public virtual void GoShopScene()
+    public virtual void GoShopScene()
 	{
 		OpenClikPlugin.Hide();
 		GameData.Instance.loading_to_scene = "UIShop";

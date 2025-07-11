@@ -73,10 +73,10 @@ public class GameItemController : MonoBehaviour
         GuideController.TriggerGuide("Tutorial Over");
         if (item_type == ItemType.Gold)
         {
-            GameData.Instance.total_cash.SetIntVal(
+            /*GameData.Instance.total_cash.SetIntVal(
                 GameData.Instance.total_cash.GetIntVal() + 2500,
                 GameDataIntPurpose.Cash
-            );
+            );*/
 
             if (GameData.Instance.cur_quest_info != null &&
                 GameData.Instance.cur_quest_info.mission_type == MissionType.Endless &&

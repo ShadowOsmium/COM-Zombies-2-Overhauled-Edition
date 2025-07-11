@@ -9,7 +9,10 @@ public class GoldPickup : MonoBehaviour
         var player = other.GetComponent<PlayerController>();
         if (player != null)
         {
-            //GameData.Instance.total_cash += 2500;
+            GameData.Instance.total_cash.SetIntVal(
+                GameData.Instance.total_cash.GetIntVal() + 2500,
+                GameDataIntPurpose.Cash
+            );
 
             if (EndlessMissionController.Instance != null)
             {

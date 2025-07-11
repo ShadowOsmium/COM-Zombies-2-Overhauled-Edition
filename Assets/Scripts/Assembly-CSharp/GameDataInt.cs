@@ -16,12 +16,10 @@ public class GameDataInt
                 if (val > 2500000) punish = true;
                 else if (val > 1500000) val = 1500000;
                 break;
-
             case GameDataIntPurpose.Crystal:
                 if (val > 1350) punish = true;
                 else if (val > 1000) val = 1000;
                 break;
-
             case GameDataIntPurpose.Voucher:
                 if (val > 1650) punish = true;
                 else if (val > 1250) val = 1250;
@@ -32,7 +30,6 @@ public class GameDataInt
         {
             Debug.LogWarning("Suspicious " + purpose + " value detected: " + val);
             val = 0;
-
             if (GameData.Instance != null)
             {
                 GameData.Instance.blackname = true;
@@ -40,8 +37,8 @@ public class GameDataInt
             }
         }
 
-        string data_encipher = val.ToString();
-        data = Encipher(data_encipher);
+        value = val;
+        data = Encipher(val.ToString());
     }
 
     private string Decrypt()
@@ -59,14 +56,17 @@ public class GameDataInt
                 if (val > 2500000) punish = true;
                 else if (val > 1500000) val = 1500000;
                 break;
+
             case GameDataIntPurpose.Crystal:
                 if (val > 1350) punish = true;
                 else if (val > 1000) val = 1000;
                 break;
+
             case GameDataIntPurpose.Voucher:
                 if (val > 1650) punish = true;
                 else if (val > 1250) val = 1250;
                 break;
+
             case GameDataIntPurpose.FreeSpin:
                 if (val > 8) punish = true;
                 else if (val > 5) val = 5;
@@ -85,9 +85,23 @@ public class GameDataInt
             }
         }
 
+        // Log old and new value when changing money
+        if (purpose == GameDataIntPurpose.Cash || purpose == GameDataIntPurpose.Crystal || purpose == GameDataIntPurpose.Voucher)
+        {
+            Debug.Log(string.Format("[MoneyChange] Purpose: {0}, Old: {1}, New: {2}, Called From: {3}",
+                purpose,
+                value,
+                val,
+                new System.Diagnostics.StackTrace().GetFrame(1).GetMethod().Name
+            ));
+        }
+
+
         string data_encipher = val.ToString();
         data = Encipher(data_encipher);
         value = val;
+
+        //Debug.Log("SetIntVal called for " + purpose + " with val=" + val);
     }
 
     private string Encipher(string data_encipher)

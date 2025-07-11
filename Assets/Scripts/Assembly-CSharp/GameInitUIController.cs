@@ -22,6 +22,7 @@ public class GameInitUIController : MonoBehaviour
 
     private Coroutine checkVideoCoroutine;
     private Coroutine forceSkipCoroutine;
+    public TesterSaveManager testerSaveManager;
 
     private void Awake()
     {
@@ -31,6 +32,33 @@ public class GameInitUIController : MonoBehaviour
 
     private IEnumerator Start()
     {
+        GameConfig.CheckGameConfig();
+        GameData.CheckGameData();
+
+        // If tester save file doesn't exist but tester saves are enabled, create one
+        if (testerSaveManager.allowTesterSaves && !System.IO.File.Exists(testerSaveManager.CurrentSavePath))
+        {
+            Debug.Log("[Init] Creating new tester save...");
+            testerSaveManager.SaveGame(GameData.Instance);
+        }
+
+        bool loaded = testerSaveManager.LoadSave(GameData.Instance);
+
+        if (!loaded)
+        {
+            Debug.LogWarning("[Init] Save load failed. Deleting corrupted or unauthorized save and restarting clean.");
+
+            // Optional: Delete the invalid save
+            string blockedPath = testerSaveManager.CurrentSavePath;
+            if (!string.IsNullOrEmpty(blockedPath) && System.IO.File.Exists(blockedPath))
+                System.IO.File.Delete(blockedPath);
+
+            // Fully reset data
+            GameData.Instance.Init();
+
+            // Save as clean normal user save
+            testerSaveManager.SaveGame(GameData.Instance);
+        }
         OpenClikPlugin.Initialize("A36F6C65-C1E3-47D4-AD07-AA8A6C90132C");
 
         // This method only exists on real Android devices (not Editor or PC builds)

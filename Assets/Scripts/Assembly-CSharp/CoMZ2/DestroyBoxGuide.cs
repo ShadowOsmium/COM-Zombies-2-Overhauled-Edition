@@ -1,4 +1,4 @@
-/*namespace CoMZ2
+namespace CoMZ2
 {
 	public class DestroyBoxGuide : IGuideEvent
 	{
@@ -23,4 +23,4 @@
 		{
 		}
 	}
-}*/
+}

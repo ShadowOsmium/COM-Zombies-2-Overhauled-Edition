@@ -49,6 +49,14 @@ public class GameConfig : MonoBehaviour
 
     public Dictionary<int, QuestInfo> Main_Quest_Order = new Dictionary<int, QuestInfo>();
 
+    public Dictionary<int, QuestInfo> Side_Quest_Order_Normal = new Dictionary<int, QuestInfo>();
+
+    public Dictionary<int, QuestInfo> Side_Quest_Order_Crazy = new Dictionary<int, QuestInfo>();
+
+    public Dictionary<int, EnemyWaveInfoList> EnemyWaveInfo_CrazyDaily_Set = new Dictionary<int, EnemyWaveInfoList>();
+
+    public EnemyWaveIntervalInfo EnemyWave_Interval_CrazyDaily = new EnemyWaveIntervalInfo();
+
     public Dictionary<int, PlayerComboBuff> Player_Combo_Buff_Info = new Dictionary<int, PlayerComboBuff>();
 
     public string clean_mission_comment = string.Empty;
@@ -1527,6 +1535,7 @@ public class GameConfig : MonoBehaviour
         LoadEnemyWaveNormalConfig();
         LoadEnemyWaveEndlessConfig();
         LoadEnemyWaveDailyConfig();
+        LoadEnemyWaveCrazyDailyConfig();
         LoadEnemyWaveBossCoopConfig();
     }
 
@@ -1739,6 +1748,43 @@ public class GameConfig : MonoBehaviour
         EnemyWave_Interval_Daily.wave_interval = float.Parse(xmlElement3.GetAttribute("wave"));
         EnemyWave_Interval_Daily.line_interval = float.Parse(xmlElement3.GetAttribute("line"));
     }
+
+    public void LoadEnemyWaveCrazyDailyConfig()
+    {
+        string xml = LoadConfigFile("EnemyWaveCrazyDailyCfg");
+        XmlDocument xmlDocument = new XmlDocument();
+        xmlDocument.LoadXml(xml);
+        XmlElement documentElement = xmlDocument.DocumentElement;
+        foreach (XmlElement item in documentElement.GetElementsByTagName("DailyWave"))
+        {
+            int key = int.Parse(item.GetAttribute("level"));
+            EnemyWaveInfo enemyWaveInfo = new EnemyWaveInfo();
+            foreach (XmlElement item2 in item.GetElementsByTagName("enemy"))
+            {
+                EnemySpawnInfo enemySpawnInfo = new EnemySpawnInfo();
+                enemySpawnInfo.EType = GetEnemyTypeFromCfg(item2.GetAttribute("type"));
+                enemySpawnInfo.Count = int.Parse(item2.GetAttribute("count"));
+                enemySpawnInfo.From = GetSpawnTypeFromCfg(item2.GetAttribute("spawn"));
+                enemyWaveInfo.spawn_info_list.Add(enemySpawnInfo);
+            }
+            if (EnemyWaveInfo_CrazyDaily_Set.ContainsKey(key))
+            {
+                EnemyWaveInfoList list = EnemyWaveInfo_CrazyDaily_Set[key];
+                list.wave_info_list.Add(enemyWaveInfo);
+            }
+            else
+            {
+                EnemyWaveInfoList list = new EnemyWaveInfoList();
+                list.wave_info_list.Add(enemyWaveInfo);
+                EnemyWaveInfo_CrazyDaily_Set.Add(key, list);
+            }
+        }
+
+        XmlElement interval = documentElement.GetElementsByTagName("IntervalCfg")[0] as XmlElement;
+        EnemyWave_Interval_CrazyDaily.wave_interval = float.Parse(interval.GetAttribute("wave"));
+        EnemyWave_Interval_CrazyDaily.line_interval = float.Parse(interval.GetAttribute("line"));
+    }
+
 
     public float GetAvatarUpBattleTime(int avatar_lv)
     {

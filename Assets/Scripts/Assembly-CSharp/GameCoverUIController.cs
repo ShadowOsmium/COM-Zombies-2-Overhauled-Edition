@@ -130,27 +130,33 @@ public class GameCoverUIController : MonoBehaviour
 		}
 	}
 
-	private void OnServerVersion(bool status)
-	{
-		//Debug.Log("OnServerVersion:" + status);
-		if (status)
-		{
-			CheckConfigVersion();
-			return;
-		}
-		ShowMask(false);
-		//Debug.Log("Game version error!");
-		GameMsgBoxController.ShowMsgBox(GameMsgBoxController.MsgBoxType.SingleButton, tui_root, "You have to update the game to continue playing my mod.", OnVersionUpdate, null, false);
-	}
+    private void OnServerVersion(bool status)
+    {
+        if (status)
+        {
+            CheckConfigVersion();
+            return;
+        }
 
-	private void OnVersionUpdate()
-	{
-		//Debug.LogError("review -------------  OnVersionUpdate");
-		Application.OpenURL("https://github.com/ShadowOsmium/COM-Zombies-2/releases/latest");
+        ShowMask(true);
 
+        GameMsgBoxController.ShowMsgBox(
+            GameMsgBoxController.MsgBoxType.SingleButton,
+            tui_root,
+            "You have to update the game to continue playing the game.",
+            OnVersionUpdate,
+            null,
+            false
+        );
     }
 
-	private void OnServerVersionError()
+    private void OnVersionUpdate()
+    {
+        Application.OpenURL("https://github.com/ShadowOsmium/COM-Zombies-2-Overhauled-Edition/releases");
+        Application.Quit();
+    }
+
+    private void OnServerVersionError()
 	{
 		//Debug.Log("OnServerVersionError");
 		ShowMask(false);

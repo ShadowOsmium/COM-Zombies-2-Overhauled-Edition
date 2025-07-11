@@ -14,7 +14,9 @@ public class QuestInfo
 
 	public string reward_prob = string.Empty;
 
-	public string reward_weapon = string.Empty;
+    public bool is_crazy_daily;
+
+    public string reward_weapon = string.Empty;
 
 	public EnemyType boss_type = EnemyType.E_FATCOOK;
 

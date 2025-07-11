@@ -15,6 +15,7 @@ public class UILotterManager : MonoBehaviour
 
     private string weapon_combine = string.Empty;
     private bool isFreeSpin;
+    public Action OnSpinFinished;
 
     private static UILotterManager _instance;
     private GameEnhancer gameEnhancer;
@@ -65,37 +66,17 @@ public class UILotterManager : MonoBehaviour
 
     public void StartLottery(bool freeSpin)
     {
+        isFreeSpin = freeSpin;
         if (isSpinning)
         {
             Debug.LogWarning("StartLottery was called while already spinning.");
             return;
         }
 
-        if (freeSpin)
+        if (UILotteryController.Instance != null)
         {
-            if (GameData.Instance.free_lottery_spins <= 0)
-            {
-                Debug.LogWarning("[Lottery] No free spins left, aborting StartLottery.");
-                return;
-            }
-
-            GameData.Instance.SaveData();
-
-            if (UILotteryController.Instance != null)
-            {
-                UILotteryController.Instance.UpdateFreeSpinsLabel();
-                UILotteryController.Instance.UpdateSpinButtons();
-            }
-            else
-            {
-                Debug.LogWarning("[Lottery] Tried to start free spin but no free spins left.");
-                return;
-            }
-        }
-
-        if (gameEnhancer != null)
-        {
-            gameEnhancer.OnPlayerUsedFreeSpin();
+            UILotteryController.Instance.UpdateFreeSpinsLabel();
+            UILotteryController.Instance.UpdateSpinButtons();
         }
 
         cur_seat_index = UnityEngine.Random.Range(0, lotter_seat_set.Count);
@@ -110,12 +91,16 @@ public class UILotterManager : MonoBehaviour
         }
 
         GameData.Instance.lottery_count++;
-        GameData.Instance.SaveData();
 
         UILotteryController.Instance.EnableBlock(true);
-
-        // Start spinning coroutine instead of Update loop
         StartCoroutine(SpinRoutine());
+
+        if (!GameData.Instance.rewardSafeMode)
+        {
+            Debug.LogWarning("[UILotterManager] SaveData called before rewardSafeMode — is it expected?");
+        }
+
+        GameData.Instance.SaveData();
     }
 
     public void ResetSeatLevel(bool is_crystal)
@@ -296,8 +281,27 @@ public class UILotterManager : MonoBehaviour
 
     public void OnLotteryAward()
     {
-        UILotteryController.Instance.SceneAudio.PlayAudio("UI_craft");
+        if (UILotteryController.Instance != null)
+        {
+            UILotteryController.Instance.SceneAudio.PlayAudio("UI_craft");
+        }
+
+        if (lotter_seat_set == null || tar_seat_index >= lotter_seat_set.Count)
+        {
+            Debug.LogError("[LotteryError] Invalid tar_seat_index: " + tar_seat_index);
+            return;
+        }
+
         var award = lotter_seat_set[tar_seat_index].lottery_award;
+
+        if (award == null)
+        {
+            Debug.LogError("[LotteryError] Award is null at seat index: " + tar_seat_index);
+            return;
+        }
+
+        Debug.Log(string.Format("[UILotterManager] Awarded {0} x{1} (Type: {2})", award.award_name, award.award_count, award.award_type));
+
         var awardType = award.award_type;
         bool isDuplicate = false;
         bool isFragmentCombined = false;
@@ -372,11 +376,38 @@ public class UILotterManager : MonoBehaviour
         {
             AwardGetPanel.ShowAwardGetPanel(UILotteryController.Instance.TUIControls.gameObject, OnAwardOk, award.award_name, count, showBK);
         }
+        if (OnSpinFinished != null)
+        {
+            OnSpinFinished();
+        }
 
+        isSpinning = false;
+        Debug.Log("[Lottery] Spin completed and safe mode cleared.");
+        GameData.Instance.justReceivedLotteryReward = true;
+        GameData.Instance.lastLotteryAwardTime = DateTime.Now;
         GameData.Instance.SaveData();
-        UILotteryController.Instance.EnableBlock(false);
-        UISceneController.Instance.MoneyController.UpdateInfo();
-        UILotteryController.Instance.UpdateLotteryBar();
+
+        if (UILotteryController.Instance != null)
+        {
+            UILotteryController.Instance.EnableBlock(false);
+            UILotteryController.Instance.UpdateLotteryBar();
+        }
+        if (UISceneController.Instance != null)
+        {
+            UISceneController.Instance.MoneyController.UpdateInfo();
+        }
+
+        if (GameEnhancer.Instance != null && isFreeSpin)
+        {
+            GameEnhancer.Instance.OnPlayerUsedFreeSpin();
+        }
+    }
+
+    public void ForceStopSpin()
+    {
+        isSpinning = false;
+        StopAllCoroutines();
+        Debug.Log("[ForceStopSpin] Spin manually stopped.");
     }
 
     private void OnAwardOk()

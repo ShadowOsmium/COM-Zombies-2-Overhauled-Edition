@@ -160,13 +160,13 @@ public class WeaponInfoOwned : MonoBehaviour
     {
         Dictionary<string, int> customBaseDays = new Dictionary<string, int>
     {
-        { "FN2000", 15 },
-        { "XM12", 24 },
-        { "M32", 35 },
-        { "Laser", 40 },
-        { "PGM", 40 },
-        { "IonCannon", 48 },
-        { "IceGun", 60 },
+        { "FN2000", 28 },
+        { "XM12", 38 },
+        { "M32", 48 },
+        { "Laser", 56 },
+        { "PGM", 56 },
+        { "IonCannon", 64 },
+        { "IceGun", 72 },
         { "MP5", 0 }
     };
 
@@ -175,7 +175,10 @@ public class WeaponInfoOwned : MonoBehaviour
         {
             baseDay = weaponData.config.unlockDay;
         }
-        int required = baseDay + (currentLevel / 2) * 2;
+        // For every 4 levels (integer division), increase the required value by 5.
+        // Example: at currentLevel 4, 8, 12, etc., required increases by 5 each time.
+        // This does NOT directly allow 5 upgrades every 4 days, but increases a threshold in steps of 5.
+        int required = baseDay + (currentLevel / 4) * 5;
 
         Debug.Log("GetRequiredDayLevelForUpgrade: " + weaponData.weapon_name +
                   " unlockDay=" + weaponData.config.unlockDay +

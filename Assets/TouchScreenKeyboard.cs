@@ -7,6 +7,10 @@ public class TouchScreenKeyboard : MonoBehaviour
 
     public static bool hideInput;
     public static bool visible;
+    public int maxLength = 20;
+    private bool allSelected = false;
+    private int selectionStart = 0;
+    private int selectionEnd = 0;
 
     public static Rect area
     {
@@ -20,12 +24,10 @@ public class TouchScreenKeyboard : MonoBehaviour
         get { return _text; }
         set
         {
-            //string val = value;
-
-            //if (!multiline) val.Replace("\n", "");
-
-            //_text = val;
-            _text = value;
+            if (value.Length > maxLength)
+                _text = value.Substring(0, maxLength);
+            else
+                _text = value;
         }
     }
 
@@ -41,7 +43,8 @@ public class TouchScreenKeyboard : MonoBehaviour
 
     public bool active;
     public bool wasCanceled;
-
+    private float initialBackspaceDelay = 0.2f;
+    private float repeatRate = 0.03f;
     static GUIStyle style;
 
     float backspaceTime;
@@ -53,8 +56,17 @@ public class TouchScreenKeyboard : MonoBehaviour
         {
             alignment = TextAnchor.MiddleCenter,
             normal = { textColor = Color.white },
-            fontSize = 46
+            fontSize = 24
         };
+    }
+
+    private Texture2D highlightTexture;
+
+    void Awake()
+    {
+        highlightTexture = new Texture2D(1, 1);
+        highlightTexture.SetPixel(0, 0, new Color(0f, 0.5f, 1f, 0.5f));
+        highlightTexture.Apply();
     }
 
     public static TouchScreenKeyboard Open(string text = "", TouchScreenKeyboardType type = TouchScreenKeyboardType.Default, bool autocorrection = true, bool multiline = true, bool secure = false, bool allert = false, string placeholderText = "")
@@ -77,6 +89,87 @@ public class TouchScreenKeyboard : MonoBehaviour
 
     public void Update()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            active = false;
+            done = true;
+            wasCanceled = true;
+            return;
+        }
+
+        // Ctrl + A (Select All)
+        if (Input.GetKeyDown(KeyCode.A) && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)))
+        {
+            selectionStart = 0;
+            selectionEnd = text.Length;
+            allSelected = true;
+            Debug.Log("All text selected.");
+            return;
+        }
+
+        // Ctrl + C (Copy)
+        if (Input.GetKeyDown(KeyCode.C) && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)))
+        {
+            if (selectionStart != selectionEnd)
+            {
+                int start = Mathf.Min(selectionStart, selectionEnd);
+                int end = Mathf.Max(selectionStart, selectionEnd);
+                GUIUtility.systemCopyBuffer = text.Substring(start, end - start);
+                Debug.Log("Copied: " + GUIUtility.systemCopyBuffer);
+            }
+            return;
+        }
+
+        // Ctrl + V (Paste)
+        if (Input.GetKeyDown(KeyCode.V) && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)))
+        {
+            string pasteText = GUIUtility.systemCopyBuffer;
+            if (!string.IsNullOrEmpty(pasteText))
+            {
+                // Remove selected text if any
+                if (selectionStart != selectionEnd)
+                {
+                    int start = Mathf.Min(selectionStart, selectionEnd);
+                    int end = Mathf.Max(selectionStart, selectionEnd);
+                    text = text.Substring(0, start) + pasteText + text.Substring(end);
+                    selectionStart = start + pasteText.Length;
+                }
+                else
+                {
+                    // Insert pasteText at cursor position
+                    int insertPos = selectionStart;
+                    text = text.Substring(0, insertPos) + pasteText + text.Substring(insertPos);
+                    selectionStart = insertPos + pasteText.Length;
+                }
+                if (text.Length > maxLength)
+                {
+                    text = text.Substring(0, maxLength);
+                    selectionStart = Mathf.Min(selectionStart, maxLength);
+                }
+                selectionEnd = selectionStart;
+                allSelected = false;
+            }
+            return;
+        }
+
+        // Ctrl + X (Cut)
+        if (Input.GetKeyDown(KeyCode.X) && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)))
+        {
+            if (selectionStart != selectionEnd)
+            {
+                int start = Mathf.Min(selectionStart, selectionEnd);
+                int end = Mathf.Max(selectionStart, selectionEnd);
+                GUIUtility.systemCopyBuffer = text.Substring(start, end - start);
+                text = text.Substring(0, start) + text.Substring(end);
+                selectionStart = start;
+                selectionEnd = start;
+                allSelected = false;
+                Debug.Log("Cut: " + GUIUtility.systemCopyBuffer);
+            }
+            return;
+        }
+
+
         if (Input.GetKeyDown(KeyCode.Return) && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift))
         {
             done = true;
@@ -89,32 +182,71 @@ public class TouchScreenKeyboard : MonoBehaviour
             done = true;
             active = false;
             wasCanceled = true;
-
             return;
         }
 
         if (Input.GetKeyDown(KeyCode.Backspace))
         {
-            text = text.Substring(0, text.Length - 1);
-
-            backspaceTime = 0.5f;
-
+            if (selectionStart != selectionEnd)
+            {
+                int start = Mathf.Min(selectionStart, selectionEnd);
+                int end = Mathf.Max(selectionStart, selectionEnd);
+                text = text.Substring(0, start) + text.Substring(end);
+                selectionStart = start;
+                selectionEnd = start;
+                allSelected = false;
+            }
+            else if (!string.IsNullOrEmpty(text) && text.Length > 0)
+            {
+                int deletePos = Mathf.Max(0, selectionStart - 1);
+                text = text.Remove(deletePos, 1);
+                selectionStart = deletePos;
+                selectionEnd = deletePos;
+            }
+            backspaceTime = initialBackspaceDelay;
             return;
         }
 
-        if (Input.GetKey(KeyCode.Backspace) && !string.IsNullOrEmpty(text))
+        if (Input.GetKey(KeyCode.Backspace))
         {
-            backspaceTime -= Time.unscaledDeltaTime;
+            if (!string.IsNullOrEmpty(text))
+            {
+                backspaceTime -= Time.unscaledDeltaTime;
 
-            if (backspaceTime > 0) return;
+                if (backspaceTime <= 0f)
+                {
+                    backspaceTime = repeatRate;
 
-            backspaceTime = 0.075f;
-            text = text.Substring(0, text.Length - 1);
-
+                    if (selectionStart != selectionEnd)
+                    {
+                        text = text.Substring(0, selectionStart) + text.Substring(selectionEnd);
+                        selectionEnd = selectionStart;
+                        allSelected = false;
+                    }
+                    else if (text.Length > 0)
+                    {
+                        int deletePos = Mathf.Max(0, selectionStart - 1);
+                        text = text.Remove(deletePos, 1);
+                        selectionStart = deletePos;
+                        selectionEnd = deletePos;
+                    }
+                }
+            }
             return;
         }
 
-        text += Input.inputString;
+        if (!string.IsNullOrEmpty(Input.inputString))
+        {
+            if (allSelected)
+            {
+                text = Input.inputString;
+                allSelected = false;
+            }
+            else if (text.Length < maxLength)
+            {
+                text += Input.inputString;
+            }
+        }
     }
 
     void OnGUI()
@@ -123,21 +255,43 @@ public class TouchScreenKeyboard : MonoBehaviour
 
         GUI.Box(new Rect(0, 0, Screen.width, Screen.height), "");
 
-        float labelWidth = Screen.width * 0.8f;
         float labelHeight = 50f;
-        float labelX = (Screen.width - labelWidth) / 2f;
         float labelY = Screen.height * 0.4f;
 
-        if (string.IsNullOrEmpty(text))
+        Vector2 fullTextSize = style.CalcSize(new GUIContent(text));
+        float startX = (Screen.width - fullTextSize.x) / 2f;
+
+        selectionStart = Mathf.Clamp(selectionStart, 0, text.Length);
+        selectionEnd = Mathf.Clamp(selectionEnd, 0, text.Length);
+
+        if (selectionStart > selectionEnd)
         {
-            style.normal.textColor = Color.grey;
-            GUI.Label(new Rect(labelX, labelY, labelWidth, labelHeight), placeholderText, style);
+            int tmp = selectionStart;
+            selectionStart = selectionEnd;
+            selectionEnd = tmp;
         }
-        else
-        {
-            style.normal.textColor = Color.white;
-            GUI.Label(new Rect(labelX, labelY, labelWidth, labelHeight), text, style);
-        }
+
+        string beforeSelection = text.Substring(0, selectionStart);
+        string selectedText = text.Substring(selectionStart, selectionEnd - selectionStart);
+        string afterSelection = text.Substring(selectionEnd);
+
+        Vector2 beforeSize = style.CalcSize(new GUIContent(beforeSelection));
+        Vector2 selectedSize = style.CalcSize(new GUIContent(selectedText));
+
+        style.alignment = TextAnchor.MiddleLeft;
+        style.normal.textColor = Color.white;
+        GUI.Label(new Rect(startX, labelY, beforeSize.x, labelHeight), beforeSelection, style);
+
+        GUI.color = Color.white;
+        GUI.DrawTexture(new Rect(startX + beforeSize.x, labelY, selectedSize.x, labelHeight), highlightTexture);
+
+        GUI.Label(new Rect(startX + beforeSize.x, labelY, selectedSize.x, labelHeight), selectedText, style);
+
+        Vector2 afterSize = style.CalcSize(new GUIContent(afterSelection));
+        GUI.Label(new Rect(startX + beforeSize.x + selectedSize.x, labelY, afterSize.x, labelHeight), afterSelection, style);
+
+        GUI.color = Color.white;
     }
+
 }
 #endif

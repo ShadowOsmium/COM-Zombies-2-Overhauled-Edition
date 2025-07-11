@@ -33,7 +33,7 @@
   
   <!--M16-->
   
-  <Weapon weapon_name="M16" type="Rifle" moveSpeedDrag="0.5" price="4000" showName="M16" comment=""
+  <Weapon weapon_name="M16" type="Rifle" moveSpeedDrag="0.5" price="6500" showName="M16" comment=""
           BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
           battleButtleCountRatio ="1" bulletShopPrice="700" bulletBalletPrice="1400" initBullet="300" buyBulletCount="450"
           maxLevel="30" upPriceRatio="5.2" AfterFireTime="1" ComboBase="0.8" CrystalUnlockPrice="6" 
@@ -48,7 +48,7 @@
   
   <!--Xm1014-->
   
-  <Weapon weapon_name="Xm1014" type="ShotGun" moveSpeedDrag="0.5" price ="8000" showName="Xm-1014" comment=""
+  <Weapon weapon_name="Xm1014" type="ShotGun" moveSpeedDrag="0.5" price ="12000" showName="Xm-1014" comment=""
           BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
           battleButtleCountRatio ="1" bulletShopPrice="850" bulletBalletPrice="1700" initBullet ="150" buyBulletCount="500" 
           maxLevel="30" upPriceRatio="10" AfterFireTime="1" ComboBase="1" CrystalUnlockPrice="12" 
@@ -63,14 +63,14 @@
   
   <!--AK47-->
   
-  <Weapon weapon_name="AK47" type="Rifle" moveSpeedDrag="0.5" price="12000" showName="AK-47" comment=""
+  <Weapon weapon_name="AK47" type="Rifle" moveSpeedDrag="0.5" price="20000" showName="AK-47" comment=""
           BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1" 
           battleButtleCountRatio ="1" bulletShopPrice="2000" bulletBalletPrice="2000" initBullet="450" buyBulletCount="600" 
           maxLevel="30" upPriceRatio="23.7" AfterFireTime="1" ComboBase="0.8" CrystalUnlockPrice="26" 
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="1" stretchRangeRun="5" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="24000" 
           existState ="0" owner="All" dmgRatio="18" combination="0" unlockDay="20" >
-    <Frequency base="0.14" max="0.14" />
+    <Frequency base="0.15" max="0.15" />
     <stretchMaxRange base="20" max="10" />
     <Clip base="225" max="225" />
     <Range base="0" max="0" />
@@ -87,7 +87,7 @@
           existState ="0" owner="All" dmgRatio="18" combination="0" unlockDay="20" >
     <Frequency base="0.9" max="0.5" />
     <stretchMaxRange base="20" max="20" />
-    <Clip base="32" max="72" />
+    <Clip base="32" max="32" />
     <Range base="12" max="16" />
   </Weapon>-->
 
@@ -108,13 +108,13 @@
 
   <!--RPG-->
   
-  <Weapon weapon_name="RPG" type="RPG" moveSpeedDrag="1.5" price="80000" showName="RPG-7" comment=""
+  <Weapon weapon_name="RPG" type="RPG" moveSpeedDrag="2" price="80000" showName="RPG-7" comment=""
           BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
           battleButtleCountRatio ="1" bulletShopPrice="2000" bulletBalletPrice="2000" initBullet="100" buyBulletCount="200" 
           maxLevel="30" upPriceRatio="30" AfterFireTime="1" ComboBase="2" CrystalUnlockPrice="55" 
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="5" stretchRangeRun="8" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="80000" 
-          existState ="0" owner="All" dmgRatio="16" combination="0" unlockDay="35" >
+          existState ="0" owner="All" dmgRatio="17" combination="0" unlockDay="35" >
     <Frequency base="1" max="1" />
     <stretchMaxRange base="1" max="1" />
     <Clip base="1" max="1" />
@@ -206,7 +206,7 @@
           battleButtleCountRatio ="1" bulletShopPrice="8000" bulletBalletPrice="8000" initBullet="100" buyBulletCount="240"
           maxLevel="30" upPriceRatio="70" AfterFireTime="1" ComboBase="2" CrystalUnlockPrice="699"
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
-          stretchRange="5" stretchRangeRun="8" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="800000"
+          stretchRange="5" stretchRangeRun="8" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="600000"
           existState ="0" owner="All" dmgRatio="80" combination="3" unlockDay="-1" >
     <Frequency base="1.2" max="0.5" />
     <stretchMaxRange base="1" max="1" />

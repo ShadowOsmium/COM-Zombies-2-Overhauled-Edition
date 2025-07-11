@@ -12,7 +12,7 @@
     <Range base="5" max="5" />
   </Skill>
   <!--Swat-->
-  <Skill name="Grenade" showName="Grenade" unlockLevel="1" maxLevel="10" unlockPrice="0" upPriceRatio="1.4" damagePara="1.7761"
+  <Skill name="Grenade" showName="Grenade" unlockLevel="1" maxLevel="15" unlockPrice="0" upPriceRatio="1.4" damagePara="1.54"
          existState ="2" ownerType="Avatar" owner="Swat" content="Throw a grenade that damages any zombies caught in the blast radius." >
     <CDTime base="10" max="6.5" />
     <LifeTime base="0" max="0" />
@@ -22,13 +22,13 @@
     <Range base="3" max="6" />
   </Skill>
   <!--Mike-->
-  <Skill name="BaseballRobot" showName="Robo Pitcher" unlockLevel="1" maxLevel="10" unlockPrice="0" upPriceRatio="1.1" damagePara="1.6156"
+  <Skill name="BaseballRobot" showName="Robo Pitcher" unlockLevel="1" maxLevel="15" unlockPrice="0" upPriceRatio="1.1" damagePara="1.49"
      existState ="2" ownerType="Avatar" owner="Mike" content="Set up a robo pitcher that fires baseballs at zombies in range." >
     <CDTime base="22" max="18" />
     <LifeTime base="12" max="14" />
     <HP base="0" max="0" />
-    <Frequency base="0.25" max="0.25" />
-    <Damage base="60" max="5300" />
+    <Frequency base="0.2" max="0.2" />
+    <Damage base="60" max="61" />
     <Range base="30" max="30" />
   </Skill>
   <!--Cowboy-->

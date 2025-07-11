@@ -34,6 +34,7 @@ public class MissionIconObj : MonoBehaviour
                       textureName + "zombie_";
 
         textureName += mission_day_type.ToString("G");
+        //transform.localScale = Vector3.one * 1.1f;
 
         if (info.mission_type == MissionType.Coop)
         {

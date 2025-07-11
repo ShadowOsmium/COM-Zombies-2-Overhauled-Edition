@@ -11,11 +11,17 @@ public class CrossPlatformPromoCodeManager : MonoBehaviour
     {
         public string code;
         public int cashReward;
+        public float cashRewardMultiplier;
         public int crystalReward;
         public int voucherReward;
         public bool isActive;
         public string weaponID;
+        public bool useDynamicCashScaling;
         public int freeLotterySpins;
+        public bool grantFullWeaponDirectly;
+        public bool scaleAtDay35;
+        public bool scaleAtDay55;
+        public bool scaleAtDay85;
     }
 
     [Header("Currency UI Labels")]
@@ -40,8 +46,6 @@ public class CrossPlatformPromoCodeManager : MonoBehaviour
     {
         if (gameData == null && GameData.Instance != null)
             gameData = GameData.Instance;
-
-        PopulateDefaultPromoCodes();
     }
 
     private void Update()
@@ -49,10 +53,7 @@ public class CrossPlatformPromoCodeManager : MonoBehaviour
 #if UNITY_STANDALONE || UNITY_EDITOR
         if (emulatorKeyboard != null && emulatorKeyboard.done)
         {
-            if (!emulatorKeyboard.wasCanceled)
-            {
-                TryRedeemCode(emulatorKeyboard.text);
-            }
+            if (!emulatorKeyboard.wasCanceled) TryRedeemCode(emulatorKeyboard.text);
             emulatorKeyboard = null;
         }
 #else
@@ -65,9 +66,7 @@ public class CrossPlatformPromoCodeManager : MonoBehaviour
             }
             else if (mobileKeyboard.status == TouchScreenKeyboard.Status.Canceled ||
                      mobileKeyboard.status == TouchScreenKeyboard.Status.LostFocus)
-            {
                 mobileKeyboard = null;
-            }
         }
 #endif
     }
@@ -90,22 +89,9 @@ public class CrossPlatformPromoCodeManager : MonoBehaviour
         }
 
         string enteredCode = inputCode.Trim().ToUpper();
+        if (GameData.Instance.HasUsedPromoCode(enteredCode)) return "USED";
 
-        if (GameData.Instance.HasUsedPromoCode(enteredCode))
-        {
-            return "USED";
-        }
-
-        PromoCode promo = null;
-        for (int i = 0; i < promoCodes.Count; i++)
-        {
-            if (promoCodes[i].isActive && promoCodes[i].code.ToUpper() == enteredCode)
-            {
-                promo = promoCodes[i];
-                break;
-            }
-        }
-
+        PromoCode promo = promoCodes.Find(delegate (PromoCode p) { return p.isActive && p.code.ToUpper() == enteredCode; });
         if (promo == null)
         {
             GameMsgBoxController.ShowMsgBox(GameMsgBoxController.MsgBoxType.SingleButton, gameObject, "Invalid or inactive promo code.", null, null, true);
@@ -113,64 +99,54 @@ public class CrossPlatformPromoCodeManager : MonoBehaviour
         }
 
         GameData.Instance.AddUsedPromoCode(enteredCode);
-
         string rewardSummary = "";
 
-        // Free lottery spins
         if (promo.freeLotterySpins > 0)
         {
             int currentSpins = GameData.Instance.free_lottery_spins.GetIntVal();
             int spinsToAdd = Mathf.Min(promo.freeLotterySpins, 5 - currentSpins);
-
             if (spinsToAdd > 0)
             {
                 GameData.Instance.AddFreeLotterySpins(spinsToAdd, true);
-
-                AwardGetPanel.ShowAwardGetPanel(this.gameObject, null, "tCrystal_Cent499", spinsToAdd);
-
-                rewardSummary += "+ " + spinsToAdd + " Free Lottery Spin(s)\n";
-            }
-            else
-            {
-                Debug.Log("[Promo] Free spins already at cap (" + currentSpins + "), no spins added.");
+                AwardGetPanel.ShowAwardGetPanel(gameObject, null, "tCrystal_Cent499", spinsToAdd);
+                rewardSummary += "+ " + spinsToAdd + " Free Lottery Spin(s), ";
             }
         }
 
-        // Cash reward
         if (promo.cashReward > 0)
         {
             int cur = GameData.Instance.total_cash.GetIntVal();
-            GameData.Instance.total_cash.SetIntVal(cur + promo.cashReward, GameDataIntPurpose.Cash);
+            int scaled = promo.useDynamicCashScaling ?
+                Mathf.RoundToInt(promo.cashRewardMultiplier * GameData.Instance.GetSideEnemyStandardRewardTotal() * 0.1f) :
+                ScaleRewardByThresholds(promo.cashReward, promo);
+            GameData.Instance.total_cash.SetIntVal(cur + scaled, GameDataIntPurpose.Cash);
             GameData.Instance.lastSavedCash = GameData.Instance.total_cash.GetIntVal();
-            AwardGetPanel.ShowAwardGetPanel(this.gameObject, null, "Cash_s", promo.cashReward);
-            rewardSummary += "+ " + promo.cashReward + " Cash\n";
+            AwardGetPanel.ShowAwardGetPanel(gameObject, null, "Cash_s", scaled);
+            rewardSummary += "+ " + scaled + " Cash, ";
         }
 
-        // Crystal reward
         if (promo.crystalReward > 0)
         {
             int cur = GameData.Instance.total_crystal.GetIntVal();
-            GameData.Instance.total_crystal.SetIntVal(cur + promo.crystalReward, GameDataIntPurpose.Crystal);
+            int scaled = ScaleRewardByThresholds(promo.crystalReward, promo);
+            GameData.Instance.total_crystal.SetIntVal(cur + scaled, GameDataIntPurpose.Crystal);
             GameData.Instance.lastSavedCrystal = GameData.Instance.total_crystal.GetIntVal();
-            AwardGetPanel.ShowAwardGetPanel(this.gameObject, null, "tCrystal_Cent499", promo.crystalReward);
-            rewardSummary += "+ " + promo.crystalReward + " Crystals\n";
+            AwardGetPanel.ShowAwardGetPanel(gameObject, null, "tCrystal_Cent499", scaled);
+            rewardSummary += "+ " + scaled + " Crystals, ";
         }
 
-        // Voucher reward
         if (promo.voucherReward > 0)
         {
             int cur = GameData.Instance.total_voucher.GetIntVal();
-            GameData.Instance.total_voucher.SetIntVal(cur + promo.voucherReward, GameDataIntPurpose.Voucher);
+            int scaled = ScaleRewardByThresholds(promo.voucherReward, promo);
+            GameData.Instance.total_voucher.SetIntVal(cur + scaled, GameDataIntPurpose.Voucher);
             GameData.Instance.lastSavedVoucher = GameData.Instance.total_voucher.GetIntVal();
-            AwardGetPanel.ShowAwardGetPanel(this.gameObject, null, "Voucher", promo.voucherReward);
-            rewardSummary += "+ " + promo.voucherReward + " Vouchers\n";
+            AwardGetPanel.ShowAwardGetPanel(gameObject, null, "Voucher", scaled);
+            rewardSummary += "+ " + scaled + " Vouchers, ";
         }
 
-        // Weapon or fragment rewards
         if (!string.IsNullOrEmpty(promo.weaponID))
-        {
-            rewardSummary += HandleWeaponOrFragmentReward(promo.weaponID);
-        }
+            rewardSummary += HandleWeaponOrFragmentReward(promo.weaponID, promo.grantFullWeaponDirectly);
 
         GameData.Instance.SaveData();
         RefreshCurrencyLabels();
@@ -181,149 +157,23 @@ public class CrossPlatformPromoCodeManager : MonoBehaviour
             return null;
         }
 
-        return rewardSummary.Trim();
+        rewardSummary = rewardSummary.TrimEnd(',', ' ');
+        GameMsgBoxController.ShowMsgBox(GameMsgBoxController.MsgBoxType.SingleButton, gameObject, rewardSummary, null, null, true);
+        return rewardSummary;
     }
 
-    private string HandleWeaponOrFragmentReward(string weaponID)
+    private int ScaleRewardByThresholds(int baseReward, PromoCode promo)
     {
-        string rewardText = "";
-
-        if (GameData.Instance.WeaponData_Set.ContainsKey(weaponID))
-        {
-            WeaponData weaponData = (WeaponData)GameData.Instance.WeaponData_Set[weaponID];
-            bool owned = weaponData.exist_state == WeaponExistState.Owned;
-
-            if (owned)
-            {
-                int sellPrice = GameConfig.Instance.WeaponConfig_Set[weaponID].sell_price.GetIntVal();
-                int curCash = GameData.Instance.total_cash.GetIntVal();
-                GameData.Instance.total_cash.SetIntVal(curCash + sellPrice, GameDataIntPurpose.Cash);
-                AwardChangePanel.ShowAwardChangePanel(this.gameObject, OnAwardOk, weaponID, "Cash_s", sellPrice, false);
-                rewardText += "+ " + sellPrice + " Cash (sold duplicate " + weaponID + ")\n";
-            }
-            else
-            {
-                string fragmentKey = weaponID + "_Fragment";
-                WeaponFragmentProbsCfg fragCfg = null;
-                GameProb fragmentProb = null;
-
-                if (GameConfig.Instance.ProbsConfig_Set.ContainsKey(fragmentKey))
-                {
-                    fragCfg = (WeaponFragmentProbsCfg)GameConfig.Instance.ProbsConfig_Set[fragmentKey];
-                }
-
-                if (fragCfg == null)
-                {
-                    if (weaponData.Unlock())
-                    {
-                        AwardGetPanel.ShowAwardGetPanel(this.gameObject, OnAwardOk, weaponID, 1);
-                        rewardText += "+ Weapon " + weaponID + " unlocked!\n";
-                    }
-                }
-                else
-                {
-                    if (GameData.Instance.WeaponFragmentProbs_Set.ContainsKey(fragmentKey))
-                    {
-                        fragmentProb = (GameProb)GameData.Instance.WeaponFragmentProbs_Set[fragmentKey];
-                        fragmentProb.count++;
-                    }
-                    else
-                    {
-                        fragmentProb = new GameProb();
-                        fragmentProb.prob_cfg = fragCfg;
-                        fragmentProb.count = 1;
-                        GameData.Instance.WeaponFragmentProbs_Set.Add(fragmentKey, fragmentProb);
-                    }
-
-                    bool unlocked = GameData.Instance.CheckFragmentProbCombine(weaponID) && weaponData.Unlock();
-
-                    if (unlocked)
-                    {
-                        AwardGetPanel.ShowAwardGetPanel(this.gameObject, OnFragmentCombine, weaponID, 1);
-                        rewardText += "+ Weapon " + weaponID + " unlocked!\n";
-                    }
-                    else
-                    {
-                        AwardGetPanel.ShowAwardGetPanel(this.gameObject, OnAwardOk, fragmentKey, 1, true);
-                        rewardText += "+ Weapon fragment for " + weaponID + "\n";
-                    }
-                }
-            }
-        }
-        else if (GameConfig.Instance.ProbsConfig_Set.ContainsKey(weaponID))
-        {
-            WeaponFragmentProbsCfg fragCfg = (WeaponFragmentProbsCfg)GameConfig.Instance.ProbsConfig_Set[weaponID];
-            GameProb fragmentProb = null;
-            bool isDuplicateFragment = false;
-
-            if (GameData.Instance.WeaponFragmentProbs_Set.ContainsKey(weaponID))
-            {
-                fragmentProb = (GameProb)GameData.Instance.WeaponFragmentProbs_Set[weaponID];
-                if (fragmentProb.count >= 1)
-                {
-                    isDuplicateFragment = true;
-                }
-                else
-                {
-                    fragmentProb.count = 1;
-                }
-            }
-            else
-            {
-                fragmentProb = new GameProb();
-                fragmentProb.prob_cfg = fragCfg;
-                fragmentProb.count = 1;
-                GameData.Instance.WeaponFragmentProbs_Set.Add(weaponID, fragmentProb);
-            }
-
-            if (isDuplicateFragment)
-            {
-                string weaponNameFromFragment = fragCfg.weapon_name;
-                int sellPrice = 0;
-                if (GameConfig.Instance.WeaponConfig_Set.ContainsKey(weaponNameFromFragment))
-                {
-                    sellPrice = GameConfig.Instance.WeaponConfig_Set[weaponNameFromFragment].sell_price.GetIntVal();
-                }
-
-                int curCash = GameData.Instance.total_cash.GetIntVal();
-                GameData.Instance.total_cash.SetIntVal(curCash + sellPrice, GameDataIntPurpose.Cash);
-                AwardChangePanel.ShowAwardChangePanel(this.gameObject, OnAwardOk, weaponNameFromFragment, "Cash_s", sellPrice, false);
-                return "+ " + sellPrice + " Cash (sold duplicate part of " + weaponNameFromFragment + ")\n";
-            }
-            else
-            {
-                string weaponNameFromFragment = fragCfg.weapon_name;
-                WeaponData weaponData = null;
-                if (GameData.Instance.WeaponData_Set.ContainsKey(weaponNameFromFragment))
-                {
-                    weaponData = (WeaponData)GameData.Instance.WeaponData_Set[weaponNameFromFragment];
-                }
-
-                bool unlocked = weaponData != null && GameData.Instance.CheckFragmentProbCombine(weaponNameFromFragment) && weaponData.Unlock();
-
-                if (unlocked)
-                {
-                    AwardGetPanel.ShowAwardGetPanel(this.gameObject, OnFragmentCombine, weaponNameFromFragment, 1);
-                    return "+ Weapon " + weaponNameFromFragment + " unlocked!\n";
-                }
-                else
-                {
-                    AwardGetPanel.ShowAwardGetPanel(this.gameObject, OnAwardOk, weaponID, 1, true);
-                    return "+ Weapon fragment for " + weaponNameFromFragment + "\n";
-                }
-            }
-        }
-        else
-        {
-            Debug.LogWarning("PromoCode weaponID not found in WeaponData_Set or ProbsConfig_Set: " + weaponID);
-        }
-
-        return rewardText;
+        int dayLevel = GameData.Instance.day_level;
+        if (dayLevel > 85 && promo.scaleAtDay85) return baseReward * 4;
+        if (dayLevel > 55 && promo.scaleAtDay55) return baseReward * 3;
+        if (dayLevel > 35 && promo.scaleAtDay35) return baseReward * 2;
+        return baseReward;
     }
 
     private void OnFragmentCombine()
     {
-        AwardGetPanel.ShowAwardGetPanel(this.gameObject, OnAwardOk, weapon_combine, 1);
+        AwardGetPanel.ShowAwardGetPanel(gameObject, OnAwardOk, weapon_combine, 1);
         GameData.Instance.rewardSafeMode = false;
     }
 
@@ -332,55 +182,139 @@ public class CrossPlatformPromoCodeManager : MonoBehaviour
         GameData.Instance.rewardSafeMode = false;
     }
 
-    public void AddFreeLotterySpins(int amount, bool force = false)
-    {
-        if (amount <= 0) return;
-
-        int currentSpins = GameData.Instance.free_lottery_spins.GetIntVal();
-        int newTotal = currentSpins + amount;
-
-        if (newTotal > 5)
-        {
-            newTotal = 5;
-
-            ShowMaxFreeSpinsMessage();
-        }
-
-        GameData.Instance.SetFreeLotterySpins(newTotal, force);
-    }
-
-    private void ShowMaxFreeSpinsMessage()
-    {
-        GameMsgBoxController.ShowMsgBox(
-            GameMsgBoxController.MsgBoxType.SingleButton,
-            null,
-            "You have reached the maximum of 5 free spins. Use them before earning more!",
-            null,
-            null
-        );
-    }
-
-    public bool ConsumeFreeLotterySpin()
-    {
-        int currentSpins = GameData.Instance.free_lottery_spins.GetIntVal();
-        if (currentSpins > 0)
-        {
-            GameData.Instance.free_lottery_spins.SetIntVal(currentSpins - 1, GameDataIntPurpose.FreeSpin);
-            return true;
-        }
-        return false;
-    }
-
     public void RefreshCurrencyLabels()
     {
-        if (cashLabel != null)
-            cashLabel.Text = GameData.Instance.total_cash.GetIntVal().ToString();
+        if (cashLabel != null) cashLabel.Text = GameData.Instance.total_cash.GetIntVal().ToString();
+        if (crystalLabel != null) crystalLabel.Text = GameData.Instance.total_crystal.GetIntVal().ToString();
+        if (voucherLabel != null) voucherLabel.Text = GameData.Instance.total_voucher.GetIntVal().ToString();
+    }
 
-        if (crystalLabel != null)
-            crystalLabel.Text = GameData.Instance.total_crystal.GetIntVal().ToString();
+    private string HandleWeaponOrFragmentReward(string weaponID, bool grantFullWeaponDirectly)
+    {
+        string rewardText = "";
 
-        if (voucherLabel != null)
-            voucherLabel.Text = GameData.Instance.total_voucher.GetIntVal().ToString();
+        if (GameData.Instance.WeaponData_Set.ContainsKey(weaponID))
+        {
+            WeaponData weaponData = (WeaponData)GameData.Instance.WeaponData_Set[weaponID];
+            bool owned = weaponData.exist_state == WeaponExistState.Owned;
+
+            if (grantFullWeaponDirectly)
+            {
+                if (weaponData.IsFullyOwned())
+                {
+                    int sellPrice = GameConfig.Instance.WeaponConfig_Set[weaponID].sell_price.GetIntVal();
+                    AddCash(sellPrice);
+                    AwardChangePanel.ShowAwardChangePanel(gameObject, OnAwardOk, weaponID, "Cash_s", sellPrice, false);
+                    rewardText += "+ " + sellPrice + " Cash (duplicate " + weaponID + ")\n";
+                }
+                else
+                {
+                    if (weaponData.exist_state == WeaponExistState.Unlocked)
+                    {
+                        weaponData.exist_state = WeaponExistState.Owned;
+                        AwardGetPanel.ShowAwardGetPanel(gameObject, OnAwardOk, weaponID, 1);
+                        rewardText += "+ Weapon " + weaponID + " granted directly!\n";
+                    }
+                    else if (weaponData.Unlock())
+                    {
+                        AwardGetPanel.ShowAwardGetPanel(gameObject, OnAwardOk, weaponID, 1);
+                        rewardText += "+ Weapon " + weaponID + " granted directly!\n";
+                    }
+                    else
+                    {
+                        rewardText += "+ Failed to grant weapon " + weaponID + "\n";
+                    }
+                }
+            }
+            else if (owned)
+            {
+                int sellPrice = GameConfig.Instance.WeaponConfig_Set[weaponID].sell_price.GetIntVal();
+                AddCash(sellPrice);
+                AwardChangePanel.ShowAwardChangePanel(gameObject, OnAwardOk, weaponID, "Cash_s", sellPrice, false);
+                rewardText += "+ " + sellPrice + " Cash (sold duplicate " + weaponID + ")\n";
+            }
+            else
+            {
+                string fragmentKey = weaponID + "_Fragment";
+
+                if (!GameConfig.Instance.ProbsConfig_Set.ContainsKey(fragmentKey))
+                {
+                    if (weaponData.Unlock())
+                    {
+                        weapon_combine = weaponID;
+                        AwardGetPanel.ShowAwardGetPanel(gameObject, OnAwardOk, weaponID, 1);
+                        rewardText += "+ Weapon " + weaponID + " unlocked!\n";
+                    }
+                }
+                else
+                {
+                    rewardText += HandleFragmentReward(fragmentKey, weaponID, weaponData);
+                }
+            }
+        }
+        else if (GameConfig.Instance.ProbsConfig_Set.ContainsKey(weaponID))
+        {
+            rewardText += HandleFragmentReward(weaponID);
+        }
+        else
+        {
+            Debug.LogWarning("PromoCode weaponID not found: " + weaponID);
+        }
+
+        return rewardText;
+    }
+
+    private string HandleFragmentReward(string fragmentKey, string parentWeaponID = null, WeaponData weaponData = null)
+    {
+        WeaponFragmentProbsCfg fragCfg = (WeaponFragmentProbsCfg)GameConfig.Instance.ProbsConfig_Set[fragmentKey];
+        GameProb fragmentProb;
+        bool isDuplicate = false;
+
+        if (GameData.Instance.WeaponFragmentProbs_Set.ContainsKey(fragmentKey))
+        {
+            fragmentProb = (GameProb)GameData.Instance.WeaponFragmentProbs_Set[fragmentKey];
+            isDuplicate = fragmentProb.count >= 1;
+            fragmentProb.count++;
+        }
+        else
+        {
+            fragmentProb = new GameProb();
+            fragmentProb.prob_cfg = fragCfg;
+            fragmentProb.count = 1;
+            GameData.Instance.WeaponFragmentProbs_Set.Add(fragmentKey, fragmentProb);
+        }
+
+        string weaponNameFromFragment = fragCfg.weapon_name;
+        if (weaponData == null && GameData.Instance.WeaponData_Set.ContainsKey(weaponNameFromFragment))
+            weaponData = (WeaponData)GameData.Instance.WeaponData_Set[weaponNameFromFragment];
+
+        if (isDuplicate)
+        {
+            int sellPrice = 0;
+            if (GameConfig.Instance.WeaponConfig_Set.ContainsKey(weaponNameFromFragment))
+                sellPrice = GameConfig.Instance.WeaponConfig_Set[weaponNameFromFragment].sell_price.GetIntVal();
+
+            int halfPrice = sellPrice / 2;
+            AddCash(halfPrice);
+            AwardChangePanel.ShowAwardChangePanel(gameObject, OnAwardOk, weaponNameFromFragment, "Cash_s", halfPrice, false);
+            return "+ " + halfPrice + " Cash (sold duplicate part of " + weaponNameFromFragment + ")\n";
+        }
+        else
+        {
+            bool unlocked = weaponData != null && GameData.Instance.CheckFragmentProbCombine(weaponNameFromFragment) && weaponData.Unlock();
+
+            if (unlocked)
+            {
+                weapon_combine = weaponNameFromFragment;
+                AwardGetPanel.ShowAwardGetPanel(gameObject, OnFragmentCombine, weaponNameFromFragment, 1);
+                return "+ Weapon " + weaponNameFromFragment + " unlocked!\n";
+            }
+            else
+            {
+                AwardGetPanel.ShowAwardGetPanel(gameObject, OnAwardOk, fragmentKey, 1, true);
+                return "+ Weapon fragment for " + weaponNameFromFragment + "\n";
+            }
+        }
     }
 
     [ContextMenu("ClearUsedPromoCodes")]
@@ -397,18 +331,11 @@ public class CrossPlatformPromoCodeManager : MonoBehaviour
         Debug.LogWarning("Used promo codes cleared!");
     }
 
-    private void PopulateDefaultPromoCodes()
+    private void AddCash(int amount)
     {
-        if (promoCodes == null || promoCodes.Count == 0)
-        {
-            promoCodes = new List<PromoCode>();
-            promoCodes.Add(new PromoCode { code = "CRYSTAL", cashReward = 0, crystalReward = 15, voucherReward = 0, isActive = true });
-            promoCodes.Add(new PromoCode { code = "GAMBLING", cashReward = 2000, crystalReward = 15, voucherReward = 25, isActive = true });
-            promoCodes.Add(new PromoCode { code = "VOUCHER50", cashReward = 0, crystalReward = 0, voucherReward = 50, isActive = true });
-            promoCodes.Add(new PromoCode { code = "BOOMER", cashReward = 1500, crystalReward = 5, voucherReward = 10, isActive = true });
-            promoCodes.Add(new PromoCode { code = "FREEAK47", cashReward = 0, crystalReward = 0, voucherReward = 0, isActive = true, weaponID = "AK47" });
-            promoCodes.Add(new PromoCode { code = "XM12GIFT", cashReward = 0, crystalReward = 0, voucherReward = 0, isActive = true, weaponID = "XM12_2" });
-            promoCodes.Add(new PromoCode { code = "LOTTERY3", cashReward = 0, crystalReward = 0, voucherReward = 0, isActive = true, freeLotterySpins = 3 });
-        }
+        if (amount <= 0) return;
+        int cur = GameData.Instance.total_cash.GetIntVal();
+        GameData.Instance.total_cash.SetIntVal(cur + amount, GameDataIntPurpose.Cash);
+        GameData.Instance.lastSavedCash = GameData.Instance.total_cash.GetIntVal();
     }
 }

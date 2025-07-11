@@ -421,7 +421,7 @@ public class GameSceneCoopController : GameSceneController
         int totalReward = 0;
         foreach (KeyValuePair<string, float> entry in GameSceneController.Instance.boss_damage_record)
         {
-            int money = Mathf.FloorToInt(entry.Value / 5f);
+            int money = Mathf.FloorToInt(entry.Value / 10f);
             Debug.Log("game_reward: " + entry.Key + " damage:" + entry.Value + " money:" + money);
             totalReward += money;
         }
@@ -542,10 +542,9 @@ public class GameSceneCoopController : GameSceneController
             float damage = pair.Value;
             totalDamage += damage;
 
-            // Use your PlayerID equality (ignoring tnet_id) or custom comparison here:
-            bool isLocalPlayer = key == localPlayerID; // Or key.Equals(localPlayerID)
+            bool isLocalPlayer = key == localPlayerID;
 
-            int rewardGold = Mathf.Min(Mathf.FloorToInt(damage / 5f), coopBossCfg.reward_gold_failed);
+            int rewardGold = Mathf.Min(Mathf.FloorToInt(damage / 10f), coopBossCfg.reward_gold_failed);
 
             if (isLocalPlayer)
             {
@@ -573,7 +572,7 @@ public class GameSceneCoopController : GameSceneController
             Screen.lockCursor = false;
         }
 
-        Debug.Log("Total Coop Reward Added: " + Mathf.FloorToInt(totalDamage / 5f));
+        Debug.Log("Total Coop Reward Added: " + Mathf.FloorToInt(totalDamage / 10f));
         reward_coop_panel.ResetGameReward(list);
 
         Hashtable hashtable = new Hashtable();
@@ -792,7 +791,7 @@ public class GameSceneCoopController : GameSceneController
         mission_check_finished = true;
         mission_controller_finished = true;
 
-        UnlockCursor();
+        //UnlockCursor();
 
         MissionWin();
     }

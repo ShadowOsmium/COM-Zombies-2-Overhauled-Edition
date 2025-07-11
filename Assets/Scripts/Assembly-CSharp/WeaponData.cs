@@ -125,6 +125,11 @@ public class WeaponData
         }
     }
 
+    public bool IsFullyOwned()
+    {
+        return this.exist_state == WeaponExistState.Owned;
+    }
+
     public int UpgradeFrequencyPrice
     {
         get

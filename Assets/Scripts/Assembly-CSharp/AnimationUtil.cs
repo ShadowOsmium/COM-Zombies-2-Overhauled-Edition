@@ -30,6 +30,19 @@ public class AnimationUtil
         return false;
     }
 
+    public static float GetAnimationPlayedPercentage(GameObject obj, string aniName)
+    {
+        Animation anim = obj.GetComponent<Animation>();
+        if (anim != null && anim[aniName] != null)
+        {
+            float time = anim[aniName].time;
+            float length = anim[aniName].clip.length;
+            if (length > 0f)
+                return time / length;
+        }
+        return 0f;
+    }
+
     public static void PlayAnimate(GameObject obj, string animationName, WrapMode wrapMode)
 	{
 		if (obj.GetComponent<Animation>()[animationName] != null)

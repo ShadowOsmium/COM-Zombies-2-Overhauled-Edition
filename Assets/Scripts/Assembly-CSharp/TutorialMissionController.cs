@@ -77,7 +77,7 @@ public class TutorialMissionController : MissionController
             yield return null;
         }
 
-        //guideController.Show(new DestroyBoxGuide(guideController));
+        guideController.Show(new DestroyBoxGuide(guideController));
 
         while (!GameSceneController.Instance.tutorial_ui_over)
         {

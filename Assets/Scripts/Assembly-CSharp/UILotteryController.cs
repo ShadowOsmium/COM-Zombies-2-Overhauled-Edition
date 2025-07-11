@@ -1,18 +1,22 @@
 using System.Collections;
+using System;
 using UnityEngine;
 
 public class UILotteryController : UISceneController
 {
     public UILotterManager lotter_manager;
 
-    public GameObject lottery_button;        // Paid spin button
-    public GameObject lottery_free_button;   // Free spin button
+    public GameObject lottery_button;
+    public GameObject lottery_free_button;
 
     public TUILabel lottery_price_p;
     public TUILabel lottery_price;
     public TUILabel reset_price;
 
     public GameObject block_bk;
+
+    private bool isSpinInProgress = false;
+    private Coroutine failSafeCoroutine;
 
     public UIMoneyController money_controller;
 
@@ -25,6 +29,13 @@ public class UILotteryController : UISceneController
     private float lottery_bar_rect_width = 322f;
 
     public bool lotter_count_award;
+
+    private int lastDisplayedFreeSpins = -1;
+    private int lastFreeLotterySpins = -1;
+
+    private bool hasTriggeredDailyResetThisSession = false;
+
+    private bool hasAllowedOneRollbackResetThisSession = false;
 
     public new static UILotteryController Instance
     {
@@ -44,15 +55,29 @@ public class UILotteryController : UISceneController
 
     private void Update()
     {
-        UpdateFreeSpinsLabel();
-        UpdateSpinButtons();
-        RefreshFreeSpins();
+        int currentFreeSpins = GameData.Instance.free_lottery_spins.GetIntVal();
+        if (currentFreeSpins != lastFreeLotterySpins)
+        {
+            lastFreeLotterySpins = currentFreeSpins;
+            displayedFreeSpins = currentFreeSpins;
+            UpdateFreeSpinsLabel();
+        }
+
+        bool hasFreeSpin = currentFreeSpins > 0;
+        bool freeButtonActive = lottery_free_button.activeSelf;
+
+        if (hasFreeSpin != freeButtonActive)
+        {
+            lottery_free_button.SetActive(hasFreeSpin);
+            lottery_button.SetActive(!hasFreeSpin);
+        }
     }
 
     private void Start()
     {
         Debug.Log("UILotteryController Start - lotter_manager: " + (lotter_manager == null ? "NULL" : "NOT NULL"));
-        StartCoroutine(GameData.Instance.ResetCurServerTime());
+        if (GameData.Instance != null)
+            StartCoroutine(GameData.Instance.ResetCurServerTime());
 
         lottery_free_button.SetActive(false);
         lottery_button.SetActive(false);
@@ -94,6 +119,12 @@ public class UILotteryController : UISceneController
     {
         if (eventType == 3)
         {
+            if (GameData.Instance == null || GameConfig.Instance == null)
+            {
+                Debug.LogError("[UILotteryController] Missing GameData or GameConfig instance.");
+                return;
+            }
+
             int resetCost = Mathf.Max(0, GameConfig.Instance.lottery_reset_price.GetIntVal());
 
             if (GameData.Instance.total_crystal.GetIntVal() < resetCost)
@@ -146,75 +177,123 @@ public class UILotteryController : UISceneController
 
     private void TryStartLotterySpin(bool isFreeSpin)
     {
+        if (UILotterManager.Instance == null)
+        {
+            Debug.LogError("[UILotteryController] UILotterManager.Instance is null — cannot start spin.");
+            return;
+        }
+        if (isSpinInProgress || (UILotterManager.Instance != null && UILotterManager.Instance.IsSpinning))
+        {
+            Debug.LogWarning("[UILotteryController] Spin already in progress.");
+
+            GameMsgBoxController.ShowMsgBox(
+                GameMsgBoxController.MsgBoxType.SingleButton,
+                TUIControls.gameObject,
+                "Please wait for the current spin to finish before spinning again.",
+                null, null);
+            return;
+        }
+
         if (isFreeSpin)
         {
-            if (GameData.Instance.free_lottery_spins <= 0)
-            {
-                GameMsgBoxController.ShowMsgBox(
-                    GameMsgBoxController.MsgBoxType.SingleButton,
-                    TUIControls.gameObject,
-                    "No free lottery spins left.",
-                    null,
-                    null
-                );
-                return;
-            }
+            int previousSpins = GameData.Instance.free_lottery_spins.GetIntVal();
 
-            GameData.Instance.rewardSafeMode = true;
-            lotter_manager.StartLottery(true);
+            Debug.Log("[FreeSpin] Before decrement: " + previousSpins);
+            ConsumeFreeSpin();
+            int currentSpins = GameData.Instance.free_lottery_spins.GetIntVal();
+            Debug.Log("[FreeSpin] After decrement: " + currentSpins);
 
             if (GameEnhancer.Instance != null)
             {
                 GameEnhancer.Instance.OnPlayerUsedFreeSpin();
             }
 
-            if (!GameData.Instance.ConsumeFreeLotterySpin())
-            {
-                Debug.LogWarning("[UILotteryController] Attempted to consume free spin but none left.");
-                // Handle error or block spin
-            }
+            StartRewardSafeMode();
 
-            UpdateSpinButtons();
+            UILotterManager.Instance.StartLottery(true);
         }
         else
         {
-            int lotteryPrice = Mathf.Max(0, GameConfig.Instance.lottery_price.GetIntVal());
-            int playerCrystals = GameData.Instance.total_crystal.GetIntVal();
+            int cost = GameConfig.Instance.lottery_price.GetIntVal();
+            int crystals = GameData.Instance.total_crystal.GetIntVal();
 
-            if (playerCrystals < lotteryPrice)
+            if (crystals < cost)
             {
                 GameMsgBoxController.ShowMsgBox(
                     GameMsgBoxController.MsgBoxType.SingleButton,
                     TUIControls.gameObject,
                     "You do not have enough Crystals to spin the Lottery.",
-                    null,
-                    null
-                );
+                    null, null);
                 return;
             }
 
             GameMsgBoxController.ShowMsgBox(
                 GameMsgBoxController.MsgBoxType.DoubleButton,
                 TUIControls.gameObject,
-                "Spend " + lotteryPrice + " crystals to spin the lottery?",
-                () =>
-                {
-                    GameData.Instance.total_crystal.SetIntVal(playerCrystals - lotteryPrice, GameDataIntPurpose.Crystal);
-                    money_controller.UpdateInfo();
+                "Spend " + cost + " crystals to spin the lottery?",
+                new Action(OnConfirmPaidSpin),
+                new Action(OnCancelPaidSpin));
+        }
 
-                    GameData.Instance.rewardSafeMode = true;
-                    lotter_manager.StartLottery(false);
+        isSpinInProgress = true;
+        UpdateSpinButtons();
+        if (failSafeCoroutine != null)
+        {
+            StopCoroutine(failSafeCoroutine);
+        }
+        failSafeCoroutine = StartCoroutine(FailSafeSpinReset(10f));
+    }
 
-                    UpdateSpinButtons();
-                },
-                () => { }
-            );
+
+    private void OnConfirmPaidSpin()
+    {
+        int cost = GameConfig.Instance.lottery_price.GetIntVal();
+        int crystals = GameData.Instance.total_crystal.GetIntVal();
+        GameData.Instance.total_crystal.SetIntVal(crystals - cost, GameDataIntPurpose.Crystal);
+        money_controller.UpdateInfo();
+
+        GameData.Instance.rewardSafeMode = true;
+        GameData.Instance.SaveData();
+
+        UILotterManager.Instance.StartLottery(false);
+    }
+
+    private void OnCancelPaidSpin()
+    {
+        isSpinInProgress = false;
+    }
+
+    private IEnumerator FailSafeSpinReset(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (GameData.Instance.rewardSafeMode)
+        {
+            GameData.Instance.rewardSafeMode = false;
+            GameData.Instance.SaveData();
+            Debug.Log("[FailSafe] rewardSafeMode was still true. Force reset after delay.");
+        }
+
+        isSpinInProgress = false;
+        if (UILotterManager.Instance != null)
+        {
+            UILotterManager.Instance.ForceStopSpin();
+        }
+    }
+
+    public void ForceStopSpin()
+    {
+        if (isSpinInProgress)
+        {
+            isSpinInProgress = false;
+            StopAllCoroutines();
+            Debug.Log("[ForceStopSpin] Spin manually stopped.");
         }
     }
 
     public void UpdateSpinButtons()
     {
-        if (GameData.Instance.free_lottery_spins > 0)
+        if (GameData.Instance.free_lottery_spins.GetIntVal() > 0)
         {
             lottery_free_button.SetActive(true);
             lottery_button.SetActive(false);
@@ -279,22 +358,81 @@ public class UILotteryController : UISceneController
     {
         IndicatorBlockController.Hide();
 
-        Debug.Log("OnResetServerTimeFinish called - lotter_manager: " + (lotter_manager == null ? "NULL" : "NOT NULL"));
+        DateTime trustedNow = DateTime.UtcNow;
+        DateTime today = trustedNow.Date;
+        DateTime lastReset = GameData.Instance.lastResetDate.Date;
 
-        if (GameData.Instance.lottery_reset_count == 0 && !hasResetLotteryThisSession)
+        if (today < GameData.Instance.maxDateReached)
         {
-            Debug.Log("ResetSeatLevel called");
-            lotter_manager.ResetSeatLevel(false);
-            hasResetLotteryThisSession = true;
+            Debug.LogWarning("[AntiCheat] Time rollback detected. Today: " + today + ", MaxDateReached: " + GameData.Instance.maxDateReached);
 
-            lotter_manager.InitLotterSeat();
+            if (!hasAllowedOneRollbackResetThisSession)
+            {
+                Debug.Log("[AntiCheat] First rollback reset allowed this session.");
+                hasAllowedOneRollbackResetThisSession = true;
+            }
+            else
+            {
+                Debug.LogWarning("[AntiCheat] Second rollback reset in one session — blacklisting.");
+                if (GameEnhancer.Instance != null)
+                {
+                    GameEnhancer.Instance.BlacklistPlayer("[AntiCheat] Multiple time rollback resets in one session.");
+                }
+                return;
+            }
+        }
+
+        if (today > GameData.Instance.maxDateReached)
+        {
+            GameData.Instance.maxDateReached = today;
+            Debug.Log("[AntiCheat] Updated maxDateReached to: " + GameData.Instance.maxDateReached.ToShortDateString());
+        }
+
+        if (today > lastReset)
+        {
+            if (hasTriggeredDailyResetThisSession)
+            {
+                Debug.LogWarning("[AntiCheat] Detected multiple daily resets in a single session!");
+
+                if (GameEnhancer.Instance != null)
+                {
+                    GameEnhancer.Instance.BlacklistPlayer("[AntiCheat] Multiple day resets in a single session.");
+                }
+
+                return;
+            }
+
+            hasTriggeredDailyResetThisSession = true;
+
+            if (GameData.Instance.free_lottery_spins.GetIntVal() == 0)
+            {
+                GameData.Instance.free_lottery_spins.SetIntVal(1, GameDataIntPurpose.FreeSpin);
+                displayedFreeSpins = 1;
+                Debug.Log("[Lottery] Free spin granted for today.");
+            }
+            else
+            {
+                Debug.Log("[Lottery] Free spin not granted (still unused from yesterday).");
+            }
+
+            GameData.Instance.lastResetDate = today;
+            GameData.Instance.lastResetSystemTime = DateTime.Now;
+            GameData.Instance.SaveData();
         }
         else
         {
-            lotter_manager.InitLotterSeat();
+            Debug.Log("[Lottery] Same day – no free spin logic triggered.");
         }
 
-        UpdateSpinButtons();
+        if (GameData.Instance.lottery_reset_count == 0)
+        {
+            Debug.Log("reset lottery seat for free.");
+            lotter_manager.ResetSeatLevel(false);
+        }
+
+        lottery_free_button.SetActive(GameData.Instance.lottery_count > 0);
+        lottery_button.SetActive(GameData.Instance.lottery_count == 0);
+
         UpdateLotteryBar();
     }
 
@@ -310,16 +448,26 @@ public class UILotteryController : UISceneController
         block_bk.SetActive(state);
     }
 
-    private bool isResettingRewardSafeMode = false;
+    private Coroutine rewardSafeModeResetCoroutine;
 
     private IEnumerator ResetRewardSafeModeAfterDelay(float delay)
     {
-        if (isResettingRewardSafeMode) yield break;
-        isResettingRewardSafeMode = true;
         yield return new WaitForSeconds(delay);
         GameData.Instance.rewardSafeMode = false;
-        isResettingRewardSafeMode = false;
-        Debug.Log("[Lottery] rewardSafeMode reset to false");
+        GameData.Instance.SaveData();
+        Debug.Log("[Lottery] rewardSafeMode reset to false after delay");
+    }
+
+    private void StartRewardSafeMode()
+    {
+        GameData.Instance.rewardSafeMode = true;
+        GameData.Instance.SaveData();
+
+        if (rewardSafeModeResetCoroutine != null)
+        {
+            StopCoroutine(rewardSafeModeResetCoroutine);
+        }
+        rewardSafeModeResetCoroutine = StartCoroutine(ResetRewardSafeModeAfterDelay(8f));
     }
 
     private int displayedFreeSpins = 0;
@@ -333,12 +481,12 @@ public class UILotteryController : UISceneController
 
     public void ConsumeFreeSpin()
     {
-        if (displayedFreeSpins > 0)
-        {
-            displayedFreeSpins--;
-            GameData.Instance.free_lottery_spins.SetIntVal(displayedFreeSpins);
-            UpdateFreeSpinsLabel();
-        }
+        int currentSpins = GameData.Instance.free_lottery_spins.GetIntVal();
+        currentSpins = Mathf.Max(0, currentSpins - 1);
+        GameData.Instance.free_lottery_spins.SetIntVal(currentSpins, GameDataIntPurpose.FreeSpin);
+        GameData.Instance.SaveData();
+        UpdateFreeSpinsLabel();
+        Debug.Log("[UILotteryController] Consumed free spin, remaining: " + currentSpins);
     }
 
     public void RefreshFreeSpins()

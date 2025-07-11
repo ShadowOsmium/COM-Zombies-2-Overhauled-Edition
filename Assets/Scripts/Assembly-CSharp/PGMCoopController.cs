@@ -98,11 +98,11 @@ public class PGMCoopController : WeaponCoopController
 			base.Fire(player, deltaTime);
 			AnimationUtil.Stop(player.gameObject, player.GetFireStateAnimation(player.MoveState, player.FireState));
 			AnimationUtil.PlayAnimate(player.gameObject, player.GetFireStateAnimation(player.MoveState, player.FireState), WrapMode.ClampForever);
-			/*if (player.avatar_data.avatar_type == AvatarType.Cowboy)
+			if (player.avatar_data.avatar_type == AvatarType.Cowboy)
 			{
 				AnimationUtil.Stop(player.CowboyCap);
 				AnimationUtil.PlayAnimate(player.CowboyCap, "RPG_Shooting01", WrapMode.Once);
-			}*/
+			}
 		}
 	}
 

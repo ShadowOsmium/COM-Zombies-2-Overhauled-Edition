@@ -96,6 +96,12 @@ public class GrenadeProjectile : ProjectileController
             playerController.AddComboValue(weapon_controller.weapon_data.config.combo_base);
         }
         GameSceneController.Instance.boom_l_pool.GetComponent<ObjectPool>().CreateObject(centroid, Quaternion.identity);
+        ShooterGameCamera cam = Camera.main.GetComponent<ShooterGameCamera>();
+        if (cam != null)
+        {
+            cam.StartCommonShake();
+        }
+
         Object.DestroyObject(base.gameObject);
     }
     public override void OnProjectileCollideStay(GameObject obj)

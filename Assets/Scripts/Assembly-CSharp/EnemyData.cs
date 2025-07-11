@@ -103,7 +103,7 @@ public class EnemyData
 
                     dict[playerName] += damage;
 
-                    int reward = Mathf.FloorToInt(dict[playerName] / 5f);
+                    int reward = Mathf.FloorToInt(dict[playerName] / 10f);
                     Debug.Log("game_reward: " + playerName + " damage:" + dict[playerName] + " money:" + reward);
                 }
             }

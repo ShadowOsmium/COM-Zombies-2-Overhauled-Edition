@@ -23,6 +23,22 @@ public class Utils
 
     public static string SavePath()
     {
+        if ((Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer) &&
+            TesterSaveManager.Instance != null && TesterSaveManager.Instance.allowTesterSaves)
+        {
+            // Only on Android/iOS, redirect to alternate folder
+            string basePath = Application.persistentDataPath;
+
+            string parentDir = Directory.GetParent(basePath).FullName;
+            string altPath = System.IO.Path.Combine(parentDir, "COMZ2_Testers");
+
+            if (!Directory.Exists(altPath))
+                Directory.CreateDirectory(altPath);
+
+            return altPath.EndsWith("/") ? altPath : altPath + "/";
+        }
+
+        // Default path for PC, or if not using tester saves
         return m_SavePath;
     }
 

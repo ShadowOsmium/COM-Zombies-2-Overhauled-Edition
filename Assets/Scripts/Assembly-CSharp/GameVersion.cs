@@ -20,6 +20,22 @@ public class GameVersion : MonoBehaviour
 
     public delegate void OnServerVersionError();
 
+    private static string fallbackVersion;
+
+    static GameVersion()
+    {
+        TextAsset versionFile = Resources.Load<TextAsset>("version");
+        fallbackVersion = versionFile != null ? versionFile.text.Trim() : "1.0.0";
+    }
+
+    public static string GetVersion()
+    {
+#if UNITY_IOS || UNITY_ANDROID
+        return Application.version;
+#else
+        return fallbackVersion;
+#endif
+    }
 
     public static void CheckGameVersionInstance()
     {

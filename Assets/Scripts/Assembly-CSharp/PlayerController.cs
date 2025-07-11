@@ -348,10 +348,8 @@ public class PlayerController : ObjectController
         string nick = GameData.Instance.NickName;
         player_id = new PlayerID(avatar_data.avatar_type, avatar_data.avatar_state, nick, 0);
 
-        // Optionally set the GameObject name for clarity/debugging
         gameObject.name = nick;
 
-        // Add the player to the Player_Set dictionary
         if (!GameSceneController.Instance.Player_Set.ContainsKey(tnet_user))
         {
             GameSceneController.Instance.Player_Set.Add(tnet_user, this);
@@ -953,14 +951,10 @@ public class PlayerController : ObjectController
 
     public void WeaponReload()
     {
-        RPGController rpg = cur_weapon as RPGController;
-        if (rpg != null && rpg.IsShootAnimationLocked())
-        {
-            Debug.Log("WeaponReload() aborted: RPG shoot animation still locked.");
+        if (!CanStartReload())
             return;
-        }
 
-        if (EnableControll() && cur_weapon.weapon_data.Reload())
+        if (cur_weapon.weapon_data.Reload())
         {
             SetFireState(RELOAD_STATE);
         }
@@ -972,6 +966,38 @@ public class PlayerController : ObjectController
         if (rpg != null && rpg.IsShootAnimationLocked())
         {
             Debug.Log("Reload blocked: RPG shoot animation still playing.");
+            return false;
+        }
+
+        return cur_weapon.weapon_data.EnableReload();
+    }
+
+    public bool IsReloading()
+    {
+        if (fire_state == RELOAD_STATE)
+        {
+            string reloadAnim = GetFireStateAnimation(move_state, fire_state);
+            float progress = AnimationUtil.GetAnimationPlayedPercentage(this.gameObject, reloadAnim);
+            if (progress < 0.85f)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool CanStartReload()
+    {
+        RPGController rpg = cur_weapon as RPGController;
+        if (rpg != null && rpg.IsShootAnimationLocked())
+        {
+            Debug.Log("Reload blocked: RPG shoot animation still playing.");
+            return false;
+        }
+
+        if (IsReloading())
+        {
+            Debug.Log("Reload blocked: reload animation not finished.");
             return false;
         }
 
