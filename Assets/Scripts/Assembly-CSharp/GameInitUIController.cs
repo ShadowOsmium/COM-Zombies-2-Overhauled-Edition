@@ -33,32 +33,28 @@ public class GameInitUIController : MonoBehaviour
     private IEnumerator Start()
     {
         GameConfig.CheckGameConfig();
-        GameData.CheckGameData();
 
-        // If tester save file doesn't exist but tester saves are enabled, create one
-        if (testerSaveManager.allowTesterSaves && !System.IO.File.Exists(testerSaveManager.CurrentSavePath))
-        {
-            Debug.Log("[Init] Creating new tester save...");
-            testerSaveManager.SaveGame(GameData.Instance);
-        }
-
-        bool loaded = testerSaveManager.LoadSave(GameData.Instance);
+        bool loaded = GameData.Instance.LoadData(); // Your new direct save load
+        Debug.Log("Save loaded: " + loaded);
+        Debug.Log("Loaded game version: " + GameData.Instance.game_version);
+        Debug.Log("Current app version: " + Application.version);
 
         if (!loaded)
         {
-            Debug.LogWarning("[Init] Save load failed. Deleting corrupted or unauthorized save and restarting clean.");
-
-            // Optional: Delete the invalid save
-            string blockedPath = testerSaveManager.CurrentSavePath;
-            if (!string.IsNullOrEmpty(blockedPath) && System.IO.File.Exists(blockedPath))
-                System.IO.File.Delete(blockedPath);
-
-            // Fully reset data
+            Debug.LogWarning("Save failed to load. Initializing new save.");
             GameData.Instance.Init();
-
-            // Save as clean normal user save
-            testerSaveManager.SaveGame(GameData.Instance);
+            GameData.Instance.game_version = Application.version;
+            GameData.Instance.needsUpdate = false;
+            GameData.Instance.SaveData(); // Save your fresh init
         }
+        else if (GameData.Instance.game_version != Application.version)
+        {
+            Debug.LogWarning("Save version mismatch. Patching save for new version.");
+            GameData.Instance.needsUpdate = true;
+            GameData.Instance.game_version = Application.version;
+            GameData.Instance.SaveData(); // Patch save to current version
+        }
+
         OpenClikPlugin.Initialize("A36F6C65-C1E3-47D4-AD07-AA8A6C90132C");
 
         // This method only exists on real Android devices (not Editor or PC builds)
@@ -240,6 +236,13 @@ private IEnumerator PlayAndroidVideosSequentially()
     {
         PushNotification.ReSetNotifications();
 
+        if (GameData.Instance.needsUpdate)
+        {
+            Debug.Log("[Init] Save requires update. Forcing GameCover load.");
+            SceneManager.LoadScene("GameCover");
+            return;
+        }
+
         if (GameData.Instance.is_enter_tutorial)
         {
             if (GameData.Instance.cur_quest_info == null)
@@ -255,6 +258,7 @@ private IEnumerator PlayAndroidVideosSequentially()
             SceneManager.LoadScene(defaultNextScene);
         }
     }
+
 
     private void OnApplicationFocus(bool hasFocus)
     {

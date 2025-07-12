@@ -124,7 +124,6 @@ public class UIMapSceneController : UISceneController
         {
             if (GameData.Instance != null && GameData.Instance.blackname)
             {
-                // Only skip blacklisted mission types
                 bool isRestrictedType =
                     info.mission_type == MissionType.Coop ||
                     info.mission_type == MissionType.Endless ||
@@ -132,7 +131,7 @@ public class UIMapSceneController : UISceneController
 
                 if (isRestrictedType)
                 {
-                    continue; // Don't spawn this icon
+                    continue;
                 }
             }
 

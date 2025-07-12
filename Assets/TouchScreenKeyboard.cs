@@ -241,10 +241,14 @@ public class TouchScreenKeyboard : MonoBehaviour
             {
                 text = Input.inputString;
                 allSelected = false;
+                selectionStart = Input.inputString.Length;
+                selectionEnd = selectionStart;
             }
             else if (text.Length < maxLength)
             {
-                text += Input.inputString;
+                text = text.Substring(0, selectionStart) + Input.inputString + text.Substring(selectionStart);
+                selectionStart += Input.inputString.Length;
+                selectionEnd = selectionStart;
             }
         }
     }

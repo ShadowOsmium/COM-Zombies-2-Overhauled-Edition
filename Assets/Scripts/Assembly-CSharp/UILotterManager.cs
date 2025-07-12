@@ -16,6 +16,8 @@ public class UILotterManager : MonoBehaviour
     private string weapon_combine = string.Empty;
     private bool isFreeSpin;
     public Action OnSpinFinished;
+    private bool hasAwardedThisSpin = false;
+    private bool lotteryJustOpened = true;
 
     private static UILotterManager _instance;
     private GameEnhancer gameEnhancer;
@@ -64,14 +66,31 @@ public class UILotterManager : MonoBehaviour
         }
     }
 
+    public void OnLotteryOpen()
+    {
+        GameData.Instance.suspiciousSaveCount = 0;
+        GameData.Instance.rewardSafeMode = false;
+        GameData.Instance.SaveData();
+    }
+
     public void StartLottery(bool freeSpin)
     {
-        isFreeSpin = freeSpin;
+        if (lotteryJustOpened)
+        {
+            lotteryJustOpened = false;
+            GameData.Instance.suspiciousSaveCount = 0;
+            GameData.Instance.rewardSafeMode = false;
+            GameData.Instance.SaveData();
+        }
+
         if (isSpinning)
         {
             Debug.LogWarning("StartLottery was called while already spinning.");
             return;
         }
+
+        isFreeSpin = freeSpin;
+        hasAwardedThisSpin = false;
 
         if (UILotteryController.Instance != null)
         {
@@ -88,19 +107,17 @@ public class UILotterManager : MonoBehaviour
         {
             GameData.Instance.hasEnteredLottery = true;
             GameData.Instance.suspiciousSaveCount = 0;
+            GameData.Instance.SaveData();
         }
 
         GameData.Instance.lottery_count++;
 
-        UILotteryController.Instance.EnableBlock(true);
-        StartCoroutine(SpinRoutine());
-
-        if (!GameData.Instance.rewardSafeMode)
+        if (UILotteryController.Instance != null)
         {
-            Debug.LogWarning("[UILotterManager] SaveData called before rewardSafeMode — is it expected?");
+            UILotteryController.Instance.EnableBlock(true);
         }
 
-        GameData.Instance.SaveData();
+        StartCoroutine(SpinRoutine());
     }
 
     public void ResetSeatLevel(bool is_crystal)
@@ -397,9 +414,10 @@ public class UILotterManager : MonoBehaviour
             UISceneController.Instance.MoneyController.UpdateInfo();
         }
 
-        if (GameEnhancer.Instance != null && isFreeSpin)
+        if (GameEnhancer.Instance != null && isFreeSpin && !hasAwardedThisSpin)
         {
             GameEnhancer.Instance.OnPlayerUsedFreeSpin();
+            hasAwardedThisSpin = true;
         }
     }
 
@@ -407,6 +425,7 @@ public class UILotterManager : MonoBehaviour
     {
         isSpinning = false;
         StopAllCoroutines();
+        hasAwardedThisSpin = false;
         Debug.Log("[ForceStopSpin] Spin manually stopped.");
     }
 

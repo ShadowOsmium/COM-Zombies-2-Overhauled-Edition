@@ -86,7 +86,7 @@ public class GameDataInt
         }
 
         // Log old and new value when changing money
-        if (purpose == GameDataIntPurpose.Cash || purpose == GameDataIntPurpose.Crystal || purpose == GameDataIntPurpose.Voucher)
+        /*if (purpose == GameDataIntPurpose.Cash || purpose == GameDataIntPurpose.Crystal || purpose == GameDataIntPurpose.Voucher)
         {
             Debug.Log(string.Format("[MoneyChange] Purpose: {0}, Old: {1}, New: {2}, Called From: {3}",
                 purpose,
@@ -94,7 +94,7 @@ public class GameDataInt
                 val,
                 new System.Diagnostics.StackTrace().GetFrame(1).GetMethod().Name
             ));
-        }
+        }*/
 
 
         string data_encipher = val.ToString();

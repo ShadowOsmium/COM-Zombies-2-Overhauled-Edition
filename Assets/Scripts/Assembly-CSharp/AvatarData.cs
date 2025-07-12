@@ -208,9 +208,12 @@ public class AvatarData
     float GetScaledStat(float baseVal, float maxVal, int level, int maxLevel)
     {
         if (level <= 1) return baseVal;
+
         float t = (float)(level - 1) / (maxLevel - 1);
+        t = Mathf.Pow(t, 2f);
         return baseVal + (maxVal - baseVal) * t;
     }
+
 
     public bool UpgradeArmor()
     {

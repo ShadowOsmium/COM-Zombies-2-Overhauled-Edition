@@ -6,14 +6,12 @@ public class ButtonHider : MonoBehaviour
     {
         if (GameData.Instance != null && GameData.Instance.blackname)
         {
-            // Disable Daily mission buttons
             GameObject[] dailyIcons = GameObject.FindGameObjectsWithTag("Daily_Mission_Tag");
             for (int i = 0; i < dailyIcons.Length; i++)
             {
                 DisableMissionIcon(dailyIcons[i]);
             }
 
-            // Disable Coop and Endless mission icons
             GameObject[] missionIcons = GameObject.FindGameObjectsWithTag("Map_Mission_Tag");
             for (int i = 0; i < missionIcons.Length; i++)
             {
@@ -28,7 +26,6 @@ public class ButtonHider : MonoBehaviour
                 }
             }
 
-            // Also disable CoopTrans and EndlessTrans visuals
             GameObject coop = GameObject.Find("CoopTrans");
             if (coop != null)
             {
@@ -45,21 +42,18 @@ public class ButtonHider : MonoBehaviour
 
     private void DisableMissionIcon(GameObject obj)
     {
-        // Disable collider so it can't be clicked
         Collider col = obj.GetComponent<Collider>();
         if (col != null)
         {
             col.enabled = false;
         }
 
-        // Optional: disable visuals
         Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
         for (int j = 0; j < renderers.Length; j++)
         {
             renderers[j].enabled = false;
         }
 
-        // Optional: disable TUIControl if used
         Component ctrl = obj.GetComponent("TUIControl");
         if (ctrl != null)
         {

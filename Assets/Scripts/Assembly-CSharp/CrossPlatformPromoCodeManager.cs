@@ -209,46 +209,37 @@ public class CrossPlatformPromoCodeManager : MonoBehaviour
                 }
                 else
                 {
-                    if (weaponData.exist_state == WeaponExistState.Unlocked)
-                    {
-                        weaponData.exist_state = WeaponExistState.Owned;
-                        AwardGetPanel.ShowAwardGetPanel(gameObject, OnAwardOk, weaponID, 1);
-                        rewardText += "+ Weapon " + weaponID + " granted directly!\n";
-                    }
-                    else if (weaponData.Unlock())
-                    {
-                        AwardGetPanel.ShowAwardGetPanel(gameObject, OnAwardOk, weaponID, 1);
-                        rewardText += "+ Weapon " + weaponID + " granted directly!\n";
-                    }
-                    else
-                    {
-                        rewardText += "+ Failed to grant weapon " + weaponID + "\n";
-                    }
+                    weaponData.exist_state = WeaponExistState.Owned;
+                    Debug.Log("Directly granting weapon ownership for " + weaponID);
+                    AwardGetPanel.ShowAwardGetPanel(gameObject, OnAwardOk, weaponID, 1);
+                    rewardText += "+ Weapon " + weaponID + " granted directly!\n";
                 }
-            }
-            else if (owned)
-            {
-                int sellPrice = GameConfig.Instance.WeaponConfig_Set[weaponID].sell_price.GetIntVal();
-                AddCash(sellPrice);
-                AwardChangePanel.ShowAwardChangePanel(gameObject, OnAwardOk, weaponID, "Cash_s", sellPrice, false);
-                rewardText += "+ " + sellPrice + " Cash (sold duplicate " + weaponID + ")\n";
             }
             else
             {
-                string fragmentKey = weaponID + "_Fragment";
-
-                if (!GameConfig.Instance.ProbsConfig_Set.ContainsKey(fragmentKey))
+                if (owned)
                 {
-                    if (weaponData.Unlock())
-                    {
-                        weapon_combine = weaponID;
-                        AwardGetPanel.ShowAwardGetPanel(gameObject, OnAwardOk, weaponID, 1);
-                        rewardText += "+ Weapon " + weaponID + " unlocked!\n";
-                    }
+                    int sellPrice = GameConfig.Instance.WeaponConfig_Set[weaponID].sell_price.GetIntVal();
+                    AddCash(sellPrice);
+                    AwardChangePanel.ShowAwardChangePanel(gameObject, OnAwardOk, weaponID, "Cash_s", sellPrice, false);
+                    rewardText += "+ " + sellPrice + " Cash (sold duplicate " + weaponID + ")\n";
+                }
+                else if (weaponData.exist_state == WeaponExistState.Unlocked)
+                {
+                    Debug.Log("Weapon exist_state changed from Unlocked to Owned: " + weaponID);
+                    weaponData.exist_state = WeaponExistState.Owned;
+                    AwardGetPanel.ShowAwardGetPanel(gameObject, OnAwardOk, weaponID, 1);
+                    rewardText += "+ Weapon " + weaponID + " granted directly!\n";
+                }
+                else if (weaponData.Unlock())
+                {
+                    Debug.Log("Weapon unlocked via Unlock() method for: " + weaponID);
+                    AwardGetPanel.ShowAwardGetPanel(gameObject, OnAwardOk, weaponID, 1);
+                    rewardText += "+ Weapon " + weaponID + " granted directly!\n";
                 }
                 else
                 {
-                    rewardText += HandleFragmentReward(fragmentKey, weaponID, weaponData);
+                    rewardText += "+ Failed to grant weapon " + weaponID + "\n";
                 }
             }
         }
@@ -263,6 +254,7 @@ public class CrossPlatformPromoCodeManager : MonoBehaviour
 
         return rewardText;
     }
+
 
     private string HandleFragmentReward(string fragmentKey, string parentWeaponID = null, WeaponData weaponData = null)
     {

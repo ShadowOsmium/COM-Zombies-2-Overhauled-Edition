@@ -507,36 +507,53 @@ public class PlayerController : ObjectController
 		}
 	}
 
-	public virtual void SetFireState(PlayerState state)
-	{
-		if (fire_state == null)
-		{
-			last_fire_state = state;
-			fire_state = state;
-			fire_state.OnEnterState();
-			//if (GameData.Instance.cur_game_type == GameData.GamePlayType.Coop && tnetObj != null)
-			//{
-			//	SFSObject sFSObject = new SFSObject();
-			//	sFSObject.PutShort("data", (short)fire_state.GetStateType());
-			//	tnetObj.Send(new SetUserVariableRequest(TNetUserVarType.PlayerFireState, sFSObject));
-			//}
-		}
-		else if (fire_state != null && fire_state.GetStateType() != state.GetStateType())
-		{
-			last_fire_state = fire_state;
-			fire_state.OnExitState();
-			fire_state = state;
-			fire_state.OnEnterState();
-			//if (GameData.Instance.cur_game_type == GameData.GamePlayType.Coop && tnetObj != null)
-			//{
-			//	SFSObject sFSObject2 = new SFSObject();
-			//	sFSObject2.PutShort("data", (short)fire_state.GetStateType());
-			//	tnetObj.Send(new SetUserVariableRequest(TNetUserVarType.PlayerFireState, sFSObject2));
-			//}
-		}
-	}
+    public virtual void SetFireState(PlayerState state)
+    {
+        if (fire_state == null)
+        {
+            last_fire_state = state;
+            fire_state = state;
+            fire_state.OnEnterState();
+            //if (GameData.Instance.cur_game_type == GameData.GamePlayType.Coop && tnetObj != null)
+            //{
+            //	SFSObject sFSObject = new SFSObject();
+            //	sFSObject.PutShort("data", (short)fire_state.GetStateType());
+            //	tnetObj.Send(new SetUserVariableRequest(TNetUserVarType.PlayerFireState, sFSObject));
+            //}
+        }
+        else if (fire_state.GetStateType() != state.GetStateType())
+        {
+            // Ask current state if it can be interrupted
+            var canInterrupt = true;
+            var canInterruptMethod = fire_state as PlayerReloadState;
+            if (canInterruptMethod != null)
+                canInterrupt = canInterruptMethod.CanInterrupt();
 
-	public virtual void SetAvatarData(AvatarData data)
+            if (!canInterrupt)
+            {
+                Debug.Log("State change denied: current state does not allow interruption.");
+                return;
+            }
+
+            last_fire_state = fire_state;
+            fire_state.OnExitState();
+            fire_state = state;
+            fire_state.OnEnterState();
+            //if (GameData.Instance.cur_game_type == GameData.GamePlayType.Coop && tnetObj != null)
+            //{
+            //	SFSObject sFSObject2 = new SFSObject();
+            //	sFSObject2.PutShort("data", (short)fire_state.GetStateType());
+            //	tnetObj.Send(new SetUserVariableRequest(TNetUserVarType.PlayerFireState, sFSObject2));
+            //}
+        }
+        else
+        {
+            Debug.Log("Same state type requested, ignoring or refreshing.");
+        }
+    }
+
+
+    public virtual void SetAvatarData(AvatarData data)
 	{
 		avatar_data = data;
 		avatar_data.ResetData();

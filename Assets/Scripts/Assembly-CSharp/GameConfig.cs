@@ -214,13 +214,13 @@ public class GameConfig : MonoBehaviour
         Skill_Enchant_Monster_List.Add(EnemyType.E_NURSE);
         Skill_Enchant_Monster_List.Add(EnemyType.E_BOOMER);
         Skill_Enchant_Monster_List.Add(EnemyType.E_CLOWN);
-        Skill_Enchant_Monster_List.Add(EnemyType.E_ZOMBIE_COWBOY);
+        //Skill_Enchant_Monster_List.Add(EnemyType.E_ZOMBIE_COWBOY);
         Skill_Enchant_Monster_List.Add(EnemyType.E_ZOMBIE_COMMIS_E);
         Skill_Enchant_Monster_List.Add(EnemyType.E_ZOMBIE_E);
         Skill_Enchant_Monster_List.Add(EnemyType.E_NURSE_E);
         Skill_Enchant_Monster_List.Add(EnemyType.E_BOOMER_E);
         Skill_Enchant_Monster_List.Add(EnemyType.E_CLOWN_E);
-        Skill_Enchant_Monster_List.Add(EnemyType.E_ZOMBIE_COWBOY_E);
+        //Skill_Enchant_Monster_List.Add(EnemyType.E_ZOMBIE_COWBOY_E);
     }
 
     public void Init()
@@ -246,7 +246,7 @@ public class GameConfig : MonoBehaviour
         LoadStandardWeaponConfig();
         LoadEditorConfig();
         force_update_local = false;
-        Application.targetFrameRate = 240;
+        Application.targetFrameRate = 120;
         Load_finished = true;
     }
 
@@ -1755,10 +1755,12 @@ public class GameConfig : MonoBehaviour
         XmlDocument xmlDocument = new XmlDocument();
         xmlDocument.LoadXml(xml);
         XmlElement documentElement = xmlDocument.DocumentElement;
+
         foreach (XmlElement item in documentElement.GetElementsByTagName("DailyWave"))
         {
             int key = int.Parse(item.GetAttribute("level"));
             EnemyWaveInfo enemyWaveInfo = new EnemyWaveInfo();
+
             foreach (XmlElement item2 in item.GetElementsByTagName("enemy"))
             {
                 EnemySpawnInfo enemySpawnInfo = new EnemySpawnInfo();
@@ -1767,6 +1769,7 @@ public class GameConfig : MonoBehaviour
                 enemySpawnInfo.From = GetSpawnTypeFromCfg(item2.GetAttribute("spawn"));
                 enemyWaveInfo.spawn_info_list.Add(enemySpawnInfo);
             }
+
             if (EnemyWaveInfo_CrazyDaily_Set.ContainsKey(key))
             {
                 EnemyWaveInfoList list = EnemyWaveInfo_CrazyDaily_Set[key];
@@ -1784,7 +1787,6 @@ public class GameConfig : MonoBehaviour
         EnemyWave_Interval_CrazyDaily.wave_interval = float.Parse(interval.GetAttribute("wave"));
         EnemyWave_Interval_CrazyDaily.line_interval = float.Parse(interval.GetAttribute("line"));
     }
-
 
     public float GetAvatarUpBattleTime(int avatar_lv)
     {

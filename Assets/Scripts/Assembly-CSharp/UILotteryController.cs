@@ -484,10 +484,14 @@ public class UILotteryController : UISceneController
         int currentSpins = GameData.Instance.free_lottery_spins.GetIntVal();
         currentSpins = Mathf.Max(0, currentSpins - 1);
         GameData.Instance.free_lottery_spins.SetIntVal(currentSpins, GameDataIntPurpose.FreeSpin);
+
+        GameData.Instance.last_saved_free_spin_count = currentSpins;
+
         GameData.Instance.SaveData();
         UpdateFreeSpinsLabel();
         Debug.Log("[UILotteryController] Consumed free spin, remaining: " + currentSpins);
     }
+
 
     public void RefreshFreeSpins()
     {

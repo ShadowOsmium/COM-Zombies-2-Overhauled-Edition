@@ -49,6 +49,10 @@ public class GameData : MonoBehaviour
 
     public int lottery_reset_count;
 
+    private int lastSavedFreeSpinCount = 0;
+
+    private const int FreeSpinCap = 10;
+
     private bool hasLoadedData = false;
 
     private bool hasAttemptedLoad = false;
@@ -56,6 +60,8 @@ public class GameData : MonoBehaviour
     public bool justReceivedLotteryReward = false;
 
     public int lottery_count;
+
+    public bool needsUpdate = false;
 
     public bool showNicknamePrompt = true;
 
@@ -164,7 +170,7 @@ public class GameData : MonoBehaviour
 
     public bool rewardSafeMode = false;
 
-    protected string game_version = "1.0";
+    public string game_version = "1.3.1";
 
     public int enter_shop_count;
 
@@ -296,14 +302,14 @@ public class GameData : MonoBehaviour
         {
             Enemy_Loading_Set[value4] = 0;
         }
-        for (int j = 0; j < 10; j++)
+        for (int j = 0; j < 14; j++)
         {
             lottery_seat_state.Add("null");
         }
         cur_quest_info = new QuestInfo();
         cur_quest_info.mission_type = MissionType.Cleaner;
-        is_enter_tutorial = true;
-        game_version = "2.1.2";
+        is_enter_tutorial = false;
+        game_version = "1.3.1";
         user_id = DevicePlugin.GetUUID();
         if (!LoadData(null))
         {
@@ -316,9 +322,9 @@ public class GameData : MonoBehaviour
             showUpdatePoster = true;
         }
         GameEnhancer enhancer = GameObject.FindObjectOfType<GameEnhancer>();
-        if (game_version != "2.1.2")
+        if (game_version != "1.3.1")
         {
-            game_version = "2.1.2";
+            game_version = "1.3.1";
             OnGameDataVersionDifferent();
             showUpdatePoster = true;
         }
@@ -370,6 +376,17 @@ public class GameData : MonoBehaviour
 
             // Use legacy MD5 save file path (old system)
             saveFilePath = Utils.SavePath() + MD5Sample.GetMd5String("CoMZ2") + ".bytes";
+        }
+
+        if (TesterSaveManager.Instance != null && TesterSaveManager.Instance.allowTesterSaves)
+        {
+            string mainSavePath = Utils.SavePath() + MD5Sample.GetMd5String("CoMZ2") + ".bytes";
+
+            if (!isTesterSave && saveFilePath == mainSavePath)
+            {
+                Debug.LogError("[SaveData] Blocked saving main save while tester saves enabled! Use TesterSaveManager.SaveGame() instead.");
+                return;
+            }
         }
 
         try
@@ -495,6 +512,7 @@ public class GameData : MonoBehaviour
         lastSavedCash = ParseIntSafe(configure.GetSingle("Save", "LastSafeCash"), total_cash.GetIntVal());
         lastSavedCrystal = ParseIntSafe(configure.GetSingle("Save", "LastSafeCrystal"), total_crystal.GetIntVal());
         lastSavedVoucher = ParseIntSafe(configure.GetSingle("Save", "LastSafeVoucher"), total_voucher.GetIntVal());
+        lastSavedFreeSpins = ParseIntSafe(configure.GetSingle("Save", "LastSavedFreeSpins"), 0);
 
         tapjoyPoints = ParseIntSafe(configure.GetSingle("Save", "TapjoyPoints"), tapjoyPoints);
         day_level = ParseIntSafe(configure.GetSingle("Save", "DayLevel"), day_level);
@@ -514,7 +532,7 @@ public class GameData : MonoBehaviour
         is_enter_tutorial = ParseBoolSafe(configure.GetSingle("Save", "EnterTutorial"), is_enter_tutorial);
         show_ui_tutorial = ParseBoolSafe(configure.GetSingle("Save", "ShowUITutorial"), show_ui_tutorial);
         show_ui_tutorial_weapon = ParseBoolSafe(configure.GetSingle("Save", "ShowUITutorialWeapon"), show_ui_tutorial_weapon);
-
+        daily_mission_count = ParseIntSafe(configure.GetSingle("Save", "DailyMissionCount"));
         showNicknamePrompt = configure.GetSingle("Save", "ShowNicknamePrompt") == "0";
 
         blackname = configure.GetSingle("Save", "Blackname") == "1";
@@ -532,7 +550,7 @@ public class GameData : MonoBehaviour
         statistics_url = SafeGetSingle(configure, "Save", "StatisticsUrl", "");
         redeem_get_url = SafeGetSingle(configure, "Save", "RedeemGetUrl", redeem_get_url);
         redeem_accept_url = SafeGetSingle(configure, "Save", "RedeemAcceptUrl", redeem_accept_url);
-
+        needsUpdate = ParseBoolSafe(configure.GetSingle("Save", "NeedsUpdate"), false);
         iap_check_url = "http://192.225.224.97:7600/gameapi/GameCommon.do?action=groovy&json=";
         TRINITI_IAP_CEHCK = ParseBoolSafe(configure.GetSingle("Save", "IapCheck"), TRINITI_IAP_CEHCK);
     }
@@ -559,7 +577,6 @@ public class GameData : MonoBehaviour
         }
         else
         {
-            daily_mission_count = ParseIntSafe(configure.GetSingle("Save", "DailyMissionCount"));
             lottery_reset_count = ParseIntSafe(configure.GetSingle("Save", "LotteryResetCount"));
             lottery_count = ParseIntSafe(configure.GetSingle("Save", "LotteryCount"));
         }
@@ -936,6 +953,7 @@ public class GameData : MonoBehaviour
     }
 
     public DateTime lastLotteryAwardTime = DateTime.MinValue;
+    public int lastSavedFreeSpins = 0;
 
     private bool CheckCurrencyJumpAndUpdateState()
     {
@@ -944,10 +962,12 @@ public class GameData : MonoBehaviour
         int currentCash = Math.Min(1500000, Math.Max(0, total_cash.GetIntVal()));
         int currentCrystal = Math.Min(1000, Math.Max(0, total_crystal.GetIntVal()));
         int currentVoucher = Math.Min(1250, Math.Max(0, total_voucher.GetIntVal()));
+        int currentFreeSpins = Math.Max(0, GameData.Instance.free_lottery_spins.GetIntVal());
 
         const int CashCap = 500000;
         const int CrystalCap = 85;
         const int VoucherCap = 230;
+        const int FreeSpinCap = 5;
 
         string sceneName = SceneManager.GetActiveScene().name;
         bool skipCashJumpCheck = sceneName.StartsWith("COMZ2");
@@ -956,40 +976,38 @@ public class GameData : MonoBehaviour
         bool crystalJump = (currentCrystal - lastSavedCrystal) > CrystalCap;
         int voucherDiff = currentVoucher - lastSavedVoucher;
         bool voucherJump = voucherDiff > VoucherCap;
+        bool freeSpinJump = (currentFreeSpins - lastSavedFreeSpins) > FreeSpinCap;
 
         TimeSpan gracePeriod = TimeSpan.FromSeconds(2);
         bool inGracePeriod = (now - lastLotteryAwardTime) < gracePeriod;
 
-        /*Debug.Log(string.Format("[AntiCheat] Time since last lottery reward: {0}s", (now - lastLotteryAwardTime).TotalSeconds));
-        Debug.Log(string.Format("[AntiCheat] currentCash: {0}, lastSavedCash: {1}, cashJump: {2}", currentCash, lastSavedCash, cashJump));
-        Debug.Log(string.Format("[AntiCheat] currentCrystal: {0}, lastSavedCrystal: {1}, crystalJump: {2}", currentCrystal, lastSavedCrystal, crystalJump));
-        Debug.Log(string.Format("[AntiCheat] currentVoucher: {0}, lastSavedVoucher: {1}, voucherJump: {2}", currentVoucher, lastSavedVoucher, voucherJump));
-        Debug.Log(string.Format("[AntiCheat] suspiciousSaveCount before check: {0}", suspiciousSaveCount));*/
-
+        // Skip anti-cheat on lottery reward or grace period
         if (justReceivedLotteryReward || inGracePeriod)
         {
-            //Debug.Log("[AntiCheat] Skipping anti-cheat due to recent lottery reward.");
             suspiciousSaveCount = 0;
             lastSavedCash = currentCash;
             lastSavedCrystal = currentCrystal;
             lastSavedVoucher = currentVoucher;
+            lastSavedFreeSpins = currentFreeSpins;
             lastSaveTime = now;
             justReceivedLotteryReward = false;
             return true;
         }
 
+        // First save initialization
         if (lastSaveTime == DateTime.MinValue || (lastSavedCash == 0 && lastSavedCrystal == 0 && lastSavedVoucher == 0))
         {
-            //Debug.Log("[AntiCheat] First save or zero saved values, initializing saved currency and time.");
             suspiciousSaveCount = 0;
             lastSavedCash = currentCash;
             lastSavedCrystal = currentCrystal;
             lastSavedVoucher = currentVoucher;
+            lastSavedFreeSpins = currentFreeSpins;
             lastSaveTime = now;
             return true;
         }
 
-        if (cashJump || crystalJump || voucherJump)
+        // Detect suspicious jumps
+        if (cashJump || crystalJump || voucherJump || freeSpinJump)
         {
             suspiciousSaveCount++;
             Debug.LogWarning(string.Format("Suspicious currency jump detected! suspiciousSaveCount incremented to {0}.", suspiciousSaveCount));
@@ -1003,22 +1021,21 @@ public class GameData : MonoBehaviour
             return false;
         }
 
+        // Detect frozen values on rapid saves
         bool isFirstSave = lastSaveTime == DateTime.MinValue;
         if (!isFirstSave)
         {
             bool cashFrozen = (currentCash == lastSavedCash) && currentCash < CashCap;
             bool crystalFrozen = (currentCrystal == lastSavedCrystal) && currentCrystal < CrystalCap;
             bool voucherFrozen = (currentVoucher == lastSavedVoucher) && currentVoucher < VoucherCap;
+            bool freeSpinFrozen = (currentFreeSpins == lastSavedFreeSpins) && currentFreeSpins < FreeSpinCap;
 
             TimeSpan rapidSaveThreshold = TimeSpan.FromSeconds(3);
             bool rapidSave = (now - lastSaveTime) < rapidSaveThreshold;
 
-            //Debug.Log(string.Format("[AntiCheat] rapidSave: {0}, cashFrozen: {1}, crystalFrozen: {2}, voucherFrozen: {3}", rapidSave, cashFrozen, crystalFrozen, voucherFrozen));
-
-            if (rapidSave && cashFrozen && crystalFrozen && voucherFrozen)
+            if (rapidSave && cashFrozen && crystalFrozen && voucherFrozen && freeSpinFrozen)
             {
                 suspiciousSaveCount++;
-                //Debug.LogWarning(string.Format("[AntiCheat] Rapid save with frozen currency, suspiciousSaveCount now {0}.", suspiciousSaveCount));
 
                 if (suspiciousSaveCount >= maxSuspiciousSaves)
                 {
@@ -1039,12 +1056,11 @@ public class GameData : MonoBehaviour
         lastSavedCash = currentCash;
         lastSavedCrystal = currentCrystal;
         lastSavedVoucher = currentVoucher;
+        lastSavedFreeSpins = currentFreeSpins;
         lastSaveTime = now;
 
-        //Debug.Log("[AntiCheat] Save allowed, state updated.");
         return true;
     }
-
 
     private void PopulateConfigureValues(bool isTesterSave)
     {
@@ -1062,7 +1078,6 @@ public class GameData : MonoBehaviour
                             + "|" + lastSavedVoucher.ToString();
         string dataHash = GenerateDataHash(configure);
         SetOrAddSingle("Save", "DataHash", dataHash);
-
         SetOrAddSingle("Save", "TapjoyPoints", tapjoyPoints.ToString());
         SetOrAddSingle("Save", "DayLevel", day_level.ToString());
         SetOrAddSingle("Save", "AvatarType", ((int)cur_avatar).ToString());
@@ -1071,6 +1086,7 @@ public class GameData : MonoBehaviour
         SetOrAddSingle("Save", "EnterShopCount", enter_shop_count.ToString());
         SetOrAddSingle("Save", "TimeserverUrl", timeserver_url);
         SetOrAddSingle("Save", "StatisticsUrl", statistics_url);
+        SetOrAddSingle("Save", "NeedsUpdate", needsUpdate ? "1" : "0");
         SetOrAddSingle("Save", "IapUrl", iap_check_url);
         SetOrAddSingle("Save", "RedeemGetUrl", redeem_get_url);
         SetOrAddSingle("Save", "RedeemAcceptUrl", redeem_accept_url);
@@ -1088,6 +1104,8 @@ public class GameData : MonoBehaviour
         SetOrAddSingle("Save", "LastSafeCash", lastSavedCash.ToString());
         SetOrAddSingle("Save", "LastSafeCrystal", lastSavedCrystal.ToString());
         SetOrAddSingle("Save", "LastSafeVoucher", lastSavedVoucher.ToString());
+        SetOrAddSingle("Save", "LastSavedFreeSpins", lastSavedFreeSpins.ToString());
+        SetOrAddSingle("Save", "DailyMissionCount", daily_mission_count.ToString());
 
         SaveFreeSpinCount();
 
@@ -1430,7 +1448,7 @@ public class GameData : MonoBehaviour
         usedPromoCodes.Clear();
     }
 
-    private const int FakeDisplayValue = 9999999;
+    private const int FakeDisplayValue = 999999;
 
     public int DisplayCash
     {

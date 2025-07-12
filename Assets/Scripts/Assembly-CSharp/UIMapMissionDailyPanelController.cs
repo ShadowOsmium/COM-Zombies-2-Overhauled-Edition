@@ -225,7 +225,7 @@ public class UIMapMissionDailyPanelController : UIShopPanelController
 		if (GameData.Instance.is_crazy_daily)
 		{
 			missionPrice = GameData.Instance.GetDailyMissionPrice(GameData.Instance.is_crazy_daily);
-			string content = "Spend " + missionPrice + " tCrystals to proceed with this mission?";
+			string content = "Spend " + missionPrice + " tCrystals to proceed with this challenge?";
 			msgBox = GameMsgBoxController.ShowMsgBox(GameMsgBoxController.MsgBoxType.DoubleButton, base.transform.gameObject, content, OnPurchaseMission, OnMsgboxCancel);
 		}
 		else

@@ -846,23 +846,14 @@ public class GameSceneController : MonoBehaviour
         {
             bool shouldIncrement = false;
 
-            if (mission_day_type == MissionDayType.Main)
-            {
-                int level = GameData.Instance.day_level;
-
-                QuestInfo questInfo;
-                if (GameConfig.Instance.Main_Quest_Order.TryGetValue(level, out questInfo))
-                {
-                    shouldIncrement = ShouldIncrementMainDayLevel(level);
-                }
-                else
-                {
-                    shouldIncrement = true;
-                }
-            }
-            else if (mission_day_type == MissionDayType.Side || mission_day_type == MissionDayType.Daily)
+            if (mission_day_type == MissionDayType.Main || mission_day_type == MissionDayType.Side)
             {
                 shouldIncrement = true;
+            }
+            else if (mission_day_type == MissionDayType.Daily)
+            {
+                int level = GameData.Instance.day_level;
+                shouldIncrement = ShouldIncrementMainDayLevel(level);
             }
 
             if (shouldIncrement)
@@ -871,6 +862,7 @@ public class GameSceneController : MonoBehaviour
                 Debug.Log("[MissionFinished] day_level incremented to: " + GameData.Instance.day_level);
             }
         }
+
 
         if (GameData.Instance != null && GameData.Instance.blackname)
         {

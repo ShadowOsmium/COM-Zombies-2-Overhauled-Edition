@@ -19,7 +19,7 @@ public class VersionChecker : MonoBehaviour
         if (!string.IsNullOrEmpty(www.error))
         {
             Debug.LogWarning("Failed to fetch remote version. Allowing play.");
-            yield break; // or implement offline logic
+            yield break;
         }
 
         string remoteVersion = www.text.Trim();
@@ -30,7 +30,6 @@ public class VersionChecker : MonoBehaviour
         if (localVersion != remoteVersion)
         {
             Debug.LogError("Outdated game version detected! Forcing update.");
-            // Show a UI popup here if you want before quitting or redirecting
             Application.OpenURL(updateUrl);
             Application.Quit();
         }

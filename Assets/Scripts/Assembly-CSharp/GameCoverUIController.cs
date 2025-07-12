@@ -134,16 +134,20 @@ public class GameCoverUIController : MonoBehaviour
     {
         if (status)
         {
+            GameData.Instance.needsUpdate = false;
+            GameData.Instance.SaveData();
+
             CheckConfigVersion();
             return;
         }
 
-        ShowMask(true);
+        GameData.Instance.needsUpdate = true;
+        GameData.Instance.SaveData();
 
         GameMsgBoxController.ShowMsgBox(
             GameMsgBoxController.MsgBoxType.SingleButton,
             tui_root,
-            "You have to update the game to continue playing the game.",
+            "A new update is available. Please download the latest version from GitHub to continue playing.",
             OnVersionUpdate,
             null,
             false
@@ -152,17 +156,19 @@ public class GameCoverUIController : MonoBehaviour
 
     private void OnVersionUpdate()
     {
+        // Opens the GitHub releases page
         Application.OpenURL("https://github.com/ShadowOsmium/COM-Zombies-2-Overhauled-Edition/releases");
         Application.Quit();
     }
 
     private void OnServerVersionError()
-	{
-		//Debug.Log("OnServerVersionError");
-		ShowMask(false);
-	}
+    {
+        // Version check failed (no internet?), allow user to continue or handle accordingly
+        ShowMask(false);
+        Debug.LogWarning("Failed to check game version. You might want to allow play or show a retry.");
+    }
 
-	public void ShowMask(bool state)
+    public void ShowMask(bool state)
 	{
 		if (state)
 		{
@@ -238,21 +244,30 @@ public class GameCoverUIController : MonoBehaviour
 		}
 	}
 
-	private void CheckUpdateFileFinish(bool is_update_file = true)
-	{
-		if (is_update_file && ready_update_file_count == 0)
-		{
-			GameConfig.Instance.Init();
-			GameData.Instance.SaveData();
-			ShowMask(false);
-		}
-		else
-		{
-			ShowMask(false);
-		}
-	}
+    private void CheckUpdateFileFinish(bool is_update_file = true)
+    {
+        if (is_update_file)
+        {
+            if (ready_update_file_count <= 0)
+            {
+                ready_update_file_count = 0;
+                GameConfig.Instance.Init();
+                GameData.Instance.SaveData();
+                ShowMask(false);
+            }
+            else
+            {
+                ShowMask(true);
+            }
+        }
+        else
+        {
+            ShowMask(false);
+        }
+    }
 
-	private void OnRedeemButton(TUIControl control, int eventType, float wparam, float lparam, object data)
+
+    private void OnRedeemButton(TUIControl control, int eventType, float wparam, float lparam, object data)
 	{
 		if (eventType == 3)
 		{

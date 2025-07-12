@@ -14,20 +14,50 @@ public class DailyMissionController : MissionController
 
     private new GameObject[] zombie_nest_array;
 
-    private const int maxEnemyCount = 12;
-
     private PlayerController player;
 
     private EnemyWaveInfoList GetWaveInfoList()
     {
-        if (GameData.Instance.is_crazy_daily)
-            return GameConfig.Instance.EnemyWaveInfo_CrazyDaily_Set.ContainsKey(GameSceneController.Instance.DayLevel)
-                ? GameConfig.Instance.EnemyWaveInfo_CrazyDaily_Set[GameSceneController.Instance.DayLevel]
-                : null;
+        int dayLevel = GameSceneController.Instance.DayLevel;
+        Dictionary<int, EnemyWaveInfoList> waveDict;
 
-        return GameConfig.Instance.EnemyWaveInfo_Normal_Set.ContainsKey(GameSceneController.Instance.DayLevel)
-            ? GameConfig.Instance.EnemyWaveInfo_Normal_Set[GameSceneController.Instance.DayLevel]
-            : null;
+        if (GameData.Instance.is_crazy_daily)
+            waveDict = GameConfig.Instance.EnemyWaveInfo_CrazyDaily_Set;
+        else
+            waveDict = GameConfig.Instance.EnemyWaveInfo_Daily_Set;
+
+        if (waveDict == null || waveDict.Count == 0)
+        {
+            Debug.LogError("Enemy wave dictionary is empty!");
+            return null;
+        }
+
+        if (waveDict.ContainsKey(dayLevel))
+        {
+            Debug.Log("[DailyMissionController] Exact wave config found for day level: " + dayLevel);
+            return waveDict[dayLevel];
+        }
+
+        int closestKey = -1;
+        foreach (int key in waveDict.Keys)
+        {
+            if (key <= dayLevel)
+            {
+                if (closestKey == -1 || key > closestKey)
+                    closestKey = key;
+            }
+        }
+
+        if (closestKey != -1)
+        {
+            Debug.LogWarning("Exact day level config missing for day level: " + dayLevel +
+                             ". Using closest lower day level config: " + closestKey);
+            return waveDict[closestKey];
+        }
+
+        Debug.LogError((GameData.Instance.is_crazy_daily ? "Crazy daily" : "Normal daily") +
+                       " config missing for day level: " + dayLevel + " and no lower fallback found.");
+        return null;
     }
 
     private EnemyWaveIntervalInfo GetWaveInterval()
@@ -71,13 +101,41 @@ public class DailyMissionController : MissionController
 
         zombie_nest_array = GameObject.FindGameObjectsWithTag("Zombie_Nest");
 
-        currentWaveInfoList = GetWaveInfoList();
         currentWaveInterval = GetWaveInterval();
+        currentWaveInfoList = GetWaveInfoList();
 
         if (currentWaveInfoList == null)
         {
             Debug.LogError("[DailyMissionController] No enemy waves found for day level " + GameSceneController.Instance.DayLevel);
             yield break;
+        }
+
+        Debug.Log("[DailyMissionController] Waves loaded: " + currentWaveInfoList.wave_info_list.Count);
+
+        // DEBUG: Total spawn entries count
+        int totalSpawnEntries = 0;
+        foreach (var wave in currentWaveInfoList.wave_info_list)
+        {
+            if (wave.spawn_info_list != null)
+                totalSpawnEntries += wave.spawn_info_list.Count;
+        }
+        Debug.Log("[DailyMissionController] Total spawn entries across all waves: " + totalSpawnEntries);
+
+        for (int i = 0; i < currentWaveInfoList.wave_info_list.Count; i++)
+        {
+            var wave = currentWaveInfoList.wave_info_list[i];
+            if (wave.spawn_info_list == null || wave.spawn_info_list.Count == 0)
+            {
+                Debug.LogWarning("[DailyMissionController] Wave " + i + " spawn_info_list is empty!");
+            }
+            else
+            {
+                Debug.Log(string.Format("Wave {0} enemy types:", i));
+                foreach (var spawn in wave.spawn_info_list)
+                {
+                    Debug.Log("- " + spawn.EType + " x" + spawn.Count + " from " + spawn.From);
+                }
+            }
         }
 
         if (GameSceneController.Instance.enemy_ref_map != null)
@@ -92,58 +150,86 @@ public class DailyMissionController : MissionController
 
         yield return new WaitForSeconds(4f);
 
-        List<EnemyWaveInfo> waves = currentWaveInfoList.wave_info_list;
-
         while (mission_life > 0f)
         {
-            int waveIndex = Random.Range(0, waves.Count);
-            EnemyWaveInfo wave = waves[waveIndex];
+            List<EnemyWaveInfo> waves = currentWaveInfoList.wave_info_list;
 
-            foreach (EnemySpawnInfo spawn_info in wave.spawn_info_list)
+            // Instead of picking one random wave, spawn ALL waves every loop
+            for (int waveIndex = 0; waveIndex < waves.Count; waveIndex++)
             {
-                if (mission_life <= 0f) break;
+                EnemyWaveInfo wave = waves[waveIndex];
 
-                EnemyType type = spawn_info.EType;
-                int count = spawn_info.Count;
-                SpawnFromType from = spawn_info.From;
+                Debug.Log(string.Format("[Spawn Debug] Spawning wave index: {0}, enemy count in wave: {1}", waveIndex, wave.spawn_info_list.Count));
 
-                for (int i = 0; i < count; i++)
+                foreach (EnemySpawnInfo spawn_info in wave.spawn_info_list)
                 {
-                    while (GameSceneController.Instance.Enemy_Set.Count >= maxEnemyCount)
-                    {
-                        yield return new WaitForSeconds(1f);
-                    }
+                    Debug.Log(string.Format("[Spawn Debug] Enemy: {0}, Count: {1}, SpawnFrom: {2}", spawn_info.EType, spawn_info.Count, spawn_info.From));
 
                     if (mission_life <= 0f) break;
 
-                    switch (from)
-                    {
-                        case SpawnFromType.Grave:
-                            GameObject grave = FindClosedGrave(player.transform.position);
-                            if (grave != null)
-                            {
-                                SpwanZombiesFromGrave(type, grave);
-                            }
-                            break;
+                    EnemyType type = spawn_info.EType;
+                    int count = spawn_info.Count;
+                    SpawnFromType from = spawn_info.From;
 
-                        case SpawnFromType.Nest:
-                            if (zombie_nest_array != null && zombie_nest_array.Length > 0)
-                            {
-                                GameObject nest = zombie_nest_array[Random.Range(0, zombie_nest_array.Length)];
-                                SpwanZombiesFromNest(type, nest);
-                            }
-                            break;
+                    for (int i = 0; i < count; i++)
+                    {
+                        Debug.Log("[Spawn Debug] Waiting for enemy count to be below 8...");
+                        while (GameSceneController.Instance.Enemy_Set.Count >= 8)
+                        {
+                            Debug.Log("[Spawn Debug] Enemy count is " + GameSceneController.Instance.Enemy_Set.Count + ", waiting...");
+                            yield return new WaitForSeconds(2f);
+                        }
+
+                        if (mission_life <= 0f) break;
+
+                        Debug.Log("[Spawn Debug] Spawning enemy #" + i + " of type " + type);
+
+                        switch (from)
+                        {
+                            case SpawnFromType.Grave:
+                                GameObject grave = FindClosedGrave(player.transform.position);
+                                Debug.Log("[Spawn Debug] Grave found: " + (grave != null));
+                                if (grave != null)
+                                {
+                                    SpwanZombiesFromGrave(type, grave);
+                                }
+                                else
+                                {
+                                    Debug.LogWarning("[Spawn Debug] No grave found to spawn from!");
+                                }
+                                break;
+
+                            case SpawnFromType.Nest:
+                                if (zombie_nest_array != null && zombie_nest_array.Length > 0)
+                                {
+                                    Debug.Log("[Spawn Debug] Nest count: " + zombie_nest_array.Length);
+                                    GameObject nest = zombie_nest_array[Random.Range(0, zombie_nest_array.Length)];
+                                    SpwanZombiesFromNest(type, nest);
+                                }
+                                else
+                                {
+                                    Debug.LogWarning("[Spawn Debug] No nests available to spawn from!");
+                                }
+                                break;
+
+                            default:
+                                Debug.LogWarning("[Spawn Debug] Unknown spawn from type: " + from);
+                                break;
+                        }
+
+                        yield return new WaitForSeconds(1f);
                     }
 
-                    yield return new WaitForSeconds(0.3f);
+                    yield return new WaitForSeconds(currentWaveInterval.line_interval);
                 }
 
-                yield return new WaitForSeconds(currentWaveInterval.line_interval);
+                if (mission_life <= 0f) break;
             }
+
+            Debug.Log("[Mission Life] Current mission life: " + mission_life);
 
             yield return new WaitForSeconds(currentWaveInterval.wave_interval);
         }
-
         MissionFinished();
     }
 

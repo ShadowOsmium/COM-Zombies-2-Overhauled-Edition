@@ -10,6 +10,7 @@ namespace CoMZ2
         {
             float animProgress = AnimationUtil.GetAnimationPlayedPercentage(m_player.gameObject, m_player.GetFireStateAnimation(m_player.MoveState, this));
 
+            // Only after 85% of reload animation, allow interruptions
             if (!canInterrupt && animProgress >= 0.85f)
             {
                 canInterrupt = true;
@@ -17,9 +18,16 @@ namespace CoMZ2
 
             if (canInterrupt)
             {
+                // Allow player input to change fire state normally once reload is mostly done
                 m_player.CalculateSetFireState();
             }
+            else
+            {
+                // Block input/state changes until reload almost done
+                // (you can optionally ignore or queue input here)
+            }
         }
+
 
         public bool CanInterrupt()
         {

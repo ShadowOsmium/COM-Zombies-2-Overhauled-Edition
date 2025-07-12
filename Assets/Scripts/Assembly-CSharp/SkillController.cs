@@ -55,18 +55,26 @@ public class SkillController
 		return 0f;
 	}
 
-	public virtual bool ConjureSkill()
-	{
-		if (skill_use_state == SkillUseState.Ready)
-		{
-			skill_use_state = SkillUseState.Saving;
-			OnSkillConjure();
-			return true;
-		}
-		return false;
-	}
+    public virtual bool ConjureSkill()
+    {
+        PlayerController player = owner_controller as PlayerController;
+        if (player != null && player.IsReloading())
+        {
+            Debug.Log("Blocked skill conjure during reload: " + skill_data.skill_name);
+            return false; // Reject skill use
+        }
 
-	public virtual void OnSkillConjure()
+        if (skill_use_state == SkillUseState.Ready)
+        {
+            skill_use_state = SkillUseState.Saving;
+            OnSkillConjure();
+            return true;
+        }
+        return false;
+    }
+
+
+    public virtual void OnSkillConjure()
 	{
 		Debug.Log("OnSkillConjure skill name:" + skill_data.skill_name);
 		ui_controller.StopReadyEff();

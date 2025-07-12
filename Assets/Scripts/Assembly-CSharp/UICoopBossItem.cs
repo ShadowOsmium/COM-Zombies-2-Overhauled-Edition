@@ -28,13 +28,13 @@ public class UICoopBossItem : MonoBehaviour
     {
         if (ui_board == null || ui_bk == null)
         {
-            Debug.LogError("UICoopBossItem: ui_board or ui_bk is null!");
+            //Debug.LogError("UICoopBossItem: ui_board or ui_bk is null!");
             return;
         }
 
         string bossName = (boss_info != null) ? boss_info.name : "Unknown";
 
-        Debug.Log("SetItemChoiced called with state=" + state + " for boss " + bossName);
+       //Debug.Log("SetItemChoiced called with state=" + state + " for boss " + bossName);
 
         if (state)
         {
