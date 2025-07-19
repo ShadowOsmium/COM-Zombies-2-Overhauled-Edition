@@ -4,8 +4,8 @@
 
 ![Android](https://img.shields.io/badge/Platform-Android-green?logo=android&style=flat-square)
 ![Windows](https://img.shields.io/badge/Platform-Windows-blue?logo=windows&style=flat-square)
-![Release](https://img.shields.io/badge/Release-v1.2-orange?style=flat-square)
-![Next Release](https://img.shields.io/badge/Next--Up-v1.3.1-yellow?style=flat-square)
+![Release](https://img.shields.io/badge/Release-v1.3.1-orange?style=flat-square)
+![Next Release](https://img.shields.io/badge/Next--Up-v1.3.2-yellow?style=flat-square)
 
 ## What is this mod about?
 
