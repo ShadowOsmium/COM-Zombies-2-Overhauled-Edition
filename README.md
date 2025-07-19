@@ -30,7 +30,7 @@ The following changes are eihter current or future changes.
 | Daily Missions                   | Lacking Variety And Easily Exploitable                          | Easy And Hard Daily Missions Are Now Seperated In Enemies And Spawn Their Retrospective Enemy Types          |
 ---
 
-## 🚀 Installation Instructions
+## Installation Instructions
 
 ### Android
 
