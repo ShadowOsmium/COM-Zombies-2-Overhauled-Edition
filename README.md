@@ -4,8 +4,8 @@
 
 ![Android](https://img.shields.io/badge/Platform-Android-green?logo=android&style=flat-square)
 ![Windows](https://img.shields.io/badge/Platform-Windows-blue?logo=windows&style=flat-square)
-![Release](https://img.shields.io/badge/Release-v1.2-orange?style=flat-square)
-![Next Release](https://img.shields.io/badge/Next--Up-v1.3.1-yellow?style=flat-square)
+![Release](https://img.shields.io/badge/Release-v1.3.1-orange?style=flat-square)
+![Next Release](https://img.shields.io/badge/Next--Up-v1.3.2-yellow?style=flat-square)
 
 ## What is this mod about?
 
@@ -30,7 +30,7 @@ The following changes are eihter current or future changes.
 | Daily Missions                   | Lacking Variety And Easily Exploitable                          | Easy And Hard Daily Missions Are Now Seperated In Enemies And Spawn Their Retrospective Enemy Types          |
 ---
 
-## 🚀 Installation Instructions
+## Installation Instructions
 
 ### Android
 
