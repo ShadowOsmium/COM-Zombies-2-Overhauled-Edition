@@ -54,7 +54,7 @@ public class BossMissionController : MissionController
                 if (!enemyTypes.Contains(EnemyType.E_BOOMER_TIMER_E))
                     enemyTypes.Add(EnemyType.E_BOOMER_TIMER_E);
                 break;
-                // Add other bosses + minions here if needed
+                // Add other bosses + minions here when needed
         }
 
         return enemyTypes;
@@ -77,6 +77,7 @@ public class BossMissionController : MissionController
 
     public override IEnumerator Start()
     {
+        BossRoamEvent.Instance.hasSpawnedBoss = false;
         InitMissionController();
         mission_type = MissionType.Boss;
         CaculateDifficulty();

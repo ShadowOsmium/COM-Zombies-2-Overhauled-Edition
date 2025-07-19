@@ -58695,17 +58695,17 @@ MonoBehaviour:
   max_val: 2
   mim_val: 0
   speed: 2
---- !u!1 &924963860
+--- !u!1 &99949884
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 924963864}
-  - component: {fileID: 924963863}
-  - component: {fileID: 924963862}
-  - component: {fileID: 924963861}
+  - component: {fileID: 99949888}
+  - component: {fileID: 99949887}
+  - component: {fileID: 99949886}
+  - component: {fileID: 99949885}
   m_Layer: 11
   m_Name: Cube
   m_TagString: IgnoreProjectile
@@ -58713,12 +58713,12 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!23 &924963861
+--- !u!23 &99949885
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 924963860}
+  m_GameObject: {fileID: 99949884}
   m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -58747,33 +58747,33 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!65 &924963862
+--- !u!65 &99949886
 BoxCollider:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 924963860}
+  m_GameObject: {fileID: 99949884}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 20, y: 1, z: 1}
+  m_Size: {x: 20, y: 20, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!33 &924963863
+--- !u!33 &99949887
 MeshFilter:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 924963860}
+  m_GameObject: {fileID: 99949884}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!4 &924963864
+--- !u!4 &99949888
 Transform:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 924963860}
+  m_GameObject: {fileID: 99949884}
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -4.1, y: 10014.1, z: 1.7}
+  m_LocalPosition: {x: -4.1, y: 10014.2, z: -6.5}
   m_LocalScale: {x: 78.76018, y: 82.290115, z: 19.81049}
   m_Children: []
   m_Father: {fileID: 0}

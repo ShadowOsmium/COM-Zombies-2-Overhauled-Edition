@@ -175,10 +175,10 @@ public class WeaponInfoOwned : MonoBehaviour
         {
             baseDay = weaponData.config.unlockDay;
         }
-        // For every 4 levels (integer division), increase the required value by 5.
-        // Example: at currentLevel 4, 8, 12, etc., required increases by 5 each time.
-        // This does NOT directly allow 5 upgrades every 4 days, but increases a threshold in steps of 5.
-        int required = baseDay + (currentLevel / 4) * 5;
+        // For every 3 levels (integer division), increase the required value by 5.
+        // Example: at currentLevel 3, 6, 9, etc., required increases by 5 each time.
+        // This does NOT directly allow 5 upgrades every 3 days, but increases a threshold in steps of 5.
+        int required = baseDay + (currentLevel / 3) * 5;
 
         Debug.Log("GetRequiredDayLevelForUpgrade: " + weaponData.weapon_name +
                   " unlockDay=" + weaponData.config.unlockDay +

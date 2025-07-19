@@ -1,4 +1,4 @@
-using CoMZ2;
+﻿using CoMZ2;
 using UnityEngine;
 
 public class UIShopAvatarPanelController : UIShopPanelController
@@ -44,43 +44,52 @@ public class UIShopAvatarPanelController : UIShopPanelController
                 break;
 
             case 1: // Damage
-                Properties[index].Name.Text = "Damage (LV " + currentPlayer.damage_level + " Out Of " + currentPlayer.config.max_level + ")";
-
-                float currentDamageVal = Mathf.Lerp(
-                    currentPlayer.config.damage_conf.base_data,
-                    currentPlayer.config.damage_conf.max_data,
-                    (float)currentPlayer.damage_level / currentPlayer.config.max_level
-                );
-                float avatarDamageMultiplier = 1f + (currentDamageVal / 100f);
-
-                Properties[index].Value.Text = avatarDamageMultiplier.ToString("F2") + "x";
-
-                flag2 = currentPlayer.damage_level >= currentPlayer.config.max_level;
-
-                if (!flag2)
                 {
-                    float nextDamageVal = Mathf.Lerp(
+                    Properties[index].Name.Text = "Damage (LV " + currentPlayer.damage_level + " Out Of " + currentPlayer.config.max_level + ")";
+
+                    int curLevel = currentPlayer.damage_level;
+                    int maxLevel = Mathf.Max(2, currentPlayer.config.max_level);
+
+                    float normalizedLevel = (float)(curLevel - 1) / (maxLevel - 1);
+
+                    float curvedFraction = Mathf.Pow(normalizedLevel, 1.5f);
+
+                    float currentDamageVal = Mathf.Lerp(
                         currentPlayer.config.damage_conf.base_data,
                         currentPlayer.config.damage_conf.max_data,
-                        (float)(currentPlayer.damage_level + 1) / currentPlayer.config.max_level
+                        curvedFraction
                     );
-                    float nextDamageMultiplier = 1f + (nextDamageVal / 100f);
 
-                    float percentUpgrade = (nextDamageMultiplier - avatarDamageMultiplier) / avatarDamageMultiplier * 100f;
+                    Properties[index].Value.Text = (1f + currentDamageVal / 100f).ToString("F2") + "x";
 
-                    // Avoid negative or zero display due to float error
-                    if (percentUpgrade > 0.01f)
-                        Properties[index].UpgradeValue.Text = "+" + percentUpgrade.ToString("F1") + "% Damage";
+                    flag2 = curLevel >= maxLevel;
+
+                    if (!flag2)
+                    {
+                        float nextNormalizedLevel = (float)(curLevel) / (maxLevel - 1);
+                        float nextCurvedFraction = Mathf.Pow(nextNormalizedLevel, 1.5f);
+
+                        float nextDamageVal = Mathf.Lerp(
+                            currentPlayer.config.damage_conf.base_data,
+                            currentPlayer.config.damage_conf.max_data,
+                            nextCurvedFraction
+                        );
+
+                        float percentUpgrade = nextDamageVal - currentDamageVal;
+
+                        if (percentUpgrade > 0.01f)
+                            Properties[index].UpgradeValue.Text = "+" + percentUpgrade.ToString("F2") + "% Damage";
+                        else
+                            Properties[index].UpgradeValue.Text = "+<0% Damage";
+                    }
                     else
-                        Properties[index].UpgradeValue.Text = "+<0.1% Damage";
-                }
-                else
-                {
-                    Properties[index].UpgradeValue.Text = string.Empty;
-                }
+                    {
+                        Properties[index].UpgradeValue.Text = string.Empty;
+                    }
 
-                text = currentPlayer.UpgradeDamagePrice.ToString("G");
-                break;
+                    text = currentPlayer.UpgradeDamagePrice.ToString("G");
+                    break;
+                }
             case 2: // Armor
                 Properties[index].Name.Text = "Armor (LV " + currentPlayer.armor_level + " Out Of " + currentPlayer.config.max_level + ")";
 
@@ -90,19 +99,29 @@ public class UIShopAvatarPanelController : UIShopPanelController
                 float reduction = GetArmorDamageReduction(currentArmor); // e.g. 0.39 = 39%
                 float percent = reduction * 100f;
 
-                Debug.Log(string.Format("Armor Debug: baseArmor={0}, currentArmor={1}, armor_level={2}, damageReduction={3:F0}%",
+                Debug.Log(string.Format("Armor Debug: baseArmor={0}, currentArmor={1}, armor_level={2}, damageReduction={3:F2}%",
                     baseArmor, currentArmor, currentPlayer.armor_level, percent));
 
-                Properties[index].Value.Text = "-" + percent.ToString("F1") + "% dmg";
+                Properties[index].Value.Text = "-" + percent.ToString("F2") + "% dmg";
 
                 flag2 = currentPlayer.armor_level >= currentPlayer.config.max_level;
 
                 if (!flag2)
                 {
-                    float nextArmor = Mathf.Lerp(baseArmor, currentPlayer.config.armor_conf.max_data, (float)(currentPlayer.armor_level) / currentPlayer.config.max_level);
+                    float nextArmor = currentPlayer.GetScaledStat(
+                        currentPlayer.config.armor_conf.base_data,
+                        currentPlayer.config.armor_conf.max_data,
+                        currentPlayer.armor_level + 1,
+                        currentPlayer.config.max_level
+                    );
+
                     float nextReduction = GetArmorDamageReduction(nextArmor);
                     float upgrade = nextReduction - reduction;
-                    Properties[index].UpgradeValue.Text = "-" + (upgrade * 100f).ToString("F1") + "% dmg";
+
+                    if (upgrade >= 0.0001f)
+                        Properties[index].UpgradeValue.Text = "+" + (upgrade * 100f).ToString("F2") + "% resist";
+                    else
+                        Properties[index].UpgradeValue.Text = "+<0.1% resist";
                 }
                 else
                 {

@@ -205,7 +205,7 @@ public class AvatarData
 		return false;
 	}
 
-    float GetScaledStat(float baseVal, float maxVal, int level, int maxLevel)
+    public float GetScaledStat(float baseVal, float maxVal, int level, int maxLevel)
     {
         if (level <= 1) return baseVal;
 

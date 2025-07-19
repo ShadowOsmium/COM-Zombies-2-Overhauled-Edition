@@ -60,7 +60,9 @@ public class GameSceneController : MonoBehaviour
 
 	protected bool is_inited;
 
-	protected int woodbox_index;
+    public bool can_buy_ammo = false;
+
+    protected int woodbox_index;
 
 	protected int game_item_index;
 
@@ -196,7 +198,7 @@ public class GameSceneController : MonoBehaviour
 
 	protected string unlock_new_avatar_name = string.Empty;
 
-	protected bool is_skip_cg;
+	public bool is_skip_cg;
 
 	public bool tutorial_ui_over;
 
@@ -614,12 +616,16 @@ public class GameSceneController : MonoBehaviour
         {
             OnAddBulletButton();
         }
+        if (Input.GetKeyDown(KeyCode.Space) && is_play_cg)
+        {
+            is_skip_cg = true;
+        }
         if (Input.GetKeyDown(KeyCode.Escape) && GameSceneController.Instance.canPressEscape)
         {
             Debug.Log("Escape pressed and GameSceneController.canPressEscape = true");
             if (is_game_paused)
             {
-                GameSceneController.Instance.OnGameResume();
+                GameSceneController.Instance.OnGameResume();    
                 is_game_paused = false;
             }
             else
@@ -869,11 +875,6 @@ public class GameSceneController : MonoBehaviour
             delayedCashReward += mission_total_cash;
 
             mission_total_cash = 0;
-
-            if (!isGrantingDelayedRewards)
-            {
-                StartCoroutine(GrantDelayedRewardsCoroutine());
-            }
         }
         else
         {
@@ -901,23 +902,6 @@ public class GameSceneController : MonoBehaviour
                 return false;
         }
         return true;
-    }
-
-    private IEnumerator GrantDelayedRewardsCoroutine()
-    {
-        isGrantingDelayedRewards = true;
-
-        yield return new WaitForSeconds(600f);
-
-        Debug.Log("[GameSceneController] Granting delayed cash reward: " + delayedCashReward);
-
-        GameData.Instance.total_cash.SetIntVal(
-            GameData.Instance.total_cash.GetIntVal() + delayedCashReward,
-            GameDataIntPurpose.Cash
-        );
-
-        delayedCashReward = 0;
-        isGrantingDelayedRewards = false;
     }
 
     private void MissionStatistics()
@@ -1016,7 +1000,9 @@ public class GameSceneController : MonoBehaviour
 	{
 		GamePlayingState = PlayingState.Win;
 		CleanSceneEnemy();
-	}
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
 
     public virtual void SetLoseState()
     {
@@ -1043,13 +1029,29 @@ public class GameSceneController : MonoBehaviour
     }
 
     public virtual void MissionReward()
-	{
-		List<GameReward> list = new List<GameReward>();
-		GameReward gameReward = null;
-		int num = 0;
-		int num2 = 0;
-		int num3 = 0;
-		num = GameData.Instance.GetMissionRewardCash(GetComponent<MissionController>().mission_type, GameData.Instance.cur_quest_info.mission_day_type);
+    {
+        List<GameReward> list = new List<GameReward>();
+        GameReward gameReward = null;
+
+        int num = 0;  // Cash
+        int num2 = 0; // Crystal
+        int num3 = 0; // Voucher
+
+        num = GameData.Instance.GetMissionRewardCash(GetComponent<MissionController>().mission_type, GameData.Instance.cur_quest_info.mission_day_type);
+        num2 = GameData.Instance.GetMissionRewardCrystal(GetComponent<MissionController>().mission_type, GameData.Instance.cur_quest_info.mission_day_type);
+        num3 = GameData.Instance.GetMissionRewardVoucher(GetComponent<MissionController>().mission_type, GameData.Instance.cur_quest_info.mission_day_type);
+
+        bool isDaily = (GameData.Instance.cur_quest_info.mission_day_type == MissionDayType.Daily);
+        bool dayBonus = (GameData.Instance.day_level >= 85);
+
+        if (isDaily && dayBonus)
+        {
+            Debug.Log("[Reward Bonus] Daily mission on day " + GameData.Instance.day_level + ": applying 50% reward bonus.");
+            num = Mathf.RoundToInt(num * 2f);
+            num2 = Mathf.RoundToInt(num2 * 1.5f);
+            num3 = Mathf.RoundToInt(num3 * 1.5f);
+        }
+
         if (num > 0)
         {
             GameData.Instance.total_cash.SetIntVal(
@@ -1058,13 +1060,9 @@ public class GameSceneController : MonoBehaviour
             );
             gameReward = new GameReward(GameReward.GameRewardType.CASH, "jinbi", num);
             list.Add(gameReward);
-            Debug.Log("Mission reward cash:" + num);
+            Debug.Log("Mission reward cash: " + num);
         }
 
-        num2 = GameData.Instance.GetMissionRewardCrystal(
-            GetComponent<MissionController>().mission_type,
-            GameData.Instance.cur_quest_info.mission_day_type
-        );
         if (num2 > 0)
         {
             GameData.Instance.total_crystal.SetIntVal(
@@ -1073,13 +1071,9 @@ public class GameSceneController : MonoBehaviour
             );
             gameReward = new GameReward(GameReward.GameRewardType.CRYSTAL, "shuijing", num2);
             list.Add(gameReward);
-            Debug.Log("Mission reward crystal:" + num2);
+            Debug.Log("Mission reward crystal: " + num2);
         }
 
-        num3 = GameData.Instance.GetMissionRewardVoucher(
-            GetComponent<MissionController>().mission_type,
-            GameData.Instance.cur_quest_info.mission_day_type
-        );
         if (num3 > 0)
         {
             GameData.Instance.total_voucher.SetIntVal(
@@ -1088,8 +1082,9 @@ public class GameSceneController : MonoBehaviour
             );
             gameReward = new GameReward(GameReward.GameRewardType.VOUCHER, "daibi", num3);
             list.Add(gameReward);
-            Debug.Log("Mission reward voucher:" + num3);
+            Debug.Log("Mission reward voucher: " + num3);
         }
+
         if (mission_day_type != MissionDayType.Daily)
 		{
 			if (mission_day_type == MissionDayType.Tutorial)
@@ -1476,8 +1471,6 @@ public class GameSceneController : MonoBehaviour
 		}
 	}
 
-
-    private bool can_buy_ammo = false;
     public void UpdateAddBulletButton(bool state)
     {
         game_main_panel.ShowAddBulletButton(state);
@@ -1792,8 +1785,6 @@ public class GameSceneController : MonoBehaviour
     {
         OnGameCgStart();
         GamePlayingState = PlayingState.CG;
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
 
         string text = "SceneRoamPath";
         switch (GameData.Instance.cur_quest_info.mission_type)
@@ -1825,13 +1816,12 @@ public class GameSceneController : MonoBehaviour
     public virtual void OnBossMissionOver()
 	{
 		is_boss_dead = true;
-		game_main_panel.boss_panel.SetContent(1 + " / " + 1);
+        canPressEscape = false;
+        game_main_panel.boss_panel.SetContent(1 + " / " + 1);
 		CleanSceneEnemy();
 		HidePanels();
 		((GameCgPanelController)cg_panel).HideSkipButton();
 		cg_panel.Show();
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
     }
 
 	public void CleanSceneEnemy()

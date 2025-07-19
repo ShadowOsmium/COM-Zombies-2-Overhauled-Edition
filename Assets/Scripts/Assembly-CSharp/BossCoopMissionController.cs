@@ -282,7 +282,7 @@ public class BossCoopMissionController : MissionController
         EnemyType minionType = (summoningBoss.enemy_data.enemy_type == EnemyType.E_HALLOWEEN_E)
             ? EnemyType.E_HALLOWEEN_SUB_E
             : EnemyType.E_HALLOWEEN_SUB;
-        int minionCount = (summoningBoss.enemy_data.enemy_type == EnemyType.E_HALLOWEEN_E) ? 4 : 3;
+        int minionCount = (summoningBoss.enemy_data.enemy_type == EnemyType.E_HALLOWEEN_E) ? 3 : 2;
 
         GameObject grave = FindClosedGrave(summoningBoss.transform.position);
         for (int i = 0; i < minionCount; i++)

@@ -29,8 +29,82 @@ public class BossRoamEvent : MonoBehaviour, IRoamEvent
 
 	private GameObject cur_show_pos;
 
-	public void OnRoamTrigger()
+    private Coroutine cgEndCoroutine;
+
+    public static BossRoamEvent Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning("Multiple BossRoamEvent instances detected! Destroying duplicate.");
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && GameSceneController.Instance.is_play_cg)
+        {
+            GameSceneController.Instance.is_skip_cg = true;
+
+            CancelInvoke("OnCamerShakeBegin");
+            CancelInvoke("OnCamerShakeOver");
+
+            if (boss_view_obj != null)
+            {
+                var anim = boss_view_obj.GetComponent<Animation>();
+                if (anim != null && anim.isPlaying)
+                {
+                    anim.Stop();
+                }
+            }
+
+            if (cgEndCoroutine != null)
+            {
+                StopCoroutine(cgEndCoroutine);
+                cgEndCoroutine = null;
+            }
+
+            FinishCutsceneCleanup();
+
+            OnBossSpawn();
+        }
+    }
+
+    public void StartCutsceneEnd(float fadeDuration)
+    {
+        fade_time = fadeDuration;
+        cgEndCoroutine = StartCoroutine(OnGameCgEnd());
+    }
+
+    private IEnumerator OnGameCgEnd()
+    {
+        yield return new WaitForSeconds(fade_time);
+
+        FinishCutsceneCleanup();
+    }
+
+    private void OnGameCgEndImmediate()
+    {
+        FinishCutsceneCleanup();
+    }
+
+    private void FinishCutsceneCleanup()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        GameSceneController.Instance.is_play_cg = false;
+        GameSceneController.Instance.is_skip_cg = false;
+        GameSceneController.Instance.OnGameCgEnd();
+        CameraFade.Clear();
+    }
+
+    public void OnRoamTrigger()
 	{
+        GameSceneController.Instance.is_play_cg = true;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
@@ -55,9 +129,14 @@ public class BossRoamEvent : MonoBehaviour, IRoamEvent
 		}
 	}
 
-	private void OnBossSpawn()
+    public bool hasSpawnedBoss = false;
+    private void OnBossSpawn()
 	{
-		int num = Random.Range(0, 100) % 2;
+        if (hasSpawnedBoss) return;
+        hasSpawnedBoss = true;
+
+        GameSceneController.Instance.is_play_cg = true;
+        int num = Random.Range(0, 100) % 2;
 		if (GameData.Instance.cur_quest_info.boss_type == EnemyType.E_FATCOOK || GameData.Instance.cur_quest_info.boss_type == EnemyType.E_FATCOOK_E)
 		{
 			if (num == 0)
@@ -123,33 +202,10 @@ public class BossRoamEvent : MonoBehaviour, IRoamEvent
 				cur_show_pos = shark_show2_pos;
 			}
 		}
-        Animation anim = boss_view_obj.GetComponent<Animation>();
-        if (anim != null)
-        {
-            AnimationState animState = anim[GameSceneController.Instance.enable_spawn_ani];
-            if (animState != null)
-            {
-                float forcedDuration = 3f;
-                float originalLength = animState.length;
-                animState.speed = originalLength > 0f ? originalLength / forcedDuration : 1f;
-            }
-        }
-
         AnimationUtil.PlayAnimate(boss_view_obj, GameSceneController.Instance.enable_spawn_ani, WrapMode.Once);
         GameSceneController.Instance.enable_boss_spawn = true;
         Invoke("OnCamerShakeBegin", 0.05f);
         Invoke("OnCamerShakeOver", 3f);
-    }
-
-    private IEnumerator OnGameCgEnd()
-    {
-        yield return new WaitForSeconds(fade_time);
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
-        GameSceneController.Instance.OnGameCgEnd();
-        CameraFade.Clear();
     }
 
     private void OnCamerShakeOver()
@@ -158,11 +214,12 @@ public class BossRoamEvent : MonoBehaviour, IRoamEvent
         Cursor.visible = false;
 
         GameSceneController.Instance.OnGameCgEnd();
+        GameSceneController.Instance.is_play_cg = false;
     }
 
     private void OnCamerShakeBegin()
 	{
-		Camera.main.transform.parent = cur_show_pos.transform;
+        Camera.main.transform.parent = cur_show_pos.transform;
 		Camera.main.transform.localPosition = Vector3.zero;
 		Camera.main.transform.localRotation = Quaternion.identity;
 	}

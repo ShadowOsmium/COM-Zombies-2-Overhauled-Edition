@@ -246,7 +246,7 @@ public class GameConfig : MonoBehaviour
         LoadStandardWeaponConfig();
         LoadEditorConfig();
         force_update_local = false;
-        Application.targetFrameRate = 120;
+        Application.targetFrameRate = 45;
         Load_finished = true;
     }
 

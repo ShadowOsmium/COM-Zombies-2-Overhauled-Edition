@@ -548,7 +548,7 @@ public class PlayerController : ObjectController
         }
         else
         {
-            Debug.Log("Same state type requested, ignoring or refreshing.");
+            //Debug.Log("Same state type requested, ignoring or refreshing.");
         }
     }
 

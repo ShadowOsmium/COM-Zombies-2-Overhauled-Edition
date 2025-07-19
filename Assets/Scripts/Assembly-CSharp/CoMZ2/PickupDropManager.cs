@@ -64,6 +64,9 @@ public class PickupDropManager : MonoBehaviour
     {
         float dropChance = bulletDropChance;
 
+        if (IsEndlessMission())
+            dropChance *= 0.5f;
+
         float roll = Random.Range(0f, 100f);
         if (roll <= dropChance)
         {
@@ -152,5 +155,12 @@ public class PickupDropManager : MonoBehaviour
 
             Debug.Log("[DropManager] Gold drop chance increased to " + goldDropChance + "%");
         }
+    }
+
+    private bool IsEndlessMission()
+    {
+        return GameData.Instance.cur_quest_info != null &&
+               GameData.Instance.cur_quest_info.mission_type == MissionType.Endless &&
+               GameData.Instance.cur_quest_info.mission_day_type == MissionDayType.Endless;
     }
 }

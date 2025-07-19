@@ -3,13 +3,62 @@ using UnityEngine;
 
 public class EnemyFactory : MonoBehaviour
 {
+
+    public static void WarmUpAllEnemyTypes()
+    {
+        if (GameSceneController.Instance == null || GameSceneController.Instance.enemy_ref_map == null)
+        {
+            Debug.LogWarning("[EnemyFactory] Skipping warm-up — enemy_ref_map not initialized.");
+            return;
+        }
+
+        System.Collections.Generic.Dictionary<EnemyType, GameObject> map = GameSceneController.Instance.enemy_ref_map.Enemy_Set;
+
+        foreach (System.Collections.Generic.KeyValuePair<EnemyType, GameObject> kvp in map)
+        {
+            EnemyType type = kvp.Key;
+            GameObject prefab = kvp.Value;
+
+            if (prefab == null)
+                continue;
+
+            try
+            {
+                GameObject dummy = GameObject.Instantiate(prefab);
+                dummy.name = "[WarmUpDummy] " + prefab.name;
+                dummy.SetActive(false);
+
+                // Optional: Disable NavMeshAgent
+                UnityEngine.AI.NavMeshAgent agent = dummy.GetComponent<UnityEngine.AI.NavMeshAgent>();
+                if (agent != null) agent.enabled = false;
+
+                // Optional: Rebind Animator
+                Animator animator = dummy.GetComponentInChildren<Animator>();
+                if (animator != null) animator.Rebind();
+
+                // Optional: Disable collider
+                Collider col = dummy.GetComponent<Collider>();
+                if (col != null) col.enabled = false;
+
+                GameObject.Destroy(dummy);
+                Debug.Log("[EnemyFactory] Warmed up enemy: " + type);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning("[EnemyFactory] Warm-up failed for enemy type: " + type + " - " + ex.Message);
+            }
+        }
+
+        Debug.Log("[EnemyFactory] Warm-up complete.");
+    }
+
     static EnemyController InitEnemy(GameObject enemyGO, GameObject prefab, EnemyType type, int id, bool isTrapped)
     {
         EnemyEditor editor = enemyGO.GetComponent<EnemyEditor>();
         if (editor != null)
         {
             editor.enemy_type = type;
-            Debug.LogFormat("[InitEnemy] Overriding EnemyEditor.enemy_type to {0}", type);
+            //Debug.LogFormat("[InitEnemy] Overriding EnemyEditor.enemy_type to {0}", type);
         }
         EnemyController ec = Utility.AddEnemyComponent(enemyGO, GetEnemyTypeControllerName(type));
         EnemyData data = EnemyData.CreateData(GameConfig.Instance.EnemyConfig_Set[type]);
@@ -26,7 +75,7 @@ public class EnemyFactory : MonoBehaviour
 
     public static EnemyController CreateEnemyGetEnemyController(EnemyType type, Vector3 pos, Quaternion rot)
     {
-        Debug.Log("[EnemyFactory] CreateEnemyGetEnemyController called with type: " + type);
+        //Debug.Log("[EnemyFactory] CreateEnemyGetEnemyController called with type: " + type);
 
         if (!GameSceneController.Instance.enemy_ref_map.Enemy_Set.ContainsKey(type))
         {
@@ -62,9 +111,9 @@ public class EnemyFactory : MonoBehaviour
 
         if (result != null)
         {
-            Debug.LogFormat(
-                "[EnemyFactory] Enemy spawned. Requested type: {0}, Prefab: {1}, Resulting enemyType: {2}, Controller: {3}",
-                type, prefabRef.name, result.enemyType, result.GetType().Name);
+            //Debug.LogFormat(
+                //"[EnemyFactory] Enemy spawned. Requested type: {0}, Prefab: {1}, Resulting enemyType: {2}, Controller: {3}",
+               // type, prefabRef.name, result.enemyType, result.GetType().Name);
         }
         else
         {

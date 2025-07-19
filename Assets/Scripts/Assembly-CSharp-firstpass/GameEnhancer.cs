@@ -28,7 +28,7 @@ public class GameEnhancer : MonoBehaviour
     private const int SUSPICIOUS_COUNT_THRESHOLD = 5;
     private const float SUSPICIOUS_TIME_WINDOW = 5f;
 
-    private const int MAX_FREE_SPINS = 5;
+    private const int MAX_FREE_SPINS = 3;
     private const float PLAYER_USAGE_GRACE_PERIOD = 120f;
 
     private const float TOGGLE_TIME_WINDOW = 5f;
@@ -179,8 +179,6 @@ public class GameEnhancer : MonoBehaviour
             return;
         }
 
-        CheckFreeSpinOscillation();
-        CheckSuspiciousFreeSpins();
         CheckSuspiciousValues();
         ClampFreeSpins();
     }
@@ -348,108 +346,6 @@ public class GameEnhancer : MonoBehaviour
         }
     }
 
-    private void CheckFreeSpinOscillation()
-    {
-        if (GameData.Instance == null || GameData.Instance.rewardSafeMode) return;
-
-        int current = GameData.Instance.free_lottery_spins.GetIntVal();
-        int saved = GameData.Instance.last_saved_free_spin_count;
-
-        if (saved == -1)
-        {
-            GameData.Instance.last_saved_free_spin_count = current;
-            return;
-        }
-
-        int delta = current - saved;
-
-        // Ignore freeze detection if spins are zero and not increasing
-        if (current == 0 && delta == 0)
-        {
-            // Legit zero spins held, reset detection state
-            rollbackDetected = false;
-            rollbackCount = 0;
-            rollbackTimer = 0f;
-            lastLegitRollbackTime = Time.time;
-            GameData.Instance.last_saved_free_spin_count = current;
-            return;
-        }
-
-        if (delta > 1)
-        {
-            if (playerUsedSpinRecently && Time.time - lastSpinActivityTime <= PLAYER_USAGE_GRACE_PERIOD)
-            {
-                Debug.Log("[GameEnhancer] Legitimate free spin gain after player activity.");
-                rollbackDetected = false;
-                rollbackCount = 0;
-                rollbackTimer = 0f;
-                lastLegitRollbackTime = Time.time;
-            }
-            else
-            {
-                rollbackDetected = true;
-                rollbackTimer = 0f;
-                rollbackCount++;
-                Debug.LogWarning("[GameEnhancer] Possible rollback detected. Count=" + rollbackCount + ", from " + saved + " → " + current);
-            }
-        }
-        else if (delta < 0)
-        {
-            rollbackDetected = false;
-            rollbackCount = 0;
-            rollbackTimer = 0f;
-            lastLegitRollbackTime = Time.time;
-        }
-
-        if (rollbackDetected)
-        {
-            rollbackTimer += Time.deltaTime;
-
-            if (Time.time - lastLegitRollbackTime > PLAYER_USAGE_GRACE_PERIOD)
-            {
-                rollbackDetected = false;
-                rollbackCount = 0;
-                rollbackTimer = 0f;
-                lastLegitRollbackTime = Time.time;
-                return;
-            }
-
-            if (rollbackCount >= MAX_ROLLBACKS_ALLOWED && rollbackTimer < ROLLBACK_TIME_LIMIT)
-            {
-                BlacklistPlayer("[GameEnhancer] Excessive rollback detected. Blacklisting.");
-                rollbackDetected = false;
-                rollbackCount = 0;
-                rollbackTimer = 0f;
-            }
-        }
-
-        GameData.Instance.last_saved_free_spin_count = current;
-    }
-
-
-    private void CheckSuspiciousFreeSpins()
-    {
-        if (GameData.Instance == null) return;
-
-        int current = GameData.Instance.free_lottery_spins.GetIntVal();
-        int saved = GameData.Instance.last_saved_free_spin_count;
-
-        if (saved == -1)
-        {
-            GameData.Instance.last_saved_free_spin_count = current;
-            return;
-        }
-
-        int delta = current - saved;
-
-        if (delta > 5 && !(playerUsedSpinRecently && Time.time - lastSpinActivityTime <= PLAYER_USAGE_GRACE_PERIOD))
-        {
-            BlacklistPlayer(string.Format("[GameEnhancer] Suspicious jump in free spins: {0} → {1} (+{2})", saved, current, delta));
-        }
-
-        GameData.Instance.last_saved_free_spin_count = current;
-    }
-
     private void ResetSuspiciousCounters()
     {
         suspiciousCashValueCount = suspiciousCrystalValueCount = suspiciousVoucherValueCount = suspiciousBulletValueCount = 0;
@@ -529,10 +425,6 @@ public class GameEnhancer : MonoBehaviour
 
                 suspiciousCashDeltaCount = suspiciousCrystalDeltaCount = suspiciousVoucherDeltaCount = 0;
                 suspiciousCashDeltaTimer = suspiciousCrystalDeltaTimer = suspiciousVoucherDeltaTimer = 0f;
-
-                rollbackDetected = false;
-                rollbackCount = 0;
-                rollbackTimer = 0f;
             }
         }
         ResetRapidSaveDetection();
@@ -567,7 +459,19 @@ public class GameEnhancer : MonoBehaviour
         if (GameData.Instance == null) return;
 
         DateTime today = DateTime.Today;
-        if (GameData.Instance.lastRollbackDate.Date != today)
+        DateTime lastRollback = GameData.Instance.lastRollbackDate.Date;
+
+        TimeSpan timeSinceLast = today - lastRollback;
+
+        if (timeSinceLast.TotalDays > 60)
+        {
+            Debug.Log("[AntiCheat] Date rollback skipped — player returning after long break.");
+            GameData.Instance.lastRollbackDate = today;
+            GameData.Instance.SaveData();
+            return;
+        }
+
+        if (lastRollback != today)
         {
             Debug.LogWarning("[AntiCheat] Detected system clock rollback — warning issued.");
             GameData.Instance.lastRollbackDate = today;
@@ -579,6 +483,7 @@ public class GameEnhancer : MonoBehaviour
             BlacklistPlayer("[AntiCheat] Multiple rollbacks in same day.");
         }
     }
+
 
     private void ResetRapidSaveDetection()
     {
@@ -678,115 +583,6 @@ public class GameEnhancer : MonoBehaviour
 
         if (suspiciousDeltas)
             BlacklistPlayer("[GameEnhancer] AntiCheat triggered: Multiple suspicious deltas detected.");
-    }
-
-    private void CheckFreeSpinRollback()
-    {
-        if (GameData.Instance == null || GameData.Instance.rewardSafeMode) return;
-
-        int current = GameData.Instance.free_lottery_spins.GetIntVal();
-        int saved = GameData.Instance.last_saved_free_spin_count;
-
-        if (saved == -1)
-        {
-            GameData.Instance.last_saved_free_spin_count = current;
-            return;
-        }
-
-        int delta = current - saved;
-
-        if (current == 0 && delta == 0)
-        {
-            ResetRollbackDetection();
-            GameData.Instance.last_saved_free_spin_count = current;
-            return;
-        }
-
-        if (delta > 1)
-        {
-            if (playerUsedSpinRecently && Time.time - lastSpinActivityTime <= PLAYER_USAGE_GRACE_PERIOD)
-            {
-                Debug.Log("[GameEnhancer] Legitimate free spin gain after player activity.");
-                ResetRollbackDetection();
-            }
-            else
-            {
-                RegisterRollbackEvent(saved, current);
-            }
-        }
-        else if (delta < 0)
-        {
-            ResetRollbackDetection();
-        }
-
-        if (rollbackDetected)
-        {
-            rollbackTimer += Time.deltaTime;
-
-            if (Time.time - lastLegitRollbackTime > PLAYER_USAGE_GRACE_PERIOD)
-            {
-                ResetRollbackDetection();
-                return;
-            }
-
-            if (rollbackCount >= MAX_ROLLBACKS_ALLOWED && rollbackTimer < ROLLBACK_TIME_LIMIT)
-            {
-                BlacklistPlayer("[GameEnhancer] Excessive rollback detected. Blacklisting.");
-                ResetRollbackDetection();
-            }
-        }
-
-        GameData.Instance.last_saved_free_spin_count = current;
-    }
-
-    private void RegisterRollbackEvent(int oldValue, int newValue)
-    {
-        rollbackDetected = true;
-        rollbackTimer = 0f;
-        rollbackCount++;
-        Debug.LogWarning(string.Format("[GameEnhancer] Possible rollback detected. Count={0}, from {1} → {2}", rollbackCount, oldValue, newValue));
-    }
-
-    private void ResetRollbackDetection()
-    {
-        rollbackDetected = false;
-        rollbackCount = 0;
-        rollbackTimer = 0f;
-        lastLegitRollbackTime = Time.time;
-    }
-
-    private void CheckSuspiciousFreeSpinJump()
-    {
-        if (GameData.Instance == null || GameData.Instance.rewardSafeMode) return;
-
-        int current = GameData.Instance.free_lottery_spins.GetIntVal();
-        int saved = GameData.Instance.last_saved_free_spin_count;
-
-        if (saved == -1)
-        {
-            GameData.Instance.last_saved_free_spin_count = current;
-            return;
-        }
-
-        int delta = current - saved;
-
-        if (delta > 5 && !(playerUsedSpinRecently && Time.time - lastSpinActivityTime <= PLAYER_USAGE_GRACE_PERIOD))
-        {
-            BlacklistPlayer(string.Format("[GameEnhancer] Suspicious jump in free spins: {0} → {1} (+{2})", saved, current, delta));
-        }
-
-        GameData.Instance.last_saved_free_spin_count = current;
-    }
-
-    public void OnPlayerUsedFreeSpin()
-    {
-        playerUsedSpinRecently = true;
-        lastSpinActivityTime = Time.time;
-        lastFreeLotterySpins = GameData.Instance.free_lottery_spins.GetIntVal();
-
-        GameData.Instance.last_saved_free_spin_count = lastFreeLotterySpins;
-
-        Debug.Log("[GameEnhancer] Player used a free spin. Rollback detection reset.");
     }
 
     public void BlacklistPlayer(string reason)

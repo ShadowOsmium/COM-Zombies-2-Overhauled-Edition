@@ -261,8 +261,8 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1
-    height: 1
+    width: 1.0014826
+    height: 1.1596639
   near clip plane: -128
   far clip plane: 128
   field of view: 60
@@ -516,8 +516,8 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1920
-    height: 901
+    width: 1351
+    height: 276
 --- !u!1 &5316492
 GameObject:
   m_ObjectHideFlags: 0
@@ -1049,6 +1049,7 @@ GameObject:
   - component: {fileID: 2111685269}
   - component: {fileID: 2111685268}
   - component: {fileID: 2111685270}
+  - component: {fileID: 2111685271}
   m_Layer: 0
   m_Name: 
   m_TagString: Untagged
@@ -1092,3 +1093,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   allowTesterSaves: 0
+--- !u!114 &2111685271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2111685267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf9280cd89d5b6a45bc6c23e912c7859, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isPaused: 0
+  pausePanel: {fileID: 0}
+  quitButton: {fileID: 0}

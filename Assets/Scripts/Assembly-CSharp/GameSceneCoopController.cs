@@ -325,9 +325,12 @@ public class GameSceneCoopController : GameSceneController
         }
     }
 
-
     private void Update()
     {
+        if (GameSceneController.Instance.can_buy_ammo && Input.GetKeyDown(KeyCode.R))
+        {
+            GameSceneController.Instance.OnAddBulletButton();
+        }
         if (Time.deltaTime != 0f && Time.timeScale != 0f && Time.time - last_check_mission_finished >= check_mission_rate)
         {
             last_check_mission_finished = Time.time;
@@ -389,6 +392,7 @@ public class GameSceneCoopController : GameSceneController
 
         List<EnemyType> missionEnemyTypeList = mission_controller.GetMissionEnemyTypeList();
         enemy_ref_map.ResetEnemyMapInfo(missionEnemyTypeList);
+        EnemyFactory.WarmUpAllEnemyTypes();
 
         ResetMissionDifficulty();
         GamePlayingState = PlayingState.Gaming;
@@ -534,7 +538,7 @@ public class GameSceneCoopController : GameSceneController
 
         float totalDamage = 0f;
         PlayerID localPlayerID = player_controller.player_id;
-        Debug.Log("[Reward Check] Local player ID: " + localPlayerID.ToString());
+        //Debug.Log("[Reward Check] Local player ID: " + localPlayerID.ToString());
 
         foreach (KeyValuePair<PlayerID, float> pair in Player_damage_Set)
         {
@@ -687,7 +691,7 @@ public class GameSceneCoopController : GameSceneController
 				{
 					if (GameData.Instance.WeaponData_Set[coopBossCfg.reward_weapon].LotteryReward(false))
 					{
-						Debug.Log("weapon:" + coopBossCfg.reward_weapon + " is unlocked, it enable combie.");
+						Debug.Log("weapon:" + coopBossCfg.reward_weapon + " is unlocked, it enable combime.");
 						unlock_new_weapon_name = coopBossCfg.reward_weapon;
 						unlock_new_weapon = true;
 						UnlockInGame unlockInGame = new UnlockInGame();
@@ -852,7 +856,8 @@ public class GameSceneCoopController : GameSceneController
 
     public override void OnRewardOkButton()
 	{
-		if (unlock_new_weapon)
+        GameSceneController.Instance.canPressEscape = false;
+        if (unlock_new_weapon)
 		{
 			ShowUnlockWeaponPanel();
 		}
@@ -943,12 +948,12 @@ public class GameSceneCoopController : GameSceneController
 	public override void OnBossMissionOver()
 	{
 		is_boss_dead = true;
-		game_main_panel.boss_panel.SetContent(1 + " / " + 1);
+        canPressEscape = false;
+        game_main_panel.boss_panel.SetContent(1 + " / " + 1);
 		CleanSceneEnemy();
 		HidePanels();
 		((GameCgPanelController)cg_panel).HideSkipButton();
 		cg_panel.Show();
-        Screen.lockCursor = false;
     }
 
 	public override void ShowUnlockWeaponPanel()
@@ -1542,32 +1547,18 @@ public class GameSceneCoopController : GameSceneController
 		}
 	}
 
-    private Transform originalCamParent;
-    private Vector3 originalCamLocalPos;
-    private Quaternion originalCamLocalRot;
-
     public void OnBossBirthCameraShow(EnemyController boss)
     {
         Transform parent = boss.transform.Find("cg_view");
-
-        // Store original camera transform
-        originalCamParent = Camera.main.transform.parent;
-        originalCamLocalPos = Camera.main.transform.localPosition;
-        originalCamLocalRot = Camera.main.transform.localRotation;
-
-        // Re-parent camera to boss cg_view
         Camera.main.transform.parent = parent;
         Camera.main.transform.localPosition = Vector3.zero;
         Camera.main.transform.localRotation = Quaternion.identity;
-
         main_camera.camera_pause = true;
+        canPressEscape = false;
         main_camera.StartShake(enable_spawn_ani);
-
         float length = main_camera.shake_obj.GetComponent<Animation>()[enable_spawn_ani].length;
-
         player_controller.StartLimitMove(length);
         StartCgLimit(length);
-
         foreach (EnemyController value in Enemy_Set.Values)
         {
             if (!value.IsBoss)
@@ -1575,19 +1566,6 @@ public class GameSceneCoopController : GameSceneController
                 value.StartLimitMove(length);
             }
         }
-
-        StartCoroutine(RestoreCameraAfterDelay(length));
-    }
-
-    private IEnumerator RestoreCameraAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
-        Camera.main.transform.parent = originalCamParent;
-        Camera.main.transform.localPosition = originalCamLocalPos;
-        Camera.main.transform.localRotation = originalCamLocalRot;
-
-        main_camera.camera_pause = false;
     }
 
     public bool CheckAllPlayerCoopDead()
@@ -1648,6 +1626,7 @@ public class GameSceneCoopController : GameSceneController
 
 	public override void OnBossDeadOver()
 	{
-		mission_controller.MissionFinished();
+        canPressEscape = false;
+        mission_controller.MissionFinished();
 	}
 }

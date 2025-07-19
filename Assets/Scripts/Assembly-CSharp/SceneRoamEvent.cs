@@ -2,7 +2,18 @@ using UnityEngine;
 
 public class SceneRoamEvent : MonoBehaviour, IRoamEvent
 {
-	public void OnRoamTrigger()
+    /*void Update()
+    {
+        Debug.Log("Update running");
+        if (Input.GetKeyDown(KeyCode.Space) && GameSceneController.Instance.is_play_cg)
+        {
+            Debug.Log("Space pressed and is_play_cg true");
+            GameSceneController.Instance.is_skip_cg = true;
+            OnGameCgEnd();
+        }
+    }*/
+
+    public void OnRoamTrigger()
 	{
 		Debug.Log("on roam triger!");
         Cursor.lockState = CursorLockMode.None;

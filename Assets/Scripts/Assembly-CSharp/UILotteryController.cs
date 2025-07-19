@@ -203,11 +203,6 @@ public class UILotteryController : UISceneController
             int currentSpins = GameData.Instance.free_lottery_spins.GetIntVal();
             Debug.Log("[FreeSpin] After decrement: " + currentSpins);
 
-            if (GameEnhancer.Instance != null)
-            {
-                GameEnhancer.Instance.OnPlayerUsedFreeSpin();
-            }
-
             StartRewardSafeMode();
 
             UILotterManager.Instance.StartLottery(true);

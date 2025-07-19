@@ -8,7 +8,7 @@ public class FPSDisplay : MonoBehaviour
 
     void Start()
     {
-        Application.targetFrameRate = 120;
+        Application.targetFrameRate = 45;
         DontDestroyOnLoad(gameObject);
     }
 

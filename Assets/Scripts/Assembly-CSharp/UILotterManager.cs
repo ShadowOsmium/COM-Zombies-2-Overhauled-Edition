@@ -416,7 +416,6 @@ public class UILotterManager : MonoBehaviour
 
         if (GameEnhancer.Instance != null && isFreeSpin && !hasAwardedThisSpin)
         {
-            GameEnhancer.Instance.OnPlayerUsedFreeSpin();
             hasAwardedThisSpin = true;
         }
     }

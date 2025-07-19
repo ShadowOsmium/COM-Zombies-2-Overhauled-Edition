@@ -163,7 +163,6 @@ public class GameCoverUIController : MonoBehaviour
 
     private void OnServerVersionError()
     {
-        // Version check failed (no internet?), allow user to continue or handle accordingly
         ShowMask(false);
         Debug.LogWarning("Failed to check game version. You might want to allow play or show a retry.");
     }

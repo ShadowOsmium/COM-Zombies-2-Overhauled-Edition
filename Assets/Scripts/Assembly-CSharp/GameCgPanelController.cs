@@ -25,5 +25,4 @@ public class GameCgPanelController : UIPanelController
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
-
 }

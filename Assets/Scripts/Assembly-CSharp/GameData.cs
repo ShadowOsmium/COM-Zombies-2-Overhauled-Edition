@@ -31,13 +31,13 @@ public class GameData : MonoBehaviour
         None,
         Shop,
         Gaming
-    }   
-
-    private static GameData instance;
+    }
 
     public DateTime last_checked_date_now;
 
     public DateTime next_cd_date;
+
+    public DateTime lastLoginDate = DateTime.MinValue;
 
     public string cur_save_date = string.Empty;
 
@@ -210,13 +210,7 @@ public class GameData : MonoBehaviour
 
     public List<string> lottery_seat_state = new List<string>();
 
-    public static GameData Instance
-    {
-        get
-        {
-            return instance;
-        }
-    }
+    public static GameData Instance { get; private set; }
 
     public string UserId
     {
@@ -237,7 +231,7 @@ public class GameData : MonoBehaviour
             DevicePlugin.InitAndroidPlatform();
             gameObject.AddComponent<TrinitiAdAndroidPlugin>();
         }
-        instance = this;
+        Instance = this;
         UnityEngine.Object.DontDestroyOnLoad(base.gameObject);
         finally_save_date = GetCurDateTime();
         TRINITI_IAP_CEHCK = true;
@@ -491,6 +485,16 @@ public class GameData : MonoBehaviour
             LoadRollbackDate(configure);
 
             hasLoadedData = true;
+
+            try
+            {
+                SaveData();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("[LoadData] SaveData failed after load: " + e);
+            }
+
             return true;
         }
         catch (Exception ex)
@@ -1584,14 +1588,14 @@ public class GameData : MonoBehaviour
         int key;
         QuestInfo questInfo;
 
-        if (instance.day_level > GameConfig.Instance.Side_Quest_Order.Count)
+        if (Instance.day_level > GameConfig.Instance.Side_Quest_Order.Count)
         {
-            key = (instance.day_level - 1) % GameConfig.Instance.Side_Quest_Order_Spare.Count + 1;
+            key = (Instance.day_level - 1) % GameConfig.Instance.Side_Quest_Order_Spare.Count + 1;
             questInfo = GameConfig.Instance.Side_Quest_Order_Spare[key];
         }
         else
         {
-            key = instance.day_level;
+            key = Instance.day_level;
             questInfo = GameConfig.Instance.Side_Quest_Order[key];
         }
 
@@ -1611,7 +1615,7 @@ public class GameData : MonoBehaviour
         bool allowDaily = true;
         for (int i = 0; i < blockedDailyDays.Length; i++)
         {
-            if (instance.day_level == blockedDailyDays[i])
+            if (Instance.day_level == blockedDailyDays[i])
             {
                 allowDaily = false;
                 break;
@@ -1630,7 +1634,7 @@ public class GameData : MonoBehaviour
         }
         else
         {
-            Debug.Log("[SetMapMissionList] Daily mission blocked on day level: " + instance.day_level);
+            Debug.Log("[SetMapMissionList] Daily mission blocked on day level: " + Instance.day_level);
         }
 
         QuestInfo coopQuest = new QuestInfo();
@@ -1773,7 +1777,7 @@ public class GameData : MonoBehaviour
                         break;
                     case 2:
                         result = (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_b * sideEnemyStandardRewardTotal);
-                        if (GameData.Instance.day_level > 55)
+                        if (GameData.Instance.day_level > 85)
                         {
                             result = (int)sideEnemyStandardRewardTotal * 10;
                         }
@@ -2124,8 +2128,8 @@ public class GameData : MonoBehaviour
             if (timeSpan >= TimeSpan.FromMinutes(120.0))
             {
                 Debug.Log("Long time no see.");
-                TAudioManager.instance.soundVolume = 0.5f;
-                TAudioManager.instance.musicVolume = 0.5f;
+                TAudioManager.instance.soundVolume = 1f;
+                TAudioManager.instance.musicVolume = 1f;
                 Time.timeScale = 1f;
                 LoadingUIController.FinishedLoading();
                 Application.LoadLevel("GameCover");
@@ -2277,7 +2281,7 @@ public class GameData : MonoBehaviour
             content = DataDecrypt(content);
             configure.Load(content);
             string single = configure.GetSingle("Save", "Version");
-            if (single != "2.1.2")
+            if (single != "1.3.1")
             {
                 return true;
             }

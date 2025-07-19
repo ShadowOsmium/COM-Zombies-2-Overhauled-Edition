@@ -50,12 +50,12 @@
   
   <Weapon weapon_name="Xm1014" type="ShotGun" moveSpeedDrag="0.5" price ="12000" showName="Xm-1014" comment=""
           BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
-          battleButtleCountRatio ="1" bulletShopPrice="850" bulletBalletPrice="1700" initBullet ="150" buyBulletCount="500" 
+          battleButtleCountRatio ="1" bulletShopPrice="850" bulletBalletPrice="1700" initBullet ="120" buyBulletCount="350" 
           maxLevel="30" upPriceRatio="10" AfterFireTime="1" ComboBase="1" CrystalUnlockPrice="12" 
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="2" stretchRangeRun="5" AutoLock="0" Recoil="25" infinityAmmo="0" sellPrice="16000" 
           existState ="0" owner="All" dmgRatio="5.8" combination="0" unlockDay="12" >
-    <Frequency base="0.8" max="0.4" />
+    <Frequency base="0.8" max="0.5" />
     <stretchMaxRange base="15" max="15" />
     <Clip base="16" max="16" />
     <Range base="8" max="12" />
@@ -65,12 +65,12 @@
   
   <Weapon weapon_name="AK47" type="Rifle" moveSpeedDrag="0.5" price="20000" showName="AK-47" comment=""
           BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1" 
-          battleButtleCountRatio ="1" bulletShopPrice="2000" bulletBalletPrice="2000" initBullet="450" buyBulletCount="600" 
+          battleButtleCountRatio ="1" bulletShopPrice="1500" bulletBalletPrice="1500" initBullet="450" buyBulletCount="600" 
           maxLevel="30" upPriceRatio="23.7" AfterFireTime="1" ComboBase="0.8" CrystalUnlockPrice="26" 
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="1" stretchRangeRun="5" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="24000" 
-          existState ="0" owner="All" dmgRatio="18" combination="0" unlockDay="20" >
-    <Frequency base="0.15" max="0.15" />
+          existState ="0" owner="All" dmgRatio="16" combination="0" unlockDay="20" >
+    <Frequency base="0.16" max="0.16" />
     <stretchMaxRange base="20" max="10" />
     <Clip base="225" max="225" />
     <Range base="0" max="0" />
@@ -95,14 +95,14 @@
   
   <Weapon weapon_name="Gatlin" type="Gatlin" moveSpeedDrag="2" price="50000" showName="Gatling" comment=""
           BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
-          battleButtleCountRatio ="1" bulletShopPrice="4000" bulletBalletPrice="4000" initBullet="500" buyBulletCount="750" 
+          battleButtleCountRatio ="1" bulletShopPrice="2650" bulletBalletPrice="2650" initBullet="500" buyBulletCount="750" 
           maxLevel="30" upPriceRatio="30" AfterFireTime="1" ComboBase="0.55" CrystalUnlockPrice="40" 
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="5" stretchRangeRun="8" AutoLock="0" Recoil="15" infinityAmmo="0" sellPrice="50000" 
-          existState ="0" owner="All" dmgRatio="16.5" combination="0" unlockDay="25" >
+          existState ="0" owner="All" dmgRatio="18" combination="0" unlockDay="25" >
     <Frequency base="0.07" max="0.07" />
     <stretchMaxRange base="30" max="15" />
-    <Clip base="450" max="450" />
+    <Clip base="500" max="500" />
     <Range base="0" max="0" />
   </Weapon>  
 
@@ -110,11 +110,11 @@
   
   <Weapon weapon_name="RPG" type="RPG" moveSpeedDrag="2" price="80000" showName="RPG-7" comment=""
           BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
-          battleButtleCountRatio ="1" bulletShopPrice="2000" bulletBalletPrice="2000" initBullet="100" buyBulletCount="200" 
+          battleButtleCountRatio ="0.5" bulletShopPrice="2000" bulletBalletPrice="2000" initBullet="100" buyBulletCount="200" 
           maxLevel="30" upPriceRatio="30" AfterFireTime="1" ComboBase="2" CrystalUnlockPrice="55" 
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="5" stretchRangeRun="8" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="80000" 
-          existState ="0" owner="All" dmgRatio="17" combination="0" unlockDay="35" >
+          existState ="0" owner="All" dmgRatio="36" combination="0" unlockDay="35" >
     <Frequency base="1" max="1" />
     <stretchMaxRange base="1" max="1" />
     <Clip base="1" max="1" />
@@ -124,14 +124,14 @@
   
   <!--FN2000-->
   
-  <Weapon weapon_name="FN2000" type="Rifle" moveSpeedDrag="0.5" price="35000" showName="FN2000" comment=""
+  <Weapon weapon_name="FN2000" type="Rifle" moveSpeedDrag="0.5" price="45000" showName="FN2000" comment=""
           BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
-          battleButtleCountRatio ="1" bulletShopPrice="3000" bulletBalletPrice="3000" initBullet="400" buyBulletCount="650"
-          maxLevel="30" upPriceRatio="18" AfterFireTime="1" ComboBase="0.55" CrystalUnlockPrice="69"
+          battleButtleCountRatio ="1" bulletShopPrice="2500" bulletBalletPrice="2500" initBullet="350" buyBulletCount="500"
+          maxLevel="30" upPriceRatio="18" AfterFireTime="1" ComboBase="0.7" CrystalUnlockPrice="69"
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
-          stretchRange="1" stretchRangeRun="5" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="35000"
-          existState ="0" owner="All" dmgRatio="16" combination="3" unlockDay="-1" >
-    <Frequency base="0.15" max="0.15" />
+          stretchRange="1" stretchRangeRun="5" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="45000"
+          existState ="0" owner="All" dmgRatio="18" combination="3" unlockDay="-1" >
+    <Frequency base="0.16" max="0.16" />
     <stretchMaxRange base="20" max="10" />
     <Clip base="250" max="250" />
     <Range base="0" max="0" />
@@ -141,12 +141,12 @@
   
   <Weapon weapon_name="XM12" type="ShotGun" moveSpeedDrag="0.5" price ="75000" showName="XM-12" comment=""
           BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
-          battleButtleCountRatio ="1" bulletShopPrice="1500" bulletBalletPrice="1500" initBullet ="120" buyBulletCount="400"
+          battleButtleCountRatio ="0.3" bulletShopPrice="2750" bulletBalletPrice="2750" initBullet ="120" buyBulletCount="320"
           maxLevel="30" upPriceRatio="15" AfterFireTime="1" ComboBase="1" CrystalUnlockPrice="129"
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="2" stretchRangeRun="5" AutoLock="0" Recoil="25" infinityAmmo="0" sellPrice="70000"
-          existState ="0" owner="All" dmgRatio="22" combination="3" unlockDay="-1" >
-    <Frequency base="0.75" max="0.45" />
+          existState ="0" owner="All" dmgRatio="17.7" combination="3" unlockDay="-1" >
+    <Frequency base="0.85" max="0.55" />
     <stretchMaxRange base="15" max="15" />
     <Clip base="24" max="24" />
     <Range base="8" max="12" />
@@ -156,11 +156,11 @@
   
   <Weapon weapon_name="M32" type="M32" moveSpeedDrag="1.5" price="150000" showName="M32" comment=""
           BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
-          battleButtleCountRatio ="1" bulletShopPrice="2500" bulletBalletPrice="2500" initBullet="60" buyBulletCount="120"
+          battleButtleCountRatio ="1" bulletShopPrice="3000" bulletBalletPrice="3000" initBullet="120" buyBulletCount="320"
           maxLevel="30" upPriceRatio="38" AfterFireTime="1" ComboBase="2" CrystalUnlockPrice="179"
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="5" stretchRangeRun="8" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="150000"
-          existState ="0" owner="All" dmgRatio="22" combination="3" unlockDay="-1" >
+          existState ="0" owner="All" dmgRatio="33" combination="3" unlockDay="-1" >
     <Frequency base="1.2" max="0.65" />
     <stretchMaxRange base="1" max="1" />
     <Clip base="32" max="32" />
@@ -203,7 +203,7 @@
   
   <Weapon weapon_name="IonCannon" type="IonCannon" moveSpeedDrag="1.5" price="800000" showName="Ion Cannon" comment=""
           BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
-          battleButtleCountRatio ="1" bulletShopPrice="8000" bulletBalletPrice="8000" initBullet="100" buyBulletCount="240"
+          battleButtleCountRatio ="1" bulletShopPrice="5500" bulletBalletPrice="5500" initBullet="100" buyBulletCount="240"
           maxLevel="30" upPriceRatio="70" AfterFireTime="1" ComboBase="2" CrystalUnlockPrice="699"
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="5" stretchRangeRun="8" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="600000"
@@ -219,7 +219,7 @@
   
   <Weapon weapon_name="IceGun" type="IceGun" moveSpeedDrag="0.5" price ="800000" showName="Frozen Rifle" comment=""
           BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
-          battleButtleCountRatio ="1" bulletShopPrice="7600" bulletBalletPrice="7600" initBullet ="100" buyBulletCount="240"
+          battleButtleCountRatio ="1" bulletShopPrice="6000" bulletBalletPrice="6000" initBullet ="100" buyBulletCount="240"
           maxLevel="30" upPriceRatio="60" AfterFireTime="1" ComboBase="1.5" CrystalUnlockPrice="799"
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="2" stretchRangeRun="5" AutoLock="0" Recoil="25" infinityAmmo="0" sellPrice="800000"

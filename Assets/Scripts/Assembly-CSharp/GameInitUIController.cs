@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.Video;
 using UnityEngine.SceneManagement;
 using CoMZ2;
+using System;
 
 public class GameInitUIController : MonoBehaviour
 {
@@ -34,7 +35,7 @@ public class GameInitUIController : MonoBehaviour
     {
         GameConfig.CheckGameConfig();
 
-        bool loaded = GameData.Instance.LoadData(); // Your new direct save load
+        bool loaded = GameData.Instance.LoadData();
         Debug.Log("Save loaded: " + loaded);
         Debug.Log("Loaded game version: " + GameData.Instance.game_version);
         Debug.Log("Current app version: " + Application.version);
@@ -53,6 +54,13 @@ public class GameInitUIController : MonoBehaviour
             GameData.Instance.needsUpdate = true;
             GameData.Instance.game_version = Application.version;
             GameData.Instance.SaveData(); // Patch save to current version
+        }
+
+        if (GameData.Instance != null)
+        {
+            GameData.Instance.lastLoginDate = DateTime.Today;
+            GameData.Instance.SaveData();
+            Debug.Log("[Init] Updated lastLoginDate to: " + GameData.Instance.lastLoginDate);
         }
 
         OpenClikPlugin.Initialize("A36F6C65-C1E3-47D4-AD07-AA8A6C90132C");
