@@ -33,7 +33,7 @@ public class ScreenOverlay : PostEffectsBase
 		intensity = 1f;
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(false);
 		overlayMaterial = CheckShaderAndCreateMaterial(overlayShader, overlayMaterial);
@@ -56,7 +56,7 @@ public class ScreenOverlay : PostEffectsBase
 		Graphics.Blit(source, destination, overlayMaterial, (int)blendMode);
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }

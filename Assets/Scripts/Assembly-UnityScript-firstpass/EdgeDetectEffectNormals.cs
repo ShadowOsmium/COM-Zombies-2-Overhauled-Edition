@@ -38,7 +38,7 @@ public class EdgeDetectEffectNormals : PostEffectsBase
 		oldMode = EdgeDetectMode.SobelDepthThin;
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(true);
 		edgeDetectMaterial = CheckShaderAndCreateMaterial(edgeDetectShader, edgeDetectMaterial);
@@ -54,12 +54,12 @@ public class EdgeDetectEffectNormals : PostEffectsBase
 		return isSupported;
 	}
 
-	public void Start()
-	{
-		oldMode = mode;
-	}
+    public new void Start()
+    {
+        oldMode = mode;
+    }
 
-	public void SetCameraFlag()
+    public void SetCameraFlag()
 	{
 		if (mode > EdgeDetectMode.RobertsCrossDepthNormals)
 		{
@@ -71,7 +71,7 @@ public class EdgeDetectEffectNormals : PostEffectsBase
 		}
 	}
 
-	public void OnEnable()
+	public new void OnEnable()
 	{
 		SetCameraFlag();
 	}
@@ -93,7 +93,7 @@ public class EdgeDetectEffectNormals : PostEffectsBase
 		Graphics.Blit(source, destination, edgeDetectMaterial, (int)mode);
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }

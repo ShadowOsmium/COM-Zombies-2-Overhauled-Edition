@@ -13,9 +13,10 @@ public class KamcordThumbnailUpdater : MonoBehaviour
 
 	public float thumbnailToScreenRatio = 0.4f;
 
-	private GUITexture theGuiTexture;
+#pragma warning disable CS0618 // Type or member is obsolete
+    private GUITexture theGuiTexture;
 
-	private float playButtonToThumbnailRatio = 0.5f;
+    private float playButtonToThumbnailRatio = 0.5f;
 
 	private Rect playButtonLocationAndSize;
 
@@ -104,8 +105,8 @@ public class KamcordThumbnailUpdater : MonoBehaviour
 			EnableThumbnail(true);
 		}
 	}
-
-	private void SetThumbnailTextureToFilepath(string filepath)
+#pragma warning restore CS0618 // Type or member is obsolete
+    private void SetThumbnailTextureToFilepath(string filepath)
 	{
 		WWW loader = new WWW("file://" + filepath);
 		StartCoroutine(WaitForLoadToFinishAndThenSetThumbnail(loader));

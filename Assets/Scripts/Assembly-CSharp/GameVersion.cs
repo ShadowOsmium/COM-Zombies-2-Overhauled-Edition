@@ -1,7 +1,11 @@
+using System;
 using System.Collections;
 using System.IO;
 using CoMZ2;
 using UnityEngine;
+using UnityEngine.Networking;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 public class GameVersion : MonoBehaviour
 {
@@ -15,6 +19,7 @@ public class GameVersion : MonoBehaviour
     {
         get { return instance; }
     }
+    private string latestVersion;
 
     public delegate void OnServerVersion(bool isUpToDate);
 
@@ -62,141 +67,106 @@ public class GameVersion : MonoBehaviour
     public void CheckRemoteGameVersion(OnServerVersion callback, OnServerVersionError callback_error)
     {
         string currentVersion = Application.version;
-        string expectedVersion = "1.3.3";
+        string versionFilePath = Utils.SavePath() + "CoMZ2_version.bytes";
 
-        if (currentVersion == expectedVersion)
+        if (File.Exists(versionFilePath))
         {
-            if (callback != null)
-                callback(true);
-            return;
-        }
-        if (GameDefine.LOAD_CONFIG_SAVE_PATH && GameConfig.IsEditorMode())
-        {
-            Utils.FileReadString(Utils.SavePath() + "CoMZ2_version.bytes", ref content);
-            content = Encipher(content);
-            Debug.Log(content);
+            string fileContent = string.Empty;
+            Utils.FileReadString(versionFilePath, ref fileContent);
+            fileContent = Encipher(fileContent);
 
             Configure configure = new Configure();
-            configure.Load(content);
+            configure.Load(fileContent);
 
-            string ver = configure.GetSingle("CoMZ2", "Ver");
-            string testVer = configure.GetSingle("CoMZ2", "TestVer");
-            ver = configure.GetSingle("CoMZ2", "VerAndroid");
-            testVer = configure.GetSingle("CoMZ2", "TestVerAndroid");
+            string expectedVersion = configure.GetSingle("CoMZ2", "VerAndroid");
+            if (string.IsNullOrEmpty(expectedVersion))
+                expectedVersion = configure.GetSingle("CoMZ2", "Ver");
 
-            bool iapCheckFlag = (int.Parse(configure.GetSingle("CoMZ2", "IapCheck")) != 0);
-            if (iapCheckFlag != GameData.Instance.TRINITI_IAP_CEHCK)
+            Debug.Log(string.Format("Local version: {0}, App version: {1}", expectedVersion, currentVersion));
+
+            if (VersionsMatch(currentVersion, expectedVersion))
             {
-                GameData.Instance.TRINITI_IAP_CEHCK = iapCheckFlag;
-                GameData.Instance.SaveData();
-            }
-
-            int count = 0;
-            if (ver == "1.3.3")
-            {
-                Debug.Log("to normal server.");
-                is_test_config = false;
-                count = int.Parse(configure.GetSingle("CoMZ2", "ConfigVersionCount"));
-                for (int i = 0; i < count; i++)
-                {
-                    string key = configure.GetArray2("CoMZ2", "ConfigVersion", i, 0);
-                    string val = configure.GetArray2("CoMZ2", "ConfigVersion", i, 1);
-                    GameConfig.Instance.Remote_Config_Version_Set[key] = val;
-                }
                 if (callback != null)
                     callback(true);
-            }
-            else if (testVer == "1.3.3")
-            {
-                Debug.Log("to test server.");
-                is_test_config = true;
-                count = int.Parse(configure.GetSingle("CoMZ2", "ConfigVersionCountTest"));
-                for (int i = 0; i < count; i++)
-                {
-                    string key = configure.GetArray2("CoMZ2", "ConfigVersionTest", i, 0);
-                    string val = configure.GetArray2("CoMZ2", "ConfigVersionTest", i, 1);
-                    GameConfig.Instance.Remote_Config_Version_Set[key] = val;
-                }
-                if (callback != null)
-                    callback(true);
+                return;  // local version matches, no need to check GitHub
             }
             else
             {
-                Debug.Log("game version error.");
-                if (callback != null)
-                    callback(false);
+                Debug.Log("Local version mismatch, checking GitHub latest version...");
+                StartCoroutine(CheckLatestVersionFromGitHub(callback, callback_error));
             }
         }
         else
         {
-            StartCoroutine(CheckGameVersionCoroutine(callback, callback_error));
+            Debug.Log("Local version file missing, checking GitHub latest version...");
+            StartCoroutine(CheckLatestVersionFromGitHub(callback, callback_error));
         }
     }
 
-    private IEnumerator CheckGameVersionCoroutine(OnServerVersion callback, OnServerVersionError callback_error)
+    private IEnumerator CheckLatestVersionFromGitHub(OnServerVersion callback, OnServerVersionError callback_error)
     {
-        string url = "https://api.github.com/repos/ShadowOsmium/COM-Zombies-2/releases/latest?rand=" + Random.Range(10, 99999);
+        string url = "https://api.github.com/repos/ShadowOsmium/COM-Zombies-2-Overhauled-Edition/releases/latest?rand=" + Random.Range(10, 99999);
 
-        WWW www = new WWW(url);
-        yield return www;
+        UnityWebRequest www = UnityWebRequest.Get(url);
+        www.SetRequestHeader("User-Agent", "COM-Zombies-2-GameVersionCheck");
+        yield return www.SendWebRequest();
 
-        if (!string.IsNullOrEmpty(www.error))
+        if (www.isNetworkError || www.isHttpError)
         {
             if (callback_error != null)
                 callback_error();
             yield break;
         }
 
-        string json = www.text;
-        string latestVersion = ExtractTagName(json);
+        string jsonText = www.downloadHandler.text;
+        Debug.Log("GitHub response text: " + jsonText);
 
-        if (callback != null)
-            callback(true);
+        string latestTag = ExtractTagName(jsonText);
 
-        content = www.text;
-        content = Encipher(content);
-        Debug.Log(content);
+        Debug.Log("GitHub latest version tag: " + latestTag + ", App version: " + Application.version);
 
-        Configure cfg = new Configure();
-        cfg.Load(content);
-
-        string ver = cfg.GetSingle("CoMZ2", "Ver");
-        string testVer = cfg.GetSingle("CoMZ2", "TestVer");
-        ver = cfg.GetSingle("CoMZ2", "VerAndroid");
-        testVer = cfg.GetSingle("CoMZ2", "TestVerAndroid");
-
-        int count = 0;
-        if (ver == "1.3.3")
+        if (VersionsMatch(Application.version, latestTag))
         {
-            Debug.Log("to normal server.");
-            is_test_config = false;
-            count = int.Parse(cfg.GetSingle("CoMZ2", "ConfigVersionCount"));
-            for (int i = 0; i < count; i++)
-            {
-                string key = cfg.GetArray2("CoMZ2", "ConfigVersion", i, 0);
-                string val = cfg.GetArray2("CoMZ2", "ConfigVersion", i, 1);
-                GameConfig.Instance.Remote_Config_Version_Set[key] = val;
-            }
-            if (callback != null)
-                callback(true);
-        }
-        else if (testVer == "1.3.3")
-        {
-            Debug.Log("to test server.");
-            is_test_config = true;
-            count = int.Parse(cfg.GetSingle("CoMZ2", "ConfigVersionCountTest"));
-            for (int i = 0; i < count; i++)
-            {
-                string key = cfg.GetArray2("CoMZ2", "ConfigVersionTest", i, 0);
-                string val = cfg.GetArray2("CoMZ2", "ConfigVersionTest", i, 1);
-                GameConfig.Instance.Remote_Config_Version_Set[key] = val;
-            }
             if (callback != null)
                 callback(true);
         }
         else
         {
-            Debug.Log("game version error.");
+            if (callback != null)
+                callback(false);
+        }
+    }
+
+    private IEnumerator CheckGameVersionCoroutine(OnServerVersion callback, OnServerVersionError callback_error)
+    {
+        string url = "https://api.github.com/repos/ShadowOsmium/COM-Zombies-2-Overhauled-Edition/releases/latest?rand=" + Random.Range(10, 99999);
+        UnityWebRequest www = UnityWebRequest.Get(url);
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.LogError("Version check failed: " + www.error);
+            if (callback_error != null)
+                callback_error();
+            yield break;
+        }
+
+        content = www.downloadHandler.text;
+        latestVersion = ExtractTagName(content);
+
+        Debug.Log("Latest GitHub version tag: " + latestVersion);
+
+        string currentVersion = Application.version;
+
+        if (VersionsMatch(currentVersion, latestVersion))
+        {
+            Debug.Log("Version is up to date.");
+            if (callback != null)
+                callback(true);
+        }
+        else
+        {
+            Debug.Log("Version mismatch.");
             if (callback != null)
                 callback(false);
         }
@@ -219,6 +189,26 @@ public class GameVersion : MonoBehaviour
         }
 
         return new string(result);
+    }
+
+    private bool VersionsMatch(string v1, string v2)
+    {
+        if (string.IsNullOrEmpty(v1) || string.IsNullOrEmpty(v2))
+        {
+            Debug.LogWarning(string.Format("VersionsMatch failed due to empty input: v1='{0}', v2='{1}'", v1, v2));
+            return false;
+        }
+
+        string v1Trim = v1.Trim();
+        string v2Trim = v2.Trim();
+
+        Debug.Log(string.Format("Comparing versions: '{0}' vs '{1}'", v1Trim, v2Trim));
+
+        bool match = string.Equals(v1Trim, v2Trim, StringComparison.OrdinalIgnoreCase);
+
+        Debug.Log("VersionsMatch result: " + match);
+
+        return match;
     }
 
     public void OutputVersionCheckFile()
@@ -246,6 +236,14 @@ public class GameVersion : MonoBehaviour
         int endIndex = json.IndexOf("\"", startIndex);
         if (endIndex == -1)
             return null;
-        return json.Substring(startIndex, endIndex - startIndex);
+
+        string rawTag = json.Substring(startIndex, endIndex - startIndex);
+
+        if (!string.IsNullOrEmpty(rawTag) && rawTag.StartsWith("v"))
+        {
+            return rawTag.Substring(1);
+        }
+        return rawTag;
     }
+
 }

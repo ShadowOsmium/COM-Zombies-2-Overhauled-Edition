@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
 [ExecuteInEditMode]
@@ -243,8 +242,10 @@ public class TUIMeshSector : TUINeedUpdateBase
 		meshRender = base.gameObject.GetComponent<MeshRenderer>();
 		meshFilter.sharedMesh = new Mesh();
 		meshFilter.sharedMesh.hideFlags = HideFlags.DontSave;
-		meshRender.castShadows = false;
-		meshRender.receiveShadows = false;
+#pragma warning disable CS0618 // Type or member is obsolete
+        meshRender.castShadows = false;
+#pragma warning restore CS0618 // Type or member is obsolete
+        meshRender.receiveShadows = false;
 		UpdateMesh();
 	}
 
@@ -656,7 +657,6 @@ public class TUIMeshSector : TUINeedUpdateBase
 
 	private int GetAnglePoint(float angle, float fAngleFactor, float controlWidth, float controlHeight, Vector4 texUV, ref Vector3 point, ref Vector2 uv)
 	{
-		int num = 0;
 		float[] array = new float[4]
 		{
 			fAngleFactor,

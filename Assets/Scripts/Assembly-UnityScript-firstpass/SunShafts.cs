@@ -48,7 +48,7 @@ public class SunShafts : PostEffectsBase
 		useDepthTexture = true;
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(useDepthTexture);
 		sunShaftsMaterial = CheckShaderAndCreateMaterial(sunShaftsShader, sunShaftsMaterial);
@@ -132,7 +132,7 @@ public class SunShafts : PostEffectsBase
 		return (its < 1) ? 1 : ((its <= 4) ? its : 4);
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }

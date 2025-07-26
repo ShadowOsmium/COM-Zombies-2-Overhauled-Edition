@@ -141,35 +141,7 @@ public class GameSceneCoopController : GameSceneController
                 break;
         }
         wait_server_tip.gameObject.SetActive(false);
-        OnCoopSceneColorReset();
-    }
-
-    public override void OnSceneColorReset()
-    {
-        if (!(Application.loadedLevelName != "Depot") || !(Application.loadedLevelName != "Church") || !(Application.loadedLevelName != "GameTutorial") || !(Application.loadedLevelName != "Junkyard"))
-        {
-            return;
-        }
-        if (Application.loadedLevelName.StartsWith("COM2_"))
-        {
-            GameObject gameObject = Object.Instantiate(Resources.Load("Prefabs/ChannelMaterialSet")) as GameObject;
-            {
-                foreach (Material item in gameObject.GetComponent<MaterialPrefabReference>().material_set)
-                {
-                    item.SetColor("_Color", Color.white);
-                }
-                return;
-            }
-        }
-        if (!Application.loadedLevelName.StartsWith("Lab_"))
-        {
-            return;
-        }
-        GameObject gameObject2 = Object.Instantiate(Resources.Load("Prefabs/LabMaterialSet")) as GameObject;
-        foreach (Material item2 in gameObject2.GetComponent<MaterialPrefabReference>().material_set)
-        {
-            item2.SetColor("_Color", Color.white);
-        }
+        OnSceneColorReset();
     }
 
     private IEnumerator Start()
@@ -326,81 +298,21 @@ public class GameSceneCoopController : GameSceneController
         }
     }
 
-    private void Update()
+    protected override void Update()
     {
-        if (GameSceneController.Instance.can_buy_ammo && Input.GetKeyDown(KeyCode.R))
-        {
-            GameSceneController.Instance.OnAddBulletButton();
-        }
+        base.Update();
+
         if (Time.deltaTime != 0f && Time.timeScale != 0f && Time.time - last_check_mission_finished >= check_mission_rate)
         {
             last_check_mission_finished = Time.time;
             CheckMissionFinished();
             CheckCoopMissionOver();
         }
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (!GameSceneController.Instance.canPressEscape)
-            {
-                Debug.Log("Escape pressed but GameSceneController.canPressEscape = false");
-                return;
-            }
-
-            Debug.Log("Escape pressed and GameSceneController.canPressEscape = true");
-
-            if (Time.timeScale == 0f)
-            {
-                GameSceneController.Instance.OnGameResume();
-            }
-            else
-            {
-                GameSceneController.Instance.OnGamePause();
-            }
-        }
     }
 
-    public virtual void OnCoopSceneColorReset()
+    public override void OnSceneColorReset()
     {
-        if (!(Application.loadedLevelName != "Depot") || !(Application.loadedLevelName != "Church") || !(Application.loadedLevelName != "GameTutorial") || !(Application.loadedLevelName != "Junkyard"))
-        {
-            return;
-        }
-        if (Application.loadedLevelName.StartsWith("COM2_"))
-        {
-            GameObject gameObject = Object.Instantiate(Resources.Load("Prefabs/ChannelMaterialSet")) as GameObject;
-            if (GameConfig.Instance.Channel_Scene_Color_Set.ContainsKey(Application.loadedLevelName))
-            {
-                foreach (Material item in gameObject.GetComponent<MaterialPrefabReference>().material_set)
-                {
-                    item.SetColor("_Color", GameConfig.Instance.Channel_Scene_Color_Set[Application.loadedLevelName]);
-                }
-                return;
-            }
-            {
-                foreach (Material item2 in gameObject.GetComponent<MaterialPrefabReference>().material_set)
-                {
-                    item2.SetColor("_Color", Color.white);
-                }
-                return;
-            }
-        }
-        if (!Application.loadedLevelName.StartsWith("Lab_"))
-        {
-            return;
-        }
-        GameObject gameObject2 = Object.Instantiate(Resources.Load("Prefabs/LabMaterialSet")) as GameObject;
-        if (GameConfig.Instance.Channel_Scene_Color_Set.ContainsKey(Application.loadedLevelName))
-        {
-            foreach (Material item3 in gameObject2.GetComponent<MaterialPrefabReference>().material_set)
-            {
-                item3.SetColor("_Color", GameConfig.Instance.Channel_Scene_Color_Set[Application.loadedLevelName]);
-            }
-            return;
-        }
-        foreach (Material item4 in gameObject2.GetComponent<MaterialPrefabReference>().material_set)
-        {
-            item4.SetColor("_Color", Color.white);
-        }
+        base.OnSceneColorReset();
     }
 
     private void DisableFireStickOnPCCoop()
@@ -919,30 +831,12 @@ public class GameSceneCoopController : GameSceneController
 
     public override void OnGamePause()
     {
-        HidePanels();
-        game_pause_panel.Show();
-        ((GamePausePanelController)game_pause_panel).ResetButtonState();
-
-        TAudioManager.instance.musicVolume = 0f;
-        TAudioManager.instance.soundVolume = 0f;
-
-        UnlockCursor();
-        Debug.Log("OnGamePause called");
-        GameSceneController.Instance.canPressEscape = false;
+        base.OnGamePause();
     }
 
     public override void OnGameResume()
     {
-        OpenClikPlugin.Hide();
-        HidePanels();
-        game_main_panel.Show();
-
-        LockCursor();
-
-        TAudioManager.instance.musicVolume = 0.5f;
-        TAudioManager.instance.soundVolume = 0.5f;
-        Debug.Log("OnGamePause called");
-        GameSceneController.Instance.canPressEscape = true;
+        base.OnGameResume();
     }
 
     public override void OnGameQuit()

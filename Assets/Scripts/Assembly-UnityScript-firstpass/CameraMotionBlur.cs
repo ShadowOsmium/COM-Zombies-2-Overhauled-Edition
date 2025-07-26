@@ -102,7 +102,7 @@ public class CameraMotionBlur : PostEffectsBase
 		currentViewProjMat = gPUProjectionMatrix * worldToCameraMatrix;
 	}
 
-	public void Start()
+	public new void Start()
 	{
 		CheckResources();
 		wasActive = gameObject.activeInHierarchy;
@@ -112,7 +112,7 @@ public class CameraMotionBlur : PostEffectsBase
 		wasActive = false;
 	}
 
-	public void OnEnable()
+	public new void OnEnable()
 	{
 		GetComponent<Camera>().depthTextureMode |= DepthTextureMode.Depth;
 	}
@@ -136,7 +136,7 @@ public class CameraMotionBlur : PostEffectsBase
 		}
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(true, true);
 		motionBlurMaterial = CheckShaderAndCreateMaterial(shader, motionBlurMaterial);
@@ -362,7 +362,7 @@ public class CameraMotionBlur : PostEffectsBase
 		return (x + d - 1) / d;
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }

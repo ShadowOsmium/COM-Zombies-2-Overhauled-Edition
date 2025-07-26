@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Networking;
 
 public class VersionChecker : MonoBehaviour
 {
@@ -13,16 +14,16 @@ public class VersionChecker : MonoBehaviour
 
     IEnumerator CheckVersionRoutine()
     {
-        WWW www = new WWW(remoteVersionUrl);
-        yield return www;
+        UnityWebRequest www = UnityWebRequest.Get(remoteVersionUrl);
+        yield return www.SendWebRequest();
 
-        if (!string.IsNullOrEmpty(www.error))
+        if (www.isNetworkError || www.isHttpError)
         {
             Debug.LogWarning("Failed to fetch remote version. Allowing play.");
             yield break;
         }
 
-        string remoteVersion = www.text.Trim();
+        string remoteVersion = www.downloadHandler.text.Trim();
         string localVersion = GameVersion.GetVersion();
 
         Debug.Log("Local Version: " + localVersion + " | Remote Version: " + remoteVersion);

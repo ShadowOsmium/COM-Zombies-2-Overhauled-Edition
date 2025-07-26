@@ -49,7 +49,7 @@ public class TiltShift : PostEffectsBase
 		curve = 1f;
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(true);
 		tiltShiftMaterial = CheckShaderAndCreateMaterial(tiltShiftShader, tiltShiftMaterial);
@@ -122,7 +122,7 @@ public class TiltShift : PostEffectsBase
 		RenderTexture.ReleaseTemporary(temporary4);
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }

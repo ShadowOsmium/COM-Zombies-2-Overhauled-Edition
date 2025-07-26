@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-
+#pragma warning disable CS0618 // Type or member is obsolete
 [Serializable]
 [ExecuteInEditMode]
 [RequireComponent(typeof(Camera))]
@@ -128,7 +128,7 @@ public class Bloom : PostEffectsBase
 		blurWidth = 1f;
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(false);
 		screenBlend = CheckShaderAndCreateMaterial(screenBlendShader, screenBlend);
@@ -155,8 +155,8 @@ public class Bloom : PostEffectsBase
 			bool num = source.format == RenderTextureFormat.ARGBHalf;
 			if (num)
 			{
-				num = GetComponent<Camera>().hdr;
-			}
+                num = GetComponent<Camera>().hdr;
+            }
 			doHdr = num;
 		}
 		else
@@ -341,7 +341,7 @@ public class Bloom : PostEffectsBase
 		}
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }

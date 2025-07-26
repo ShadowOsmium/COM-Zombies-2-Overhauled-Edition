@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Boomlagoon.JSON;
 using UnityEngine;
-
+#pragma warning disable CS0618 // Type or member is obsolete
 public class JSONObjectTester : MonoBehaviour
 {
 	public GUIText infoText;
@@ -62,4 +62,5 @@ public class JSONObjectTester : MonoBehaviour
 			stringToEvaluate = string.Empty;
 		}
 	}
+#pragma warning restore CS0618 // Type or member is obsolete
 }

@@ -93,8 +93,12 @@ public class GameData : MonoBehaviour
 
     public int suspiciousSaveCount = 0;
 
-    private readonly TimeSpan rapidSaveThreshold = TimeSpan.FromSeconds(4);
-    private readonly int maxSuspiciousSaves = 4;
+    private readonly TimeSpan rapidSaveThreshold = TimeSpan.FromSeconds(8);
+    private readonly int maxSuspiciousSaves = 6;
+
+    public static DateTime lastLegitActionTime = DateTime.MinValue;
+
+    public static TimeSpan legitActionGracePeriod = TimeSpan.FromSeconds(5);
 
     private GameDataInt _total_cash = new GameDataInt(0);
 
@@ -1051,13 +1055,27 @@ public class GameData : MonoBehaviour
         bool isFirstSave = lastSaveTime == DateTime.MinValue;
         if (!isFirstSave)
         {
-            bool cashFrozen = (currentCash == lastSavedCash) && currentCash < CashCap;
-            bool crystalFrozen = (currentCrystal == lastSavedCrystal) && currentCrystal < CrystalCap;
-            bool voucherFrozen = (currentVoucher == lastSavedVoucher) && currentVoucher < VoucherCap;
-            bool freeSpinFrozen = (currentFreeSpins == lastSavedFreeSpins) && currentFreeSpins < FreeSpinCap;
+            TimeSpan legitActionGracePeriod = TimeSpan.FromSeconds(5);
+            bool inLegitActionWindow = (now - lastLegitActionTime) < legitActionGracePeriod;
 
-            TimeSpan rapidSaveThreshold = TimeSpan.FromSeconds(3);
+            if (inLegitActionWindow)
+            {
+                suspiciousSaveCount = 0;
+                lastSavedCash = currentCash;
+                lastSavedCrystal = currentCrystal;
+                lastSavedVoucher = currentVoucher;
+                lastSavedFreeSpins = currentFreeSpins;
+                lastSaveTime = now;
+                return true;
+            }
+
+            TimeSpan rapidSaveThreshold = TimeSpan.FromSeconds(5);
             bool rapidSave = (now - lastSaveTime) < rapidSaveThreshold;
+
+            bool cashFrozen = (currentCash == lastSavedCash) && currentCash >= CashCap;
+            bool crystalFrozen = (currentCrystal == lastSavedCrystal) && currentCrystal >= CrystalCap;
+            bool voucherFrozen = (currentVoucher == lastSavedVoucher) && currentVoucher >= VoucherCap;
+            bool freeSpinFrozen = (currentFreeSpins == lastSavedFreeSpins) && currentFreeSpins >= FreeSpinCap;
 
             if (rapidSave && cashFrozen && crystalFrozen && voucherFrozen && freeSpinFrozen)
             {
@@ -1073,18 +1091,15 @@ public class GameData : MonoBehaviour
             {
                 suspiciousSaveCount = 0;
             }
-        }
-        else
-        {
-            suspiciousSaveCount = 0;
-        }
 
-        lastSavedCash = currentCash;
-        lastSavedCrystal = currentCrystal;
-        lastSavedVoucher = currentVoucher;
-        lastSavedFreeSpins = currentFreeSpins;
-        lastSaveTime = now;
+            lastSavedCash = currentCash;
+            lastSavedCrystal = currentCrystal;
+            lastSavedVoucher = currentVoucher;
+            lastSavedFreeSpins = currentFreeSpins;
+            lastSaveTime = now;
 
+            return true;
+        }
         return true;
     }
 

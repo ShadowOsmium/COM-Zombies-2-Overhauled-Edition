@@ -19,7 +19,7 @@ public class ColorCorrectionLut : PostEffectsBase
 		basedOnTempTex = string.Empty;
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(false);
 		material = CheckShaderAndCreateMaterial(shader, material);
@@ -147,7 +147,7 @@ public class ColorCorrectionLut : PostEffectsBase
 		Graphics.Blit(source, destination, material, (QualitySettings.activeColorSpace == ColorSpace.Linear) ? 1 : 0);
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }

@@ -6,7 +6,11 @@ public class MineProjectile : ProjectileController
 {
 	public bool alive = true;
 
-	public override Vector3 centroid
+    private static float lastChainBoomTime = 0f;
+
+    private static float chainBoomCooldown = 0.2f;
+
+    public override Vector3 centroid
 	{
 		get
 		{
@@ -52,7 +56,12 @@ public class MineProjectile : ProjectileController
 
 	public static void ChainBoom(Vector3 pos, float radius)
 	{
-		foreach (MineProjectile item in GameSceneController.Instance.mine_area)
+        if (Time.time - lastChainBoomTime < chainBoomCooldown)
+            return;
+
+        lastChainBoomTime = Time.time;
+
+        foreach (MineProjectile item in GameSceneController.Instance.mine_area)
 		{
 			if (!item.alive || !((item.centroid - pos).sqrMagnitude < radius * radius) || GameSceneController.CheckBlockBetween(pos, item.centroid))
 			{

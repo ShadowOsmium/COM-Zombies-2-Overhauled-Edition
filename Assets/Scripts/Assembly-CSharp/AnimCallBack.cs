@@ -3,8 +3,8 @@ using UnityEngine;
 public class AnimCallBack : MonoBehaviour
 {
 	public GameObject[] targetObj;
-
-	private void Awake()
+#pragma warning disable CS0618 // Type or member is obsolete
+    private void Awake()
 	{
 		if (targetObj == null)
 		{
@@ -38,4 +38,5 @@ public class AnimCallBack : MonoBehaviour
 		}
 		targetObj[index].active = true;
 	}
+#pragma warning restore CS0618 // Type or member is obsolete
 }

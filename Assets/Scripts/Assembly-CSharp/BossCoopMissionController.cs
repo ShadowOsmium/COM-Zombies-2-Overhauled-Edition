@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using CoMZ2;
 using UnityEngine;
-
+#pragma warning disable CS0114 // Member hides inherited member; missing override keyword
 public class BossCoopMissionController : MissionController
 {
     private float last_check_time;

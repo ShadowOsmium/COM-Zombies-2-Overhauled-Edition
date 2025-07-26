@@ -63,8 +63,6 @@ public class GameCoverUIController : MonoBehaviour
 
         ready_update_file_count = 0;
         GameVersion.Instance.CheckRemoteGameVersion(OnServerVersion, OnServerVersionError);
-        bool isVersionOk = !GameData.Instance.needsUpdate;
-        OnServerVersion(isVersionOk);
 
         yield return 1;
 
@@ -156,15 +154,16 @@ public class GameCoverUIController : MonoBehaviour
         {
             GameData.Instance.needsUpdate = false;
             GameData.Instance.SaveData();
-
             CheckConfigVersion();
+            ShowMask(false);  // <-- MAKE SURE TO HIDE THE MASK HERE
             return;
         }
 
         GameData.Instance.needsUpdate = true;
         GameData.Instance.SaveData();
 
-        // Just show the message box, no mask or overlay stuff:
+        ShowMask(false);  // <--- ADD THIS to hide loading mask on version mismatch
+
         GameMsgBoxController.ShowMsgBox(
             GameMsgBoxController.MsgBoxType.SingleButton,
             tui_root,
@@ -175,9 +174,9 @@ public class GameCoverUIController : MonoBehaviour
         );
     }
 
+
     private void OnVersionUpdate()
     {
-        // Opens the GitHub releases page
         Application.OpenURL("https://github.com/ShadowOsmium/COM-Zombies-2-Overhauled-Edition/releases");
         Application.Quit();
     }

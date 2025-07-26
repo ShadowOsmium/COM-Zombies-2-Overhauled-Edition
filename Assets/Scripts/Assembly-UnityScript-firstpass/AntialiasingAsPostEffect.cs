@@ -63,8 +63,7 @@ public class AntialiasingAsPostEffect : PostEffectsBase
 
 	public Material CurrentAAMaterial()
 	{
-		Material material = null;
-		switch (mode)
+        switch (mode)
 		{
 		case AAMode.FXAA3Console:
 			return materialFXAAIII;
@@ -85,7 +84,7 @@ public class AntialiasingAsPostEffect : PostEffectsBase
 		}
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(false);
 		materialFXAAPreset2 = CreateMaterial(shaderFXAAPreset2, materialFXAAPreset2);
@@ -155,7 +154,7 @@ public class AntialiasingAsPostEffect : PostEffectsBase
 		}
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }

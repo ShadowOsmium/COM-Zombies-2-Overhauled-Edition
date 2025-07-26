@@ -223,7 +223,11 @@ public class GameSceneController : MonoBehaviour
 
 	public int mission_total_cash;
 
-	public bool is_play_cg;
+    public bool canPressEscape;
+
+    public float lastEscapeTime = -1f;
+
+    public bool is_play_cg;
 
 	public GameObject hp_bar_ref;
 
@@ -614,17 +618,13 @@ public class GameSceneController : MonoBehaviour
 		GameData.Instance.UploadStatistics("Game_Count", data_tem);
 	}
 
-    public bool is_game_paused = false;
-    public bool canPressEscape;
-    private float escapeCooldown = 0.2f;
-    private float lastEscapeTime = -1f;
-    private void Update()
-	{
-		if (Time.deltaTime != 0f && Time.timeScale != 0f && Time.time - last_check_mission_finished >= check_mission_rate)
-		{
-			last_check_mission_finished = Time.time;
-			CheckMissionFinished();
-		}
+    protected virtual void Update()
+    {
+        if (Time.deltaTime != 0f && Time.timeScale != 0f && Time.time - last_check_mission_finished >= check_mission_rate)
+        {
+            last_check_mission_finished = Time.time;
+            CheckMissionFinished();
+        }
         if (can_buy_ammo && Input.GetKeyDown(KeyCode.R))
         {
             OnAddBulletButton();
@@ -633,30 +633,10 @@ public class GameSceneController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (!GameSceneController.Instance.canPressEscape)
-            {
-                Debug.Log("Escape pressed but canPressEscape = false");
-                return;
-            }
-
-            if (now - lastEscapeTime < escapeCooldown)
-            {
-                Debug.Log("Escape pressed but still in cooldown");
-                return;
-            }
-
-            lastEscapeTime = now;
-
-            if (Time.timeScale == 0f)
-            {
-                Debug.Log("Unpausing game");
-                GameSceneController.Instance.OnGameResume();
-            }
+            if (!Instance.isPaused)
+                Instance.OnGamePause();
             else
-            {
-                Debug.Log("Pausing game");
-                GameSceneController.Instance.OnGamePause();
-            }
+                Instance.OnGameResume();
         }
     }
 
@@ -1043,15 +1023,51 @@ public class GameSceneController : MonoBehaviour
         Cursor.visible = true;
     }
 
-    // For later
     public virtual void SetLoseState()
     {
+        var player = Instance.player_controller;
+        if (player != null)
+        {
+            player.SetPlayerDeadState();
+        }
+
         GamePlayingState = PlayingState.Lose;
 
-        cur_rebirth_cost = 5 * player_death_count;
+        bool isEndless = GameData.Instance.cur_quest_info != null &&
+                         GameData.Instance.cur_quest_info.mission_day_type == MissionDayType.Endless;
 
-        if (cur_rebirth_cost > 25)
-            cur_rebirth_cost = 25;
+        int maxRevives = isEndless ? 2 : int.MaxValue;
+
+        if (player_death_count >= maxRevives)
+        {
+            canPressEscape = false;
+            Invoke("MissionFinished", 4f);
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            return;
+        }
+
+        int cur_rebirth_cost;
+
+        if (isEndless)
+        {
+            if (player_death_count == 0)
+            {
+                cur_rebirth_cost = 5;
+            }
+            else
+            {
+                cur_rebirth_cost = 10;
+            }
+        }
+        else
+        {
+            cur_rebirth_cost = 5 * (player_death_count + 1);
+            if (cur_rebirth_cost > 25)
+                cur_rebirth_cost = 25;
+        }
+
+        this.cur_rebirth_cost = cur_rebirth_cost;
 
         if (GameData.Instance.cur_quest_info.mission_type != MissionType.Tutorial &&
             GameData.Instance.total_crystal.GetIntVal() >= cur_rebirth_cost)
@@ -1462,6 +1478,7 @@ public class GameSceneController : MonoBehaviour
         return false; // Clear line of sight
     }
 
+    public bool isPaused = false;
     public virtual void OnGamePause()
     {
         canPressEscape = false;
@@ -1475,6 +1492,8 @@ public class GameSceneController : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         StartCoroutine(UnlockCursorNextFrame());
+
+        Debug.Log("OnGamePause called");
     }
 
     private IEnumerator UnlockCursorNextFrame()
@@ -1486,6 +1505,8 @@ public class GameSceneController : MonoBehaviour
 
     public virtual void OnGameResume()
     {
+        isPaused = false;
+
         canPressEscape = true;
         OpenClikPlugin.Hide();
         HidePanels();
@@ -1496,6 +1517,8 @@ public class GameSceneController : MonoBehaviour
         GamePlayingState = PlayingState.Gaming;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        Debug.Log("OnGameResume called");
     }
 
     public virtual void OnGameQuit()

@@ -88,7 +88,7 @@ public class DepthOfFieldScatter : PostEffectsBase
 		internalBlurWidth = 1f;
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(true);
 		dofHdrMaterial = CheckShaderAndCreateMaterial(dofHdrShader, dofHdrMaterial);
@@ -104,7 +104,7 @@ public class DepthOfFieldScatter : PostEffectsBase
 		return isSupported;
 	}
 
-	public void OnEnable()
+	public new void OnEnable()
 	{
 		GetComponent<Camera>().depthTextureMode |= DepthTextureMode.Depth;
 	}
@@ -356,7 +356,7 @@ public class DepthOfFieldScatter : PostEffectsBase
 		}
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }

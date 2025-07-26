@@ -94,7 +94,6 @@ public class Quads : MonoBehaviour
 		Vector2[] array2 = new Vector2[triCount * 4];
 		Vector2[] array3 = new Vector2[triCount * 4];
 		int[] array4 = new int[triCount * 6];
-		float num = 0.0075f;
 		for (int i = 0; i < triCount; i++)
 		{
 			int num2 = i * 4;

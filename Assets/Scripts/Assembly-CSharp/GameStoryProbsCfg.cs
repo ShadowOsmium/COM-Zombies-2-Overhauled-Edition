@@ -2,7 +2,7 @@ public class GameStoryProbsCfg : GameProbsCfg
 {
 	public int level;
 
-	public int weight;
+	public new int weight;
 
 	public string image_name = string.Empty;
 

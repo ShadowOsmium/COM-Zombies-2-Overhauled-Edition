@@ -21,7 +21,7 @@ public class Fisheye : PostEffectsBase
 		strengthY = 0.05f;
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(false);
 		fisheyeMaterial = CheckShaderAndCreateMaterial(fishEyeShader, fisheyeMaterial);
@@ -45,7 +45,7 @@ public class Fisheye : PostEffectsBase
 		Graphics.Blit(source, destination, fisheyeMaterial);
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }

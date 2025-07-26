@@ -171,7 +171,6 @@ public class IapCenter : MonoBehaviour
 		cur_tid = orderId;
 		cur_receipt = originalJson;
 		Iap_Resend.Set_IAP_android_list(GetIapId(cur_iap_id) + "|" + cur_tid + "|" + cur_receipt + "|purchase|" + signature);
-		//GameData.Instance.SaveData();
 		SendIAPVerifyRequest(productId, orderId, originalJson, "purchase", signature);
 	}
 

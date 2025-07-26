@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class CameraFade : MonoBehaviour
 {
-	protected int cameraFadeDepth = 999999;
+#pragma warning disable CS0618 // Type or member is obsolete
+    protected int cameraFadeDepth = 999999;
 
 	protected static GameObject cameraFade;
 
@@ -30,20 +31,20 @@ public class CameraFade : MonoBehaviour
 		base.GetComponent<GUITexture>().pixelInset = new Rect(0f, 0f, Screen.width, Screen.height);
 	}
 
-	protected Texture2D CameraTexture(Color color)
-	{
-		Texture2D texture2D = new Texture2D(16, 16, TextureFormat.ARGB32, false);
-		Color[] array = new Color[Screen.width * Screen.height];
-		for (int i = 0; i < array.Length; i++)
-		{
-			array[i] = color;
-		}
-		texture2D.SetPixels(array);
-		texture2D.Apply();
-		return texture2D;
-	}
+    protected Texture2D CameraTexture(Color color)
+    {
+        Texture2D texture2D = new Texture2D(16, 16, TextureFormat.ARGB32, false);
+        Color[] array = new Color[Screen.width * Screen.height];
+        for (int i = 0; i < array.Length; i++)
+        {
+            array[i] = color;
+        }
+        texture2D.SetPixels(array);
+        texture2D.Apply();
+        return texture2D;
+    }
 
-	public static void CameraFadeOut(float time)
+    public static void CameraFadeOut(float time)
 	{
 		Check();
 		fade.FadeOut(time);
@@ -119,4 +120,5 @@ public class CameraFade : MonoBehaviour
 		cameraFade = null;
 		fade = null;
 	}
-}
+#pragma warning restore CS0618 // Type or member is obsolete
+    }

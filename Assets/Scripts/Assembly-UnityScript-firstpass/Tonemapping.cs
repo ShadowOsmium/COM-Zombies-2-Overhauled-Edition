@@ -70,7 +70,7 @@ public class Tonemapping : PostEffectsBase
 		rtFormat = RenderTextureFormat.ARGBHalf;
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(false, true);
 		tonemapMaterial = CheckShaderAndCreateMaterial(tonemapper, tonemapMaterial);
@@ -244,7 +244,7 @@ public class Tonemapping : PostEffectsBase
 		RenderTexture.ReleaseTemporary(temporary);
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }

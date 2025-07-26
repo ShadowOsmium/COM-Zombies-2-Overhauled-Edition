@@ -63,7 +63,7 @@ public class ColorCorrectionCurves : PostEffectsBase
 		updateTexturesOnStartup = true;
 	}
 
-	public void Start()
+	public new void Start()
 	{
 		base.Start();
 		updateTexturesOnStartup = true;
@@ -73,7 +73,7 @@ public class ColorCorrectionCurves : PostEffectsBase
 	{
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(mode == ColorCorrectionMode.Advanced);
 		ccMaterial = CheckShaderAndCreateMaterial(simpleColorCorrectionCurvesShader, ccMaterial);
@@ -180,7 +180,7 @@ public class ColorCorrectionCurves : PostEffectsBase
 		}
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }

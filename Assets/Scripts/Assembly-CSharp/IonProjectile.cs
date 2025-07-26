@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class IonProjectile : ProjectileController
 {
+    private bool hasExploded = false;
+
     public override void Start()
     {
         base.Start();
@@ -27,11 +29,11 @@ public class IonProjectile : ProjectileController
 
     public override void OnProjectileCollideEnter(GameObject obj)
     {
-        MineProjectile.ChainBoom(centroid, explode_radius);
+        if (hasExploded) return;
+        hasExploded = true;
 
         PlayerController playerController = object_controller as PlayerController;
 
-        // Calculate damage with avatar scaling once
         float calculatedDamage = damage;
         if (playerController != null && playerController.avatar_data != null && weapon_controller != null)
         {

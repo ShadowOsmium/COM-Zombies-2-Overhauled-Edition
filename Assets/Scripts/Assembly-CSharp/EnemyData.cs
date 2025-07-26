@@ -69,6 +69,8 @@ public class EnemyData
     EnemyType.E_SHARK_E,
 };
 
+    public static object Instance { get; internal set; }
+
     public static EnemyData CreateData(EnemyConfig config)
 	{
 		EnemyData enemyData = new EnemyData();

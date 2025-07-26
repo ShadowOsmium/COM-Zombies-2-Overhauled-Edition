@@ -57,7 +57,7 @@ public class NoiseAndGrain : PostEffectsBase
 		filterMode = FilterMode.Bilinear;
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(false);
 		noiseMaterial = CheckShaderAndCreateMaterial(noiseShader, noiseMaterial);
@@ -170,7 +170,7 @@ public class NoiseAndGrain : PostEffectsBase
 		GL.PopMatrix();
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }

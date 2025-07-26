@@ -2,7 +2,7 @@ public class WeaponIntensifierProbsCfg : GameProbsCfg
 {
 	public string weapon_name = string.Empty;
 
-	public int weight;
+	public new int weight;
 
 	public string image_name = string.Empty;
 

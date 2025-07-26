@@ -130,7 +130,7 @@ public class DepthOfField34 : PostEffectsBase
 		}
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(true);
 		dofBlurMaterial = CheckShaderAndCreateMaterial(dofBlurShader, dofBlurMaterial);
@@ -152,7 +152,7 @@ public class DepthOfField34 : PostEffectsBase
 		Quads.Cleanup();
 	}
 
-	public void OnEnable()
+	public new void OnEnable()
 	{
 		GetComponent<Camera>().depthTextureMode |= DepthTextureMode.Depth;
 	}
@@ -463,7 +463,7 @@ public class DepthOfField34 : PostEffectsBase
 		}
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }

@@ -77,6 +77,11 @@ public class GrenadeProjectile : ProjectileController
         bool flag = false;
         foreach (EnemyController value in GameSceneController.Instance.Enemy_Set.Values)
         {
+            if (value.IsDead)
+                continue;
+
+            if (value.isSpawning) continue;
+
             if ((value.centroid - centroid).sqrMagnitude < explode_radius * explode_radius &&
                 !GameSceneController.CheckBlockBetween(centroid, value.centroid))
             {

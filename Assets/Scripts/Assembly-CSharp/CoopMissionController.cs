@@ -42,7 +42,6 @@ public class CoopMissionController : MissionController
 		mission_type = MissionType.Coop;
 		CaculateDifficulty();
 		yield return 1;
-		PlayerController player = GameSceneController.Instance.player_controller;
 	}
 
 	public override void Update()

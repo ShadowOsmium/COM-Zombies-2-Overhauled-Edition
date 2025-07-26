@@ -62,9 +62,16 @@ public class EnemyController : ObjectController
 
 	protected EnemyState enemyState;
 
-	public EnemyData enemy_data;
+    public bool IsDead
+    {
+        get { return enemyState == DEAD_STATE; }
+    }
 
-	public ObjectController target_player;
+    public EnemyData enemy_data;
+
+    public bool isSpawning = true;
+
+    public ObjectController target_player;
 
 	public ControllerNavPath nav_pather;
 
@@ -896,7 +903,7 @@ public class EnemyController : ObjectController
 
     public override void OnHit(float damage, WeaponController weapon, ObjectController player, Vector3 hit_point, Vector3 hit_normal)
     {
-        if (enemyState == SHOW_STATE || enemyState == DEAD_STATE)
+        if (enemyState == SHOW_STATE || enemyState == DEAD_STATE || isSpawning)
             return;
 
         injured_time = Time.time;
@@ -992,20 +999,16 @@ public class EnemyController : ObjectController
         float totalDamage = 0f;
 
         // Sum total damage from all players
-        foreach (System.Collections.Generic.KeyValuePair<PlayerID, float> kvp in GameSceneController.Instance.Player_damage_Set)
+        foreach (KeyValuePair<PlayerID, float> kvp in GameSceneController.Instance.Player_damage_Set)
         {
             totalDamage += kvp.Value;
         }
 
         // For each player, calculate and log percent damage
-        foreach (System.Collections.Generic.KeyValuePair<PlayerID, float> kvp in GameSceneController.Instance.Player_damage_Set)
+        foreach (KeyValuePair<PlayerID, float> kvp in GameSceneController.Instance.Player_damage_Set)
         {
             PlayerID playerID = kvp.Key;
             float playerDamage = kvp.Value;
-
-            float damagePercent = (playerDamage / totalBossHp) * 100f;
-
-            //Debug.Log(string.Format("Player {0} damage: {1} ({2:F2}%)", playerID.ToString(), playerDamage, damagePercent));
         }
     }
 
@@ -1568,6 +1571,12 @@ public class EnemyController : ObjectController
 
     public virtual void PlayHalfHpEffect()
     {
+        if (EndlessMissionController.Instance != null && GameData.Instance.cur_quest_info != null &&
+        GameData.Instance.cur_quest_info.mission_type == MissionType.Endless &&
+        GameData.Instance.cur_quest_info.mission_day_type == MissionDayType.Endless)
+        {
+            return; // Early exit if mission is endless
+        }
         GameSceneController.Instance.player_controller.SetIdleLockState(true);
     }
 
@@ -1678,17 +1687,17 @@ public class EnemyController : ObjectController
 		}
 	}
 
-	public void StartLimitMove(float limit_time)
-	{
-		if (!(nav_pather == null))
-		{
-			tem_speed = nav_pather.GetSpeed();
-			nav_pather.SetSpeed(0f);
-			Invoke("CancelLimitMove", limit_time);
-		}
-	}
+    public void StartLimitMove(float limit_time)
+    {
+        if (nav_pather != null)
+        {
+            tem_speed = nav_pather.GetSpeed();
+            nav_pather.SetSpeed(0f);
+            Invoke("CancelLimitMove", limit_time);
+        }
+    }
 
-	public void CancelLimitMove()
+    public void CancelLimitMove()
 	{
 		nav_pather.SetSpeed(tem_speed);
 	}

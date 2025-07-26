@@ -64,6 +64,7 @@ public class EnemyFactory : MonoBehaviour
         EnemyData data = EnemyData.CreateData(GameConfig.Instance.EnemyConfig_Set[type]);
         ec.SetEnemyData(data);
         ec.enemyType = type;
+        ec.isSpawning = true;
         ec.EnemyID = id;
         ec.Accessory = prefab.GetComponent<SinglePrefabReference>().Accessory;
         ec.is_traped = isTrapped;
@@ -71,6 +72,9 @@ public class EnemyFactory : MonoBehaviour
         enemyGO.GetComponent<EnemyAnimationEvent>().SetController(ec);
         GameSceneController.Instance.Enemy_Set.Add(id, ec);
         GameSceneController.Instance.OnEnemySpawn(data);
+        ec.isSpawning = true;
+        ec.StartCoroutine(DisableSpawnProtection(ec));
+
         return ec;
     }
 
@@ -198,6 +202,16 @@ public class EnemyFactory : MonoBehaviour
             case EnemyType.E_SHARK:
             case EnemyType.E_SHARK_E: return "SharkController";
             default: return "EnemyController";
+        }
+    }
+
+    private static IEnumerator DisableSpawnProtection(EnemyController ec)
+    {
+        yield return new WaitForSeconds(0.5f); // or 1.0f depending on spawn animation time
+        if (ec != null)
+        {
+            ec.isSpawning = false;
+            // Debug.Log("Enemy " + ec.name + " is now damageable.");
         }
     }
 }

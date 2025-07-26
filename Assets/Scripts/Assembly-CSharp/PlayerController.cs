@@ -839,13 +839,20 @@ public class PlayerController : ObjectController
 		}
 	}
 
-	public override void OnDead(float damage, WeaponController weapon, ObjectController controller, Vector3 hit_point, Vector3 hit_normal)
-	{
-		StopFire();
-		GameSceneController.Instance.OnKeyManDead(this);
-	}
+    public void SetPlayerDeadState()
+    {
+        move_state = DEAD_STATE;
+        fire_state = DEAD_STATE;
+    }
 
-	public virtual void CheckHit()
+    public override void OnDead(float damage, WeaponController weapon, ObjectController controller, Vector3 hit_point, Vector3 hit_normal)
+    {
+        StopFire();
+        SetPlayerDeadState();
+        GameSceneController.Instance.OnKeyManDead(this);
+    }
+
+    public virtual void CheckHit()
 	{
 		cur_weapon.CheckHit(this);
 	}
@@ -1614,8 +1621,8 @@ public class PlayerController : ObjectController
 
 	public void StartLimitMove(float limit_time)
 	{
-		CancelInvoke("CancelLimitMove");
-		is_limit_move = true;
+        CancelInvoke("CancelLimitMove");
+        is_limit_move = true;
 		Invoke("CancelLimitMove", limit_time);
 	}
 

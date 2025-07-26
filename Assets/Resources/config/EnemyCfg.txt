@@ -106,13 +106,13 @@
    hpRatio="31" damRatio="2.5" rewardRatio="8" priority="Hostage" loadContent="" >
   <Ex windSpeedRatio="1.3" windRange="12" windCDTime="14" windDmgRatio="0.4" windTime="3" rushSpeedRatio="2" rushRange="25"
       rushRangeMin="12" rushJumpRange="8" rushJumpRangeMin="6" rushCDTime="8" rushDmgRatio="2.5" rushTime="6" injuredPercent="0.2"
-      bellowCDTime="16" bellowDmgRatio="0.7" bellowDmgRange="9" bellowTime="2.5" />
+      bellowCDTime="16" bellowDmgRatio="0.3" bellowDmgRange="9" bellowTime="2.5" />
 </Monster>
 <Monster name="Wrestler_E" viewRange="10" attackRange="4" walkSpeed="5.5" attackFrequency="2.9" missionWeight="5"
    hpRatio="38" damRatio="2.8" rewardRatio="8" priority="Hostage" loadContent="" >
   <Ex windSpeedRatio="1.5" windRange="20" windCDTime="14" windDmgRatio="0.4" windTime="3" rushSpeedRatio="2" rushRange="35"
       rushRangeMin="12" rushJumpRange="8" rushJumpRangeMin="6" rushCDTime="8" rushDmgRatio="2.5" rushTime="6" injuredPercent="0.3"
-      bellowCDTime="12" bellowDmgRatio="0.7" bellowDmgRange="11" bellowTime="2.5" />
+      bellowCDTime="12" bellowDmgRatio="0.4" bellowDmgRange="11" bellowTime="2.5" />
 </Monster>
 <Monster name="Halloween" viewRange="10" attackRange="4" walkSpeed="5" attackFrequency="1" missionWeight="5"
          hpRatio="36" damRatio="2.6" rewardRatio="8" priority="Hostage" loadContent="" >
@@ -133,13 +133,13 @@
 <Monster name="Shark" viewRange="10" attackRange="3" walkSpeed="4.5" attackFrequency="1.6" missionWeight="5"
        hpRatio="41" damRatio="2.6" rewardRatio="8" priority="Hostage" loadContent="" >
   <Ex injuredPercent="0.2" rushSpeedRatio="2.5" rushRange="20" rushRangeMin="2" rushCDTime="15" rushDmgRatio="1.5" rushRestTime="2"
-      missileRange="20" missileCDTime="10" missileDmgRatio="1" missileSpeed="8" 
+      missileRange="20" missileCDTime="10" missileDmgRatio="1" missileSpeed="6" 
       diveSpeedRatio="3" diveRange="20" diveCDTime="25" diveDmgRatio="1.5" diveTime="3" />
 </Monster>
 <Monster name="Shark_E" viewRange="15" attackRange="4" walkSpeed="6" attackFrequency="1.6" missionWeight="5"
        hpRatio="48" damRatio="3" rewardRatio="12" priority="Hostage" loadContent="" >
   <Ex injuredPercent="0.3" rushSpeedRatio="2.5" rushRange="30" rushRangeMin="4" rushCDTime="12" rushDmgRatio="2" rushRestTime="1"
-      missileRange="20" missileCDTime="8" missileDmgRatio="1" missileSpeed="10" 
+      missileRange="20" missileCDTime="8" missileDmgRatio="1" missileSpeed="8" 
       diveSpeedRatio="3" diveRange="20" diveCDTime="20" diveDmgRatio="2" diveTime="3" />
 </Monster>
 </EnemyConfig>

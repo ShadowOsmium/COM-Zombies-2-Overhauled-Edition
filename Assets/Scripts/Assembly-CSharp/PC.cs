@@ -1,7 +1,6 @@
 ﻿#if UNITY_STANDALONE || UNITY_EDITOR
 
 using System;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -24,8 +23,7 @@ public class PC : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += OnSceneLoaded;
 
-        coopController = FindObjectOfType<GameSceneCoopController>();
-        regularController = FindObjectOfType<GameSceneController>();
+        RefreshControllers();
 
         UnlockCursor();
 
@@ -45,6 +43,18 @@ public class PC : MonoBehaviour
         }
     }
 
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        RefreshControllers();
+    }
+
+    void RefreshControllers()
+    {
+        endlessController = FindObjectOfType<EndlessMissionController>();
+        coopController = FindObjectOfType<GameSceneCoopController>();
+        regularController = coopController != null ? null : FindObjectOfType<GameSceneController>();
+    }
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -58,17 +68,11 @@ public class PC : MonoBehaviour
                 PauseGame();
             }
         }
+
         if (can_buy_ammo && Input.GetKeyDown(KeyCode.R))
         {
             GameSceneController.Instance.OnAddBulletButton();
         }
-    }
-
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        endlessController = FindObjectOfType<EndlessMissionController>();
-        coopController = FindObjectOfType<GameSceneCoopController>();
-        regularController = FindObjectOfType<GameSceneController>();
     }
 
     public void PauseGame(bool fromFocusLoss = false)
@@ -82,13 +86,10 @@ public class PC : MonoBehaviour
         {
             endlessController.PauseEndlessGame();
         }
-        else if (regularController != null)
+        else
         {
-            regularController.OnGamePause();
-        }
-        else if (coopController != null)
-        {
-            coopController.OnGamePause();
+            GameSceneController baseController = coopController ?? regularController;
+            if (baseController != null) baseController.OnGamePause();
         }
 
         if (pausePanel != null)
@@ -108,13 +109,13 @@ public class PC : MonoBehaviour
         {
             endlessController.ResumeEndlessGame();
         }
-        else if (regularController != null)
-        {
-            regularController.OnGameResume();
-        }
         else if (coopController != null)
         {
-            coopController.OnGameResume();
+            coopController.OnGameResume(); // ✅ correct for coop
+        }
+        else if (regularController != null)
+        {
+            regularController.OnGameResume(); // ✅ normal mode
         }
 
         if (pausePanel != null)
@@ -150,24 +151,14 @@ public class PC : MonoBehaviour
     public void OnQuitButtonClicked()
     {
         if (pausePanel != null)
-        {
             pausePanel.SetActive(false);
-        }
 
         UnlockCursor();
 
-        if (regularController != null)
-        {
-            regularController.OnGameQuit();
-        }
-        else if (coopController != null)
-        {
+        if (coopController != null)
             coopController.OnGameQuit();
-        }
-        else
-        {
-            SceneManager.LoadScene("MainMenu");
-        }
+        else if (regularController != null)
+            regularController.OnGameQuit();
     }
 }
 

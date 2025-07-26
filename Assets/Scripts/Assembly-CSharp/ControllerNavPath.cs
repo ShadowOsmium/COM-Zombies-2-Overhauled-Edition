@@ -4,7 +4,8 @@ using UnityEngine.AI;
 
 public class ControllerNavPath : MonoBehaviour
 {
-	public Transform target;
+#pragma warning disable CS0618 // Type or member is obsolete
+    public Transform target;
 
 	protected NavMeshAgent nav_agent;
 
@@ -130,4 +131,5 @@ public class ControllerNavPath : MonoBehaviour
 	{
 		nav_agent.enabled = true;
 	}
+#pragma warning restore CS0618 // Type or member is obsolete
 }

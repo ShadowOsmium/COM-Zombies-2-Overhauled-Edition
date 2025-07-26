@@ -103,25 +103,30 @@ public class PostEffectsBase : MonoBehaviour
 		}
 		supportDX11 = num;
 		int result;
-		if (!SystemInfo.supportsImageEffects || !SystemInfo.supportsRenderTextures)
-		{
-			NotSupported();
-			result = 0;
-		}
-		else if (needDepth && !SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.Depth))
-		{
-			NotSupported();
-			result = 0;
-		}
-		else
-		{
-			if (needDepth)
-			{
-				GetComponent<Camera>().depthTextureMode |= DepthTextureMode.Depth;
-			}
-			result = 1;
-		}
-		return (byte)result != 0;
+#pragma warning disable CS0618 // Type or member is obsolete
+        if (SystemInfo.supportsImageEffects && SystemInfo.supportsRenderTextures)
+#pragma warning restore CS0618 // Type or member is obsolete
+        {
+            if (needDepth && !SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.Depth))
+            {
+                NotSupported();
+                result = 0;
+            }
+            else
+            {
+                if (needDepth)
+                {
+                    GetComponent<Camera>().depthTextureMode |= DepthTextureMode.Depth;
+                }
+                result = 1;
+            }
+        }
+        else
+        {
+            NotSupported();
+            result = 0;
+        }
+        return (byte)result != 0;
 	}
 
 	public bool CheckSupport(bool needDepth, bool needHdr)
@@ -254,7 +259,7 @@ public class PostEffectsBase : MonoBehaviour
 		GL.PopMatrix();
 	}
 
-	public void Main()
-	{
+    public void Main()
+    {
 	}
 }

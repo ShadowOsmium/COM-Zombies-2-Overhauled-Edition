@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-
+#pragma warning disable CS0618 // Type or member is obsolete
 [Serializable]
 [RequireComponent(typeof(Camera))]
 [AddComponentMenu("Image Effects/BloomAndFlares (3.5, Deprecated)")]
@@ -98,7 +98,7 @@ public class BloomAndLensFlares : PostEffectsBase
 		blurWidth = 1f;
 	}
 
-	public bool CheckResources()
+	public new bool CheckResources()
 	{
 		CheckSupport(false);
 		screenBlend = CheckShaderAndCreateMaterial(screenBlendShader, screenBlend);
@@ -288,7 +288,7 @@ public class BloomAndLensFlares : PostEffectsBase
 		}
 	}
 
-	public void Main()
+	public new void Main()
 	{
 	}
 }
