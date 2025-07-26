@@ -406,9 +406,21 @@ public class GameData : MonoBehaviour
             }
         }
 
+        if (GameEnhancer.Instance != null && !GameEnhancer.Instance.CanSave())
+        {
+            Debug.LogWarning("[SaveData] Save blocked: player is blacklisted.");
+            return;
+        }
+
         try
         {
             configure = new Configure();
+
+            if (Instance.blackname)
+            {
+                Debug.LogWarning("[SaveData] Blocked save for blacklisted player.");
+                return;
+            }
 
             if (!CheckCurrencyJumpAndUpdateState())
             {
@@ -580,6 +592,7 @@ public class GameData : MonoBehaviour
         redeem_get_url = SafeGetSingle(configure, "Save", "RedeemGetUrl", redeem_get_url);
         redeem_accept_url = SafeGetSingle(configure, "Save", "RedeemAcceptUrl", redeem_accept_url);
         needsUpdate = ParseBoolSafe(configure.GetSingle("Save", "NeedsUpdate"), false);
+        Debug.Log("Loaded NeedsUpdate: " + needsUpdate);
         iap_check_url = "http://192.225.224.97:7600/gameapi/GameCommon.do?action=groovy&json=";
         TRINITI_IAP_CEHCK = ParseBoolSafe(configure.GetSingle("Save", "IapCheck"), TRINITI_IAP_CEHCK);
     }
@@ -1128,6 +1141,7 @@ public class GameData : MonoBehaviour
         SetOrAddSingle("Save", "TimeserverUrl", timeserver_url);
         SetOrAddSingle("Save", "StatisticsUrl", statistics_url);
         SetOrAddSingle("Save", "NeedsUpdate", needsUpdate ? "1" : "0");
+        Debug.Log("Saving NeedsUpdate: " + (needsUpdate ? "1" : "0"));
         SetOrAddSingle("Save", "IapUrl", iap_check_url);
         SetOrAddSingle("Save", "RedeemGetUrl", redeem_get_url);
         SetOrAddSingle("Save", "RedeemAcceptUrl", redeem_accept_url);
@@ -1490,7 +1504,7 @@ public class GameData : MonoBehaviour
         usedPromoCodes.Clear();
     }
 
-    private const int FakeDisplayValue = 999999;
+    /*private const int FakeDisplayValue = 999999;
 
     public int DisplayCash
     {
@@ -1505,7 +1519,7 @@ public class GameData : MonoBehaviour
     public int DisplayVoucher
     {
         get { return blackname ? FakeDisplayValue : _total_voucher.GetIntVal(); }
-    }
+    }*/
 
     public bool CheckFragmentProbCombine(string weapon_name)
     {

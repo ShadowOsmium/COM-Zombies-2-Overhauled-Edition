@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using CoMZ2;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameCoverUIController : MonoBehaviour
 {
@@ -50,19 +51,18 @@ public class GameCoverUIController : MonoBehaviour
 
     private IEnumerator Start()
     {
+        yield return null;
+
+        ShowMask(true);
+
+        GameVersion.Instance.CheckRemoteGameVersion(OnServerVersion, OnServerVersionError);
+
         yield return 1;
 
         if (GameDefine.IS_CONFIG_OUTPUT)
         {
             GameVersion.Instance.OutputVersionCheckFile();
         }
-
-        ShowMask(true);
-
-        yield return 1;
-
-        ready_update_file_count = 0;
-        GameVersion.Instance.CheckRemoteGameVersion(OnServerVersion, OnServerVersionError);
 
         yield return 1;
 
@@ -113,9 +113,24 @@ public class GameCoverUIController : MonoBehaviour
         bg_img.CustomizeTexture = Resources.Load("TUI/Textures/" + tex_name5) as Texture2D;
         bg_img.CustomizeRect = new Rect(0f, 0f, width4, height4);
 
+        if (GameData.Instance.needsUpdate)
+        {
+            Debug.Log("[GameCoverUIController] Update required - blocking user.");
+            GameMsgBoxController.ShowMsgBox(
+                GameMsgBoxController.MsgBoxType.SingleButton,
+                tui_root,
+                "A new update is available. Please download the latest version from GitHub to continue playing.",
+                OnVersionUpdate,
+                null,
+                false
+            );
+            ShowMask(false);
+            yield break; // Stop further initialization
+        }
+
         // Upload stats for login
-        Hashtable data_tem = new Hashtable { { "count", 1 } };
-        GameData.Instance.UploadStatistics("Login", data_tem);
+        //Hashtable data_tem = new Hashtable { { "count", 1 } };
+        //GameData.Instance.UploadStatistics("Login", data_tem);
     }
 
     private void Update()
@@ -155,14 +170,14 @@ public class GameCoverUIController : MonoBehaviour
             GameData.Instance.needsUpdate = false;
             GameData.Instance.SaveData();
             CheckConfigVersion();
-            ShowMask(false);  // <-- MAKE SURE TO HIDE THE MASK HERE
+            ShowMask(false);
             return;
         }
 
         GameData.Instance.needsUpdate = true;
         GameData.Instance.SaveData();
 
-        ShowMask(false);  // <--- ADD THIS to hide loading mask on version mismatch
+        ShowMask(false);
 
         GameMsgBoxController.ShowMsgBox(
             GameMsgBoxController.MsgBoxType.SingleButton,
@@ -174,7 +189,6 @@ public class GameCoverUIController : MonoBehaviour
         );
     }
 
-
     private void OnVersionUpdate()
     {
         Application.OpenURL("https://github.com/ShadowOsmium/COM-Zombies-2-Overhauled-Edition/releases");
@@ -184,7 +198,10 @@ public class GameCoverUIController : MonoBehaviour
     private void OnServerVersionError()
     {
         ShowMask(false);
-        Debug.LogWarning("Failed to check game version. You might want to allow play or show a retry.");
+        Debug.LogWarning("Failed to check game version. Blocking play until update is checked.");
+
+        GameData.Instance.needsUpdate = true;
+        GameData.Instance.SaveData();
     }
 
     public void ShowMask(bool state)

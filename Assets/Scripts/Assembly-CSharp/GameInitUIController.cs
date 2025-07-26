@@ -37,8 +37,12 @@ public class GameInitUIController : MonoBehaviour
 
         bool loaded = GameData.Instance.LoadData();
         Debug.Log("Save loaded: " + loaded);
-        Debug.Log("Loaded game version: " + GameData.Instance.game_version);
-        Debug.Log("Current app version: " + Application.version);
+        if (!loaded || GameData.Instance.needsUpdate)
+        {
+            Debug.Log("[Init] Blocking play due to update needed or load failed.");
+            SceneManager.LoadScene("GameCover");
+            yield break;
+        }
 
         if (!loaded)
         {
@@ -46,14 +50,14 @@ public class GameInitUIController : MonoBehaviour
             GameData.Instance.Init();
             GameData.Instance.game_version = Application.version;
             GameData.Instance.needsUpdate = false;
-            GameData.Instance.SaveData(); // Save your fresh init
+            GameData.Instance.SaveData();
         }
         else if (GameData.Instance.game_version != Application.version)
         {
             Debug.LogWarning("Save version mismatch. Patching save for new version.");
             GameData.Instance.needsUpdate = true;
             GameData.Instance.game_version = Application.version;
-            GameData.Instance.SaveData(); // Patch save to current version
+            GameData.Instance.SaveData();
         }
 
         if (GameData.Instance != null)

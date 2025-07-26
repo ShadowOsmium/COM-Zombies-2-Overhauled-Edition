@@ -502,22 +502,56 @@ public class GameSceneCoopController : GameSceneController
         if (cur_rebirth_cost > 25)
             cur_rebirth_cost = 25;
 
-        if (GameData.Instance.total_crystal.GetIntVal() >= cur_rebirth_cost)
+        CoopBossType coopBoss = GameData.Instance.cur_coop_boss;
+        EnemyType bossType = GameData.Instance.cur_quest_info != null
+            ? GameData.Instance.cur_quest_info.boss_type
+            : EnemyType.E_NONE;
+
+        bool skipRevive = false;
+
+        if (coopBoss != CoopBossType.E_NONE)
         {
-            canPressEscape = false;
-            game_main_panel.rebirth_panel.Show();
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            Debug.Log("[SetLoseState] Coop boss active: " + coopBoss);
+
+            skipRevive = coopBoss == CoopBossType.E_FATCOOK_E ||
+                         coopBoss == CoopBossType.E_HAOKE_B ||
+                         coopBoss == CoopBossType.E_WRESTLER_E ||
+                         coopBoss == CoopBossType.E_HALLOWEEN_E ||
+                         coopBoss == CoopBossType.E_SHARK_E;
         }
         else
         {
-            canPressEscape = false;
-            Invoke("MissionFinished", 4f);
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-    }
+            Debug.Log("[SetLoseState] Using EnemyType boss: " + bossType);
 
+            skipRevive = bossType == EnemyType.E_FATCOOK_E ||
+                         bossType == EnemyType.E_HAOKE_B ||
+                         bossType == EnemyType.E_WRESTLER_E ||
+                         bossType == EnemyType.E_HALLOWEEN_E ||
+                         bossType == EnemyType.E_SHARK_E;
+        }
+
+        canPressEscape = false;
+
+        int crystalCount = GameData.Instance.total_crystal.GetIntVal();
+
+        Debug.Log("[SetLoseState] skipRevive = " + skipRevive +
+                  ", cur_rebirth_cost = " + cur_rebirth_cost +
+                  ", crystals = " + crystalCount);
+
+        if (!skipRevive && crystalCount >= cur_rebirth_cost)
+        {
+            Debug.Log("[SetLoseState] Showing rebirth panel.");
+            game_main_panel.rebirth_panel.Show();
+        }
+        else
+        {
+            Debug.Log("[SetLoseState] Skipping rebirth. Ending mission in 4 seconds.");
+            Invoke("MissionFinished", 4f);
+        }
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
 
     public void MissionRewardFailed()
     {
@@ -568,6 +602,8 @@ public class GameSceneCoopController : GameSceneController
 
         Debug.Log("Total Coop Reward Added: " + Mathf.FloorToInt(totalDamage / 10f));
         reward_coop_panel.ResetGameReward(list);
+        reward_coop_panel.gameObject.SetActive(true);
+        reward_coop_panel.Show();
 
         Hashtable hashtable = new Hashtable();
         hashtable.Add("Boss", coopBossCfg.boss_name);

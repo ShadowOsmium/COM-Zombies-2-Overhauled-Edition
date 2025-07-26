@@ -313,7 +313,8 @@ public class UICoopRoomController : UISceneController
 		CoopBossCfg coopBossCfg = GameConfig.Instance.Coop_Boss_Cfg_Set[GameConfig.GetEnemyTypeFromBossType(GameData.Instance.cur_coop_boss)];
 		string utfString = coopBossCfg.scene_list[Random.Range(0, coopBossCfg.scene_list.Count)];
 		GameData.Instance.cur_coop_boss = (CoopBossType)PlayerPrefs.GetInt("curboss");
-		Debug.Log("On Room Start! scene name:" + utfString + " cur boss:" + GameData.Instance.cur_coop_boss);
+        GameData.Instance.cur_quest_info.boss_type = GameConfig.GetEnemyTypeFromBossType(GameData.Instance.cur_coop_boss);
+        Debug.Log("On Room Start! scene name:" + utfString + " cur boss:" + GameData.Instance.cur_coop_boss);
 		MenuAudioController.DestroyGameMenuAudio();
 		GameData.Instance.loading_to_scene = utfString;
 		Fade.FadeOut("Loading");

@@ -71,6 +71,7 @@ public class GameEnhancer : MonoBehaviour
     private float suspiciousBulletTimer = 0f;
 
     private int lastValidDayLevel = -1;
+    private bool justBlacklisted = false;
 
     private int lastFreeLotterySpins = -1;
     private bool rollbackDetected = false;
@@ -163,7 +164,7 @@ public class GameEnhancer : MonoBehaviour
 
         if (GameData.Instance.blackname)
         {
-            FreezeCurrencies();
+            //FreezeCurrencies();
             ClampBullets();
             return;
         }
@@ -344,14 +345,14 @@ public class GameEnhancer : MonoBehaviour
         suspiciousCashDeltaTimer = suspiciousCrystalDeltaTimer = suspiciousVoucherDeltaTimer = 0f;
     }
 
-    private void FreezeCurrencies()
+/*    private void FreezeCurrencies()
     {
         if (GameData.Instance == null) return;
 
         GameData.Instance.total_cash.SetIntVal(0, GameDataIntPurpose.Cash);
         GameData.Instance.total_crystal.SetIntVal(0, GameDataIntPurpose.Crystal);
         GameData.Instance.total_voucher.SetIntVal(0, GameDataIntPurpose.Voucher);
-    }
+    }*/
 
     private void ClampFreeSpins()
     {
@@ -567,11 +568,18 @@ public class GameEnhancer : MonoBehaviour
             suspiciousBulletValueTimer = 0f;
         }
 
-        if (suspiciousValues)
+        if (suspiciousValues && suspiciousDeltas)
+        {
+            BlacklistPlayer("[GameEnhancer] AntiCheat triggered: Suspicious values **and** deltas detected.");
+        }
+        else if (suspiciousValues)
+        {
             BlacklistPlayer("[GameEnhancer] AntiCheat triggered: Multiple suspicious values detected.");
-
-        if (suspiciousDeltas)
+        }
+        else if (suspiciousDeltas)
+        {
             BlacklistPlayer("[GameEnhancer] AntiCheat triggered: Multiple suspicious deltas detected.");
+        }
     }
 
     private const float SafeSaveCooldown = 1f;
@@ -591,16 +599,17 @@ public class GameEnhancer : MonoBehaviour
     public void BlacklistPlayer(string reason)
     {
         if (GameData.Instance == null)
-        {
             return;
-        }
 
         if (!GameData.Instance.blackname)
         {
             GameData.Instance.blackname = true;
-            FreezeCurrencies();
-            ClampBullets();
+            justBlacklisted = true;
+
             GameData.Instance.SaveData();
+
+            ClampBullets();
+
             Debug.LogWarning(reason + " Player marked blackname.");
             ResetSuspiciousCounters();
         }
@@ -608,5 +617,25 @@ public class GameEnhancer : MonoBehaviour
         {
             Debug.Log("[Blacklist] Player already blacklisted; ignoring duplicate call.");
         }
+    }
+
+    public bool CanSave()
+    {
+        if (GameData.Instance == null)
+            return false;
+
+        if (justBlacklisted)
+        {
+            justBlacklisted = false;
+            return true;
+        }
+
+        if (GameData.Instance.blackname)
+        {
+            Debug.LogWarning("[SaveData] Save blocked: player is blacklisted.");
+            return false;
+        }
+
+        return true;
     }
 }
