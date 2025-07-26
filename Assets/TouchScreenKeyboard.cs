@@ -255,9 +255,10 @@ public class TouchScreenKeyboard : MonoBehaviour
 
     void OnGUI()
     {
-        if (!active || hideInput) return;
+        if (!active || TouchScreenKeyboard.hideInput)
+            return;
 
-        GUI.Box(new Rect(0, 0, Screen.width, Screen.height), "");
+        /*GUI.Box(new Rect(0, 0, Screen.width, Screen.height), "");
 
         float labelHeight = 50f;
         float labelY = Screen.height * 0.4f;
@@ -295,7 +296,7 @@ public class TouchScreenKeyboard : MonoBehaviour
         GUI.Label(new Rect(startX + beforeSize.x + selectedSize.x, labelY, afterSize.x, labelHeight), afterSelection, style);
 
         GUI.color = Color.white;
+    }*/
     }
-
 }
 #endif

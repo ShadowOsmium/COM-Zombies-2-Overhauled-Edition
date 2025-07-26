@@ -143,17 +143,6 @@ public class GameEnhancer : MonoBehaviour
 
     void Update()
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            if (GameData.Instance != null && GameData.Instance.blackname)
-            {
-                GameData.Instance.blackname = false;
-                GameData.Instance.SaveData();
-                Debug.LogWarning("[Debug] Blackname flag manually cleared by developer (F key pressed).");
-            }
-        }
-#endif
         if (!Application.isPlaying) return;
 
         string scene = SceneManager.GetActiveScene().name;
@@ -583,6 +572,20 @@ public class GameEnhancer : MonoBehaviour
 
         if (suspiciousDeltas)
             BlacklistPlayer("[GameEnhancer] AntiCheat triggered: Multiple suspicious deltas detected.");
+    }
+
+    private const float SafeSaveCooldown = 1f;
+
+    private float lastSafeSaveTime = -SafeSaveCooldown;
+
+    public bool TryMarkSafeSave()
+    {
+        if (Time.time - lastSafeSaveTime >= SafeSaveCooldown)
+        {
+            lastSafeSaveTime = Time.time;
+            return true;
+        }
+        return false;
     }
 
     public void BlacklistPlayer(string reason)

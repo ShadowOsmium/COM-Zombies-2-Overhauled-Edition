@@ -4,9 +4,11 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
   m_Name: fog_01
   m_Shader: {fileID: 4800000, guid: a145ae6e51075804eb460c5bf257082a, type: 3}
-  m_ShaderKeywords:
+  m_ShaderKeywords: 
   m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -20,6 +22,6 @@ Material:
         m_Texture: {fileID: 2800000, guid: d1f0e2663986c0c4b8d8509f2ada4a30, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: {}
+    m_Floats: []
     m_Colors:
-    - _Color: {r: 0.42537314, g: 0.42537314, b: 0.42537314, a: 0.5254902}
+    - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 0.5254902}

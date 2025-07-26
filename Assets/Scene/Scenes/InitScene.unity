@@ -262,7 +262,7 @@ Camera:
     x: 0
     y: 0
     width: 1.0014826
-    height: 1.1596639
+    height: 1.1630901
   near clip plane: -128
   far clip plane: 128
   field of view: 60
@@ -517,7 +517,7 @@ MonoBehaviour:
     x: 0
     y: 0
     width: 1351
-    height: 276
+    height: 271
 --- !u!1 &5316492
 GameObject:
   m_ObjectHideFlags: 0
@@ -1050,6 +1050,7 @@ GameObject:
   - component: {fileID: 2111685268}
   - component: {fileID: 2111685270}
   - component: {fileID: 2111685271}
+  - component: {fileID: 2111685272}
   m_Layer: 0
   m_Name: 
   m_TagString: Untagged
@@ -1107,3 +1108,14 @@ MonoBehaviour:
   isPaused: 0
   pausePanel: {fileID: 0}
   quitButton: {fileID: 0}
+--- !u!114 &2111685272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2111685267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5608464cd70c05b4791fd13b28c224f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

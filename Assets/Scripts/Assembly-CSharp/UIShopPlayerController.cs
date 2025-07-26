@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CoMZ2;
 using UnityEngine;
 
@@ -40,7 +40,9 @@ public class UIShopPlayerController : MonoBehaviour
 
 	public Quaternion shop_rot = Quaternion.identity;
 
-	public Vector3 shop_pos_hide = Vector3.zero;
+    private AvatarData.AvatarState _visualState = AvatarData.AvatarState.Normal;
+
+    public Vector3 shop_pos_hide = Vector3.zero;
 
 	public Quaternion shop_rot_hide = Quaternion.identity;
 
@@ -80,7 +82,7 @@ public class UIShopPlayerController : MonoBehaviour
 		OnBackFromClicked();
 	}
 
-	private void Update()
+    private void Update()
 	{
 		if (playerState != null)
 		{

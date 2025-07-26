@@ -137,13 +137,27 @@ public class UIMapMissionPanelController : UIShopPanelController
     }
 
     private void OnStartGameEvent(TUIControl control, int eventType, float lparam, float wparam, object data)
-	{
-		if (eventType == 3)
-		{
-			UISceneController.Instance.SceneAudio.PlayAudio("UI_click");
-			MenuAudioController.DestroyGameMenuAudio();
-			GameData.Instance.MapSceneQuestInfoWrite(QuestInfo);
-			Application.LoadLevel("Loading");
-		}
-	}
+    {
+        if (eventType == 3)
+        {
+            UISceneController.Instance.SceneAudio.PlayAudio("UI_click");
+
+            if (QuestInfo.mission_type == MissionType.Endless && GameData.Instance.day_level < 30)
+            {
+                GameMsgBoxController.ShowMsgBox(
+                    GameMsgBoxController.MsgBoxType.SingleButton,
+                    gameObject,
+                    "Reach Day 30 to unlock Endless Mode!",
+                    () => GameMsgBoxController.Instance.Hide(),
+                    null,
+                    true
+                );
+                return;
+            }
+
+            MenuAudioController.DestroyGameMenuAudio();
+            GameData.Instance.MapSceneQuestInfoWrite(QuestInfo);
+            Application.LoadLevel("Loading");
+        }
+    }
 }

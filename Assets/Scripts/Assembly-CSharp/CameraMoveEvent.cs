@@ -6,7 +6,12 @@ public class CameraMoveEvent : MonoBehaviour, IRoamEvent
 
 	protected CameraRoam roam;
 
-	public void OnRoamTrigger()
+    public void SkipCutsceneManually()
+    {
+        OnRoamStop();
+    }
+
+    public void OnRoamTrigger()
 	{
 		roam = base.gameObject.GetComponent<CameraRoam>();
 		if (roam != null)

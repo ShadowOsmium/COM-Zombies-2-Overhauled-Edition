@@ -79,6 +79,11 @@ public class UIMapInputController : MonoBehaviour
         if (eventType != 2)
             return;
 
+        // Block map drag if message box is open
+        if (GameMsgBoxController.IsMsgBoxOpen)
+            return;
+
+        // your existing map move logic below
         if (MapTransform == null || Left == null || Right == null || Up == null || Down == null)
             return;
 

@@ -25,11 +25,11 @@
   <Skill name="BaseballRobot" showName="Robo Pitcher" unlockLevel="1" maxLevel="15" unlockPrice="0" upPriceRatio="1.1" damagePara="1.49"
      existState ="2" ownerType="Avatar" owner="Mike" content="Set up a robo pitcher that fires baseballs at zombies in range." >
     <CDTime base="22" max="18" />
-    <LifeTime base="12" max="14" />
+    <LifeTime base="12" max="12" />
     <HP base="0" max="0" />
     <Frequency base="0.2" max="0.2" />
     <Damage base="60" max="61" />
-    <Range base="30" max="30" />
+    <Range base="30" max="45" />
   </Skill>
   <!--Cowboy-->
   <Skill name="Scarecrow" showName="Trap" unlockLevel="1" maxLevel="10" unlockPrice="0" upPriceRatio="0.9" damagePara="1.6273"

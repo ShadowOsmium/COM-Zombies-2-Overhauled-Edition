@@ -683,7 +683,9 @@ public class WrestlerController : EnemyController
 		base.PlayHalfHpEffect();
 		eff_bellow.Play();
 		eff_angry.Play();
-		Transform parent = base.transform.Find("cg_view");
+        if (GameSceneController.Instance.mission_day_type == MissionDayType.Endless)
+            return;
+        Transform parent = base.transform.Find("cg_view");
 		Camera.main.transform.parent = parent;
 		Camera.main.transform.localPosition = Vector3.zero;
 		Camera.main.transform.localRotation = Quaternion.identity;

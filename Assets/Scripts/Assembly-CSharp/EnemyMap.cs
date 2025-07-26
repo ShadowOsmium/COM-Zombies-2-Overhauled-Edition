@@ -37,6 +37,7 @@ public class EnemyMap : MonoBehaviour
         foreach (EnemyType item in enemy_type_list)
         {
             prefab = Resources.Load<GameObject>("Prefabs/Enemy/" + GameConfig.Instance.EnemyConfig_Set[item].enemy_name);
+            Debug.Log("[EnemyMap] Attempting to load: Prefabs/Enemy/" + GameConfig.Instance.EnemyConfig_Set[item].enemy_name + " for type: " + item);
             if (prefab == null)
                 Debug.LogError("[EnemyMap] Failed to load prefab for enemy: " + item);
             else
@@ -129,4 +130,29 @@ public class EnemyMap : MonoBehaviour
         Debug.Log("[EnemyMap] ForceLoadHalloweenElite called.");
         ResetEnemyMapInfo(halloweenEliteList);
     }
+
+    public void PreloadBosses(List<EnemyType> bossTypes)
+    {
+        foreach (EnemyType bossType in bossTypes)
+        {
+            if (!Enemy_Set.ContainsKey(bossType))
+            {
+                Debug.LogWarning("[EnemyMap] Boss type not in map: " + bossType);
+                continue;
+            }
+
+            GameObject prefab = Enemy_Set[bossType];
+            if (prefab == null)
+            {
+                Debug.LogWarning("[EnemyMap] Prefab missing for boss type: " + bossType);
+                continue;
+            }
+
+            // Instantiate once and immediately disable to cache it
+            GameObject go = Instantiate(prefab);
+            go.name = prefab.name + "_PreloadCache";
+            go.SetActive(false);
+        }
+    }
+
 }

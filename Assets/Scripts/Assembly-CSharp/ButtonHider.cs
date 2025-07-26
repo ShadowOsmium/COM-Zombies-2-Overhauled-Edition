@@ -4,8 +4,12 @@ public class ButtonHider : MonoBehaviour
 {
     void Start()
     {
+        GameObject endless = GameObject.Find("EndlessTrans");
+        GameObject endlessLocked = GameObject.Find("EndlessLocked");
+
         if (GameData.Instance != null && GameData.Instance.blackname)
         {
+            // Hide all mission icons, including coop and endless
             GameObject[] dailyIcons = GameObject.FindGameObjectsWithTag("Daily_Mission_Tag");
             for (int i = 0; i < dailyIcons.Length; i++)
             {
@@ -32,21 +36,23 @@ public class ButtonHider : MonoBehaviour
                 coop.SetActive(false);
             }
 
-            GameObject endless = GameObject.Find("EndlessTrans");
+            if (endless != null) endless.SetActive(false);
+            if (endlessLocked != null) endlessLocked.SetActive(false);
+        }
+        else
+        {
             if (endless != null)
-            {
-                endless.SetActive(false);
-            }
+                endless.SetActive(GameData.Instance.day_level >= 35);
+
+            if (endlessLocked != null)
+                endlessLocked.SetActive(GameData.Instance.day_level < 35);
         }
     }
 
     private void DisableMissionIcon(GameObject obj)
     {
         Collider col = obj.GetComponent<Collider>();
-        if (col != null)
-        {
-            col.enabled = false;
-        }
+        if (col != null) col.enabled = false;
 
         Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
         for (int j = 0; j < renderers.Length; j++)

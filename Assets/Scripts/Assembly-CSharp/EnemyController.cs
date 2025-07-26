@@ -76,9 +76,13 @@ public class EnemyController : ObjectController
 
 	protected float check_target_time;
 
-	protected int enemy_id = -1;
+    public bool ignoreSpawnLimit = false;
 
-	protected bool check_with_block;
+    protected int enemy_id = -1;
+
+    MissionDayType currentMissionType;
+
+    protected bool check_with_block;
 
 	protected List<GameObject> m_accessory;
 
@@ -106,7 +110,9 @@ public class EnemyController : ObjectController
 
 	protected TAudioController autio_controller;
 
-	protected GameObject head_ori;
+    public float MissionWeight { get; set; }
+
+    protected GameObject head_ori;
 
 	protected GameObject neck_ori;
 
@@ -999,7 +1005,7 @@ public class EnemyController : ObjectController
 
             float damagePercent = (playerDamage / totalBossHp) * 100f;
 
-            Debug.Log(string.Format("Player {0} damage: {1} ({2:F2}%)", playerID.ToString(), playerDamage, damagePercent));
+            //Debug.Log(string.Format("Player {0} damage: {1} ({2:F2}%)", playerID.ToString(), playerDamage, damagePercent));
         }
     }
 
@@ -1076,12 +1082,18 @@ public class EnemyController : ObjectController
         PlayerController playerController = (player != null) ? player.GetComponent<PlayerController>() : null;
         if (playerController == null) return;
 
-        // KILL COUNT TRACKING
         MissionController mission = GameSceneController.Instance.mission_controller;
+
         TimeAliveMissionController timeMission = mission as TimeAliveMissionController;
         if (timeMission != null)
         {
             timeMission.RegisterEnemyKill();
+        }
+
+        DailyMissionController dailyMission = mission as DailyMissionController;
+        if (dailyMission != null)
+        {
+            dailyMission.OnEnemyKilled();
         }
 
         if (GameData.Instance != null && GameData.Instance.blackname)
@@ -1459,7 +1471,13 @@ public class EnemyController : ObjectController
 
 	public virtual void OnBossDead()
 	{
-		Transform parent = base.transform.Find("cg_view");
+        if (GameData.Instance.cur_quest_info != null &&
+        GameData.Instance.cur_quest_info.mission_day_type == MissionDayType.Endless)
+        {
+            return;
+        }
+        GameSceneController.Instance.canPressEscape = false;
+        Transform parent = base.transform.Find("cg_view");
 		Camera.main.transform.parent = parent;
 		Camera.main.transform.localPosition = Vector3.zero;
 		Camera.main.transform.localRotation = Quaternion.identity;
@@ -1478,7 +1496,8 @@ public class EnemyController : ObjectController
 		}
 		Time.timeScale = 0.3f;
 		GameSceneController.Instance.OnBossMissionOver();
-	}
+        GameSceneController.Instance.canPressEscape = false;
+    }
 
 	public virtual void OnBossDeadHalf()
 	{
@@ -1487,7 +1506,8 @@ public class EnemyController : ObjectController
 
 	public virtual void OnBossDeadEnd()
 	{
-		GameSceneController.Instance.OnBossDeadOver();
+        GameSceneController.Instance.canPressEscape = false;
+        GameSceneController.Instance.OnBossDeadOver();
 	}
 
 	public void HideShadow()
@@ -1546,12 +1566,12 @@ public class EnemyController : ObjectController
 		}
 	}
 
-	public virtual void PlayHalfHpEffect()
-	{
-		GameSceneController.Instance.player_controller.SetIdleLockState(true);
-	}
+    public virtual void PlayHalfHpEffect()
+    {
+        GameSceneController.Instance.player_controller.SetIdleLockState(true);
+    }
 
-	public virtual void OnHalfHpEffOver()
+    public virtual void OnHalfHpEffOver()
 	{
 		GameSceneController.Instance.player_controller.SetIdleLockState(false);
 	}

@@ -21,6 +21,8 @@ public class GameConfig : MonoBehaviour
 
     public Dictionary<int, EnemyWaveInfoList> EnemyWaveInfo_Endless_Set = new Dictionary<int, EnemyWaveInfoList>();
 
+    public Dictionary<int, EnemyWaveInfoList> EnemyWaveInfo_Endless_Bosses = new Dictionary<int, EnemyWaveInfoList>();
+
     public Dictionary<int, EnemyWaveInfoList> EnemyWaveInfo_Boss_Set = new Dictionary<int, EnemyWaveInfoList>();
 
     public Dictionary<int, EnemyWaveInfoList> EnemyWaveInfo_Npc_Set = new Dictionary<int, EnemyWaveInfoList>();
@@ -32,6 +34,8 @@ public class GameConfig : MonoBehaviour
     public EnemyWaveIntervalInfo EnemyWave_Interval_Normal = new EnemyWaveIntervalInfo();
 
     public EnemyWaveIntervalInfo EnemyWave_Interval_Endless = new EnemyWaveIntervalInfo();
+
+    public EnemyWaveIntervalInfo EnemyWave_Interval_Endless_Bosses = new EnemyWaveIntervalInfo();
 
     public EnemyWaveIntervalInfo EnemyWave_Interval_Boss = new EnemyWaveIntervalInfo();
 
@@ -153,6 +157,10 @@ public class GameConfig : MonoBehaviour
 
     public int daily_price_cd;
 
+    public float bossUpgradeChance = 0.4f;
+
+    public int bossUpgradeInterval = 10;
+
     public EditorMode editor_mode = new EditorMode();
 
     public float rebirth_god_time;
@@ -233,6 +241,8 @@ public class GameConfig : MonoBehaviour
         LoadNpcConfig();
         LoadProbsConfig();
         LoadEnemyWaveConfig();
+        LoadEnemyWaveEndlessConfig();
+        LoadEnemyWaveEndlessBossConfig();
         LoadMainQuestConfig();
         LoadSideQuestConfig();
         LoadSideQuestSpareConfig();
@@ -246,7 +256,7 @@ public class GameConfig : MonoBehaviour
         LoadStandardWeaponConfig();
         LoadEditorConfig();
         force_update_local = false;
-        Application.targetFrameRate = 45;
+        Application.targetFrameRate = 75;
         Load_finished = true;
     }
 
@@ -270,11 +280,14 @@ public class GameConfig : MonoBehaviour
         EnemyConfig_Set = new Dictionary<EnemyType, EnemyConfig>();
         NpcConfig_Set = new Dictionary<NpcType, NpcConfig>();
         EnemyWaveInfo_Endless_Set = new Dictionary<int, EnemyWaveInfoList>();
+        EnemyWaveInfo_Endless_Bosses = new Dictionary<int, EnemyWaveInfoList>();
         EnemyWaveInfo_Normal_Set = new Dictionary<int, EnemyWaveInfoList>();
         EnemyWaveInfo_Boss_Set = new Dictionary<int, EnemyWaveInfoList>();
         EnemyWaveInfo_Npc_Set = new Dictionary<int, EnemyWaveInfoList>();
         EnemyWaveInfo_Daily_Set = new Dictionary<int, EnemyWaveInfoList>();
         EnemyWave_Interval_Normal = new EnemyWaveIntervalInfo();
+        EnemyWave_Interval_Endless = new EnemyWaveIntervalInfo();
+        EnemyWave_Interval_Endless_Bosses = new EnemyWaveIntervalInfo();
         EnemyWave_Interval_Boss = new EnemyWaveIntervalInfo();
         EnemyWave_Interval_Npc = new EnemyWaveIntervalInfo();
         EnemyWave_Interval_Daily = new EnemyWaveIntervalInfo();
@@ -1534,6 +1547,7 @@ public class GameConfig : MonoBehaviour
         LoadEnemyWaveNpcConfig();
         LoadEnemyWaveNormalConfig();
         LoadEnemyWaveEndlessConfig();
+        LoadEnemyWaveEndlessBossConfig();
         LoadEnemyWaveDailyConfig();
         LoadEnemyWaveCrazyDailyConfig();
         LoadEnemyWaveBossCoopConfig();
@@ -1712,6 +1726,54 @@ public class GameConfig : MonoBehaviour
         XmlElement xmlElement3 = documentElement.GetElementsByTagName("IntervalCfg")[0] as XmlElement;
         EnemyWave_Interval_Normal.wave_interval = float.Parse(xmlElement3.GetAttribute("wave"));
         EnemyWave_Interval_Normal.line_interval = float.Parse(xmlElement3.GetAttribute("line"));
+    }
+
+    public void LoadEnemyWaveEndlessBossConfig()
+    {
+        Debug.Log("[Config] Loading Endless Boss Config");
+
+        string xml = LoadConfigFile("EnemyWaveEndlessBossCfg");
+        if (string.IsNullOrEmpty(xml))
+        {
+            Debug.LogError("[Config] Endless Boss Config XML is empty or missing!");
+            return;
+        }
+
+        XmlDocument xmlDocument = new XmlDocument();
+        xmlDocument.LoadXml(xml);
+        XmlElement documentElement = xmlDocument.DocumentElement;
+
+
+        foreach (XmlElement item in documentElement.GetElementsByTagName("WaveEndlessBoss"))
+        {
+            int key = int.Parse(item.GetAttribute("level"));
+            EnemyWaveInfo enemyWaveInfo = new EnemyWaveInfo();
+
+            foreach (XmlElement item2 in item.GetElementsByTagName("enemy"))
+            {
+                EnemySpawnInfo enemySpawnInfo = new EnemySpawnInfo();
+                enemySpawnInfo.EType = GetEnemyTypeFromCfg(item2.GetAttribute("type"));
+                enemySpawnInfo.Count = int.Parse(item2.GetAttribute("count"));
+                enemySpawnInfo.From = GetSpawnTypeFromCfg(item2.GetAttribute("spawntype"));
+                enemyWaveInfo.spawn_info_list.Add(enemySpawnInfo);
+            }
+
+            if (EnemyWaveInfo_Endless_Bosses.ContainsKey(key))
+            {
+                EnemyWaveInfoList enemyWaveInfoList = EnemyWaveInfo_Endless_Bosses[key];
+                enemyWaveInfoList.wave_info_list.Add(enemyWaveInfo);
+            }
+            else
+            {
+                EnemyWaveInfoList enemyWaveInfoList2 = new EnemyWaveInfoList();
+                enemyWaveInfoList2.wave_info_list.Add(enemyWaveInfo);
+                EnemyWaveInfo_Endless_Bosses.Add(key, enemyWaveInfoList2);
+            }
+        }
+
+        XmlElement xmlElement3 = documentElement.GetElementsByTagName("IntervalCfg")[0] as XmlElement;
+        EnemyWave_Interval_Boss.wave_interval = float.Parse(xmlElement3.GetAttribute("wave"));
+        EnemyWave_Interval_Boss.line_interval = float.Parse(xmlElement3.GetAttribute("line"));
     }
 
     public void LoadEnemyWaveDailyConfig()

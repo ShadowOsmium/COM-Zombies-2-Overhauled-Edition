@@ -140,16 +140,13 @@ public class UIMapSceneController : UISceneController
             {
                 GameObject icon = Object.Instantiate(prefab);
                 icon.transform.SetParent(MissionIcons, false);
-                icon.GetComponent<MissionIconObj>().Init(info);
+
+                var missionIconObj = icon.GetComponent<MissionIconObj>();
+                missionIconObj.Init(info);
+
                 yield return null;
             }
-            else
-            {
-                Debug.LogError("Prefab missionIcon not found in Resources/Prefab");
-                yield break;
-            }
         }
-
 
         GameData.Instance.reset_nist_time_finish = OnResetServerTimeFinish;
         GameData.Instance.reset_nist_time_error = OnResetSeverTimeError;

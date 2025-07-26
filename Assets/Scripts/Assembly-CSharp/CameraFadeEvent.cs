@@ -22,7 +22,17 @@ public class CameraFadeEvent : MonoBehaviour, IRoamEvent
 		}
 	}
 
-	public void OnRoamStop()
+    public void SkipCutsceneManually()
+    {
+        StopAllCoroutines();
+        CancelInvoke();
+
+        CameraFade.Clear();
+
+        OnRoamStop();
+    }
+
+    public void OnRoamStop()
 	{
 		if (isFadeOut)
 		{

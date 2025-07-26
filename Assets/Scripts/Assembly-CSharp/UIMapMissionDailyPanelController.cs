@@ -220,23 +220,56 @@ public class UIMapMissionDailyPanelController : UIShopPanelController
 		}
 	}
 
-	public void HandleStartButton()
-	{
-		if (GameData.Instance.is_crazy_daily)
-		{
-			missionPrice = GameData.Instance.GetDailyMissionPrice(GameData.Instance.is_crazy_daily);
-			string content = "Spend " + missionPrice + " tCrystals to proceed with this challenge?";
-			msgBox = GameMsgBoxController.ShowMsgBox(GameMsgBoxController.MsgBoxType.DoubleButton, base.transform.gameObject, content, OnPurchaseMission, OnMsgboxCancel);
-		}
-		else
-		{
-			MenuAudioController.DestroyGameMenuAudio();
-			GameData.Instance.MapSceneQuestInfoWrite(QuestInfo);
-			Application.LoadLevel("Loading");
-		}
-	}
+    public void HandleStartButton()
+    {
+        // Check if daily mission is blocked on this day
+        int[] blockedDailyDays = new int[] { 2, 3, 6, 9, 12, 14, 15, 19, 25, 35 };
+        bool isBlocked = false;
+        int currentDay = GameData.Instance.day_level;
 
-	private void OnPurchaseMission()
+        for (int i = 0; i < blockedDailyDays.Length; i++)
+        {
+            if (currentDay == blockedDailyDays[i])
+            {
+                isBlocked = true;
+                break;
+            }
+        }
+
+        if (isBlocked)
+        {
+            msgBox = GameMsgBoxController.ShowMsgBox(
+                GameMsgBoxController.MsgBoxType.SingleButton,
+                this.gameObject,
+                "Beat the current Main Mission to unlock Daily missions.",
+                OnBlockedMsgBoxOk,  // now properly closes the msg box
+                null,
+                false
+            );
+            return; // Early out — don't start mission
+        }
+
+        // If it's crazy daily and price applies
+        if (GameData.Instance.is_crazy_daily)
+        {
+            missionPrice = GameData.Instance.GetDailyMissionPrice(GameData.Instance.is_crazy_daily);
+            string content = "Spend " + missionPrice + " tCrystals to proceed with this challenge?";
+            msgBox = GameMsgBoxController.ShowMsgBox(
+                GameMsgBoxController.MsgBoxType.DoubleButton,
+                base.transform.gameObject,
+                content,
+                OnPurchaseMission,
+                OnMsgboxCancel);
+        }
+        else
+        {
+            MenuAudioController.DestroyGameMenuAudio();
+            GameData.Instance.MapSceneQuestInfoWrite(QuestInfo);
+            Application.LoadLevel("Loading");
+        }
+    }
+
+    private void OnPurchaseMission()
 	{
 		UnityEngine.Object.Destroy(msgBox.gameObject);
 		if (GameData.Instance.total_crystal >= missionPrice)
@@ -269,7 +302,16 @@ public class UIMapMissionDailyPanelController : UIShopPanelController
 		}
 	}
 
-	private void OnMsgboxCancel()
+    private void OnBlockedMsgBoxOk()
+    {
+        if (msgBox != null)
+        {
+            UnityEngine.Object.Destroy(msgBox.gameObject);
+        }
+    }
+
+
+    private void OnMsgboxCancel()
 	{
 		UnityEngine.Object.Destroy(msgBox.gameObject);
 	}

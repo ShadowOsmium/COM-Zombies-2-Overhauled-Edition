@@ -31,7 +31,7 @@ public class IceGunController : WeaponController
 		{
 			Debug.LogError(string.Concat("weapon:", weapon_type, " can't find fire_ori!"));
 		}
-		fire_line = UnityEngine.Object.Instantiate(Accessory[0]) as GameObject;
+		fire_line = Instantiate(Accessory[0]) as GameObject;
 		fire_line.transform.localPosition = Vector3.zero;
 		fire_line.transform.localRotation = Quaternion.identity;
 		fire_line.GetComponent<ParticleSystem>().Stop();

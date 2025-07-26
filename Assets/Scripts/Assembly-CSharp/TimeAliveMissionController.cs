@@ -123,7 +123,7 @@ public class TimeAliveMissionController : MissionController
                     {
                         case SpawnFromType.Grave:
                             GameObject grave = FindClosedGrave(player.transform.position);
-                            SpwanZombiesFromGrave(EType, grave);
+                            SpwanZombiesFromGrave(EType, grave, false);
                             break;
 
                         case SpawnFromType.Nest:

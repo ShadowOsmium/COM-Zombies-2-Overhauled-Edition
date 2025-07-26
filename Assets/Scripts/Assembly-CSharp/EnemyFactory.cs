@@ -8,7 +8,7 @@ public class EnemyFactory : MonoBehaviour
     {
         if (GameSceneController.Instance == null || GameSceneController.Instance.enemy_ref_map == null)
         {
-            Debug.LogWarning("[EnemyFactory] Skipping warm-up — enemy_ref_map not initialized.");
+            //Debug.LogWarning("[EnemyFactory] Skipping warm-up — enemy_ref_map not initialized.");
             return;
         }
 
@@ -41,7 +41,7 @@ public class EnemyFactory : MonoBehaviour
                 if (col != null) col.enabled = false;
 
                 GameObject.Destroy(dummy);
-                Debug.Log("[EnemyFactory] Warmed up enemy: " + type);
+                //Debug.Log("[EnemyFactory] Warmed up enemy: " + type);
             }
             catch (System.Exception ex)
             {
@@ -49,7 +49,7 @@ public class EnemyFactory : MonoBehaviour
             }
         }
 
-        Debug.Log("[EnemyFactory] Warm-up complete.");
+        //Debug.Log("[EnemyFactory] Warm-up complete.");
     }
 
     static EnemyController InitEnemy(GameObject enemyGO, GameObject prefab, EnemyType type, int id, bool isTrapped)
@@ -63,6 +63,7 @@ public class EnemyFactory : MonoBehaviour
         EnemyController ec = Utility.AddEnemyComponent(enemyGO, GetEnemyTypeControllerName(type));
         EnemyData data = EnemyData.CreateData(GameConfig.Instance.EnemyConfig_Set[type]);
         ec.SetEnemyData(data);
+        ec.enemyType = type;
         ec.EnemyID = id;
         ec.Accessory = prefab.GetComponent<SinglePrefabReference>().Accessory;
         ec.is_traped = isTrapped;
@@ -79,28 +80,28 @@ public class EnemyFactory : MonoBehaviour
 
         if (!GameSceneController.Instance.enemy_ref_map.Enemy_Set.ContainsKey(type))
         {
-            Debug.LogError("[EnemyFactory] Enemy_Set missing key: " + type);
+            //Debug.LogError("[EnemyFactory] Enemy_Set missing key: " + type);
             return null;
         }
 
         GameObject prefabRef = GameSceneController.Instance.enemy_ref_map.Enemy_Set[type];
         if (prefabRef == null)
         {
-            Debug.LogError("[EnemyFactory] Prefab reference is null for type: " + type);
+            //Debug.LogError("[EnemyFactory] Prefab reference is null for type: " + type);
             return null;
         }
 
         var instancePrefab = prefabRef.GetComponent<SinglePrefabReference>().Instance;
         if (instancePrefab == null)
         {
-            Debug.LogError("[EnemyFactory] Instance is null on SinglePrefabReference for type: " + type);
+            //Debug.LogError("[EnemyFactory] Instance is null on SinglePrefabReference for type: " + type);
             return null;
         }
 
         GameObject enemyGO = Object.Instantiate(instancePrefab, pos, rot);
         if (enemyGO == null)
         {
-            Debug.LogError("[EnemyFactory] Failed to instantiate enemy GameObject for type: " + type);
+            //Debug.LogError("[EnemyFactory] Failed to instantiate enemy GameObject for type: " + type);
             return null;
         }
 
@@ -111,13 +112,13 @@ public class EnemyFactory : MonoBehaviour
 
         if (result != null)
         {
-            //Debug.LogFormat(
-                //"[EnemyFactory] Enemy spawned. Requested type: {0}, Prefab: {1}, Resulting enemyType: {2}, Controller: {3}",
-               // type, prefabRef.name, result.enemyType, result.GetType().Name);
+            /*Debug.LogFormat(
+                "[EnemyFactory] Enemy spawned. Requested type: {0}, Prefab: {1}, Resulting enemyType: {2}, Controller: {3}",
+                type, prefabRef.name, result.enemyType, result.GetType().Name);*/
         }
         else
         {
-            Debug.LogError("[EnemyFactory] InitEnemy returned null for type: " + type);
+            //Debug.LogError("[EnemyFactory] InitEnemy returned null for type: " + type);
         }
 
         return result;

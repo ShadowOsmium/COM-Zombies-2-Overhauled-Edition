@@ -8,6 +8,8 @@ public class DailyMissionController : MissionController
     public float mission_life = 5f;
     private float mission_life_total = 5f;
     private float last_mission_life = 5f;
+    private int totalEnemies = 0;    // NEW dedicated enemy count
+    private int enemiesKilled = 0;
 
     private EnemyWaveInfoList currentWaveInfoList;
     private EnemyWaveIntervalInfo currentWaveInterval;
@@ -88,7 +90,8 @@ public class DailyMissionController : MissionController
         InitMissionController();
 
         mission_type = MissionType.Cleaner;
-        CaculateDifficulty();
+
+        enemiesKilled = 0; // reset kill count here
 
         yield return null;
 
@@ -109,6 +112,8 @@ public class DailyMissionController : MissionController
             Debug.LogError("[DailyMissionController] No enemy waves found for day level " + GameSceneController.Instance.DayLevel);
             yield break;
         }
+
+        CaculateDifficulty();
 
         Debug.Log("[DailyMissionController] Waves loaded: " + currentWaveInfoList.wave_info_list.Count);
 
@@ -145,7 +150,7 @@ public class DailyMissionController : MissionController
 
         List<EnemyWaveInfo> waves = currentWaveInfoList.wave_info_list;
 
-        while (mission_life > 0f && completedLoops < waveLoopCount)
+        while (completedLoops < waveLoopCount)
         {
             Debug.Log("[Wave Loop] Starting loop #" + (completedLoops + 1));
 
@@ -154,21 +159,15 @@ public class DailyMissionController : MissionController
                 EnemyWaveInfo wave = waves[waveIndex];
                 if (wave.spawn_info_list == null) continue;
 
-                Debug.Log(string.Format("[Spawn Debug] Loop {0} - Spawning wave index: {1}, enemy count: {2}",
-                    completedLoops + 1, waveIndex, wave.spawn_info_list.Count));
-
                 foreach (EnemySpawnInfo spawn_info in wave.spawn_info_list)
                 {
-                    if (mission_life <= 0f) break;
-
                     EnemyType type = spawn_info.EType;
                     int count = spawn_info.Count;
                     SpawnFromType from = spawn_info.From;
 
                     for (int i = 0; i < count; i++)
                     {
-                        if (mission_life <= 0f) break;
-
+                        // Instead of breaking early on mission_life, just yield normally.
                         while (GameSceneController.Instance.Enemy_Set.Count >= 12)
                         {
                             Debug.Log("[Spawn Debug] Enemy count is " + GameSceneController.Instance.Enemy_Set.Count + ", waiting...");
@@ -182,7 +181,7 @@ public class DailyMissionController : MissionController
                             case SpawnFromType.Grave:
                                 GameObject grave = FindClosedGrave(player.transform.position);
                                 if (grave != null)
-                                    SpwanZombiesFromGrave(type, grave);
+                                    SpwanZombiesFromGrave(type, grave, false);
                                 else
                                     Debug.LogWarning("[Spawn Debug] No grave found to spawn from!");
                                 break;
@@ -207,12 +206,8 @@ public class DailyMissionController : MissionController
                         yield return new WaitForSeconds(1f);
                     }
 
-                    if (mission_life <= 0f) break;
-
                     yield return new WaitForSeconds(currentWaveInterval.line_interval);
                 }
-
-                if (mission_life <= 0f) break;
 
                 yield return new WaitForSeconds(currentWaveInterval.wave_interval);
             }
@@ -221,6 +216,7 @@ public class DailyMissionController : MissionController
         }
 
         MissionFinished();
+        GameData.Instance.SaveData();
         yield break;
     }
 
@@ -231,22 +227,57 @@ public class DailyMissionController : MissionController
         {
             GameSceneController.Instance.OnAddBulletButton();
         }
-        if (!is_mission_finished && last_mission_life != mission_life)
+    }
+
+    public void OnEnemyKilled()
+    {
+        if (is_mission_finished)
+            return;
+
+        enemiesKilled++;
+
+        float progress = Mathf.Clamp01((float)enemiesKilled / totalEnemies);
+
+        if (GameSceneController.Instance != null && GameSceneController.Instance.game_main_panel != null)
         {
-            last_mission_life = Mathf.Max(0f, mission_life);
-            if (GameSceneController.Instance != null && GameSceneController.Instance.game_main_panel != null)
-            {
-                GameSceneController.Instance.game_main_panel.clean_panel.SetMissionBar(1f - last_mission_life / mission_life_total);
-            }
+            GameSceneController.Instance.game_main_panel.clean_panel.SetMissionBar(progress);
+        }
+
+        if (enemiesKilled >= totalEnemies)
+        {
+            MissionFinished();
         }
     }
 
     public override void CaculateDifficulty()
     {
-        float baseReward = GameSceneController.Instance.enemy_standard_reward_total;
-        int waveLoopCount = GameData.Instance.is_crazy_daily ? 2 : 1;
+        totalEnemies = 0;
 
-        mission_life_total = baseReward * waveLoopCount;
+        List<EnemyWaveInfo> waves = (currentWaveInfoList != null) ? currentWaveInfoList.wave_info_list : null;
+
+        if (waves != null)
+        {
+            for (int i = 0; i < waves.Count; i++)
+            {
+                EnemyWaveInfo wave = waves[i];
+                if (wave == null || wave.spawn_info_list == null)
+                    continue;
+
+                for (int j = 0; j < wave.spawn_info_list.Count; j++)
+                {
+                    EnemySpawnInfo spawn = wave.spawn_info_list[j];
+                    totalEnemies += spawn.Count;
+                }
+            }
+        }
+
+        int waveLoopCount = GameData.Instance.is_crazy_daily ? 2 : 1;
+        totalEnemies *= waveLoopCount;
+
+        mission_life_total = totalEnemies;
         mission_life = mission_life_total;
+        last_mission_life = mission_life_total;
+
+        Debug.Log("CaculateDifficulty: totalEnemies = " + totalEnemies);
     }
 }

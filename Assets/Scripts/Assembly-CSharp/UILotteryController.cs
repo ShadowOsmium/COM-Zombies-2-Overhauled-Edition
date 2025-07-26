@@ -189,7 +189,7 @@ public class UILotteryController : UISceneController
             GameMsgBoxController.ShowMsgBox(
                 GameMsgBoxController.MsgBoxType.SingleButton,
                 TUIControls.gameObject,
-                "Please wait for the current spin to finish before spinning again.",
+                "Please wait five seconds before spinning again (For Safety Reasons).",
                 null, null);
             return;
         }
@@ -509,7 +509,7 @@ public class UILotteryController : UISceneController
         lottery_bar_rect.NeedUpdate = true;
         lottery_bar.NeedUpdate = true;
 
-        lottery_bar_label.Text = "Spin 5 Times To Refresh The Board And Get 30 Crystals: " + num + " / 5";
+        lottery_bar_label.Text = "Spin 5 Times To Refresh The Spin Counter And Get 30 Crystals: " + num + " / 5";
 
         GameData.Instance.SaveData();
     }

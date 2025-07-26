@@ -62,7 +62,7 @@ public class GameVersion : MonoBehaviour
     public void CheckRemoteGameVersion(OnServerVersion callback, OnServerVersionError callback_error)
     {
         string currentVersion = Application.version;
-        string expectedVersion = "1.3.1";
+        string expectedVersion = "1.3.3";
 
         if (currentVersion == expectedVersion)
         {
@@ -92,7 +92,7 @@ public class GameVersion : MonoBehaviour
             }
 
             int count = 0;
-            if (ver == "1.3.1")
+            if (ver == "1.3.3")
             {
                 Debug.Log("to normal server.");
                 is_test_config = false;
@@ -106,7 +106,7 @@ public class GameVersion : MonoBehaviour
                 if (callback != null)
                     callback(true);
             }
-            else if (testVer == "1.3.1")
+            else if (testVer == "1.3.3")
             {
                 Debug.Log("to test server.");
                 is_test_config = true;
@@ -166,7 +166,7 @@ public class GameVersion : MonoBehaviour
         testVer = cfg.GetSingle("CoMZ2", "TestVerAndroid");
 
         int count = 0;
-        if (ver == "1.3.1")
+        if (ver == "1.3.3")
         {
             Debug.Log("to normal server.");
             is_test_config = false;
@@ -180,7 +180,7 @@ public class GameVersion : MonoBehaviour
             if (callback != null)
                 callback(true);
         }
-        else if (testVer == "1.3.1")
+        else if (testVer == "1.3.3")
         {
             Debug.Log("to test server.");
             is_test_config = true;

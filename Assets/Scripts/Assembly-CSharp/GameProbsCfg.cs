@@ -8,7 +8,8 @@ public class GameProbsCfg
 		GameStory
 	}
 
-	public ProbType prob_type;
+    public ProbType prob_type;
+    public int weight = 1;
 
-	public string prob_name = string.Empty;
+    public string prob_name = string.Empty;
 }

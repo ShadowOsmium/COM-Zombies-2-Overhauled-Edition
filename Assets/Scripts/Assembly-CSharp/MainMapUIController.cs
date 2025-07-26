@@ -127,24 +127,19 @@ public class MainMapUIController : MonoBehaviour
 		}
 	}
 
-	public void OnMissionGoButton(TUIControl control, int eventType, float wparam, float lparam, object data)
-	{
-		if (eventType != 3)
-		{
-			return;
-		}
-		Debug.Log("OnMissionGoButton!");
-		if (fade_panel != null)
-		{
-			GameData.Instance.loading_to_scene = GameData.Instance.cur_quest_info.scene_name;
-			if (GameData.Instance.cur_quest_info.mission_day_type == MissionDayType.Daily)
-			{
-				GameData.Instance.daily_mission_count++;
-                GameData.Instance.SaveData();
-            }
-			fade_panel.FadeOut("Loading");
-		}
-	}
+    public void OnMissionGoButton(TUIControl control, int eventType, float wparam, float lparam, object data)
+    {
+        if (eventType != 3)
+        {
+            return;
+        }
+        Debug.Log("OnMissionGoButton!");
+        if (fade_panel != null)
+        {
+            GameData.Instance.loading_to_scene = GameData.Instance.cur_quest_info.scene_name;
+            fade_panel.FadeOut("Loading");
+        }
+    }
 
     private void ResetCurNistTime()
 	{

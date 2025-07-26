@@ -112,7 +112,7 @@ public class UICoopHallController : UISceneController
             CoopBossCfg bossCfg = GameConfig.Instance.Coop_Boss_Cfg_Set[
                 GameConfig.GetEnemyTypeFromBossType(GameData.Instance.cur_coop_boss)];
 
-            int requiredDay = Mathf.CeilToInt(bossCfg.day_level / 2f);
+            int requiredDay = Mathf.CeilToInt(bossCfg.day_level / 1.5f);
             int playerDayLevel = GameData.Instance.day_level;
 
             if (playerDayLevel < requiredDay)

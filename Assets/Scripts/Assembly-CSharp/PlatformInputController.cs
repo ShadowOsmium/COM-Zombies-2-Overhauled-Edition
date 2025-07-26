@@ -159,7 +159,11 @@ public class PlatformInputController : MonoBehaviour
 		{
 			is_move = false;
 		}
-		if (!is_mobile)
+        if (is_mobile)
+        {
+            GameSceneController.Instance.player_controller.CheckFireWeapon();
+        }
+        if (!is_mobile)
 		{
 			if (Input.GetButton("Fire1"))
 			{

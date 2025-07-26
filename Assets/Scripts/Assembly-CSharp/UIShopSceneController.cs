@@ -26,7 +26,9 @@ public class UIShopSceneController : UISceneController
 
 	public ParticleSystem level_up_eff;
 
-	public new static UIShopSceneController Instance
+    public AvatarDisplayController AvatarDisplay;
+
+    public new static UIShopSceneController Instance
 	{
 		get
 		{
@@ -34,15 +36,13 @@ public class UIShopSceneController : UISceneController
 		}
 	}
 
-	public UIShopPlayerController CurrentAvatar
-	{
-		get
-		{
-			return currentAvatar;
-		}
-	}
+    public UIShopPlayerController CurrentAvatar
+    {
+        get { return currentAvatar; }
+        set { currentAvatar = value; }
+    }
 
-	private void Awake()
+    private void Awake()
 	{
 		UISceneController.instance = this;
 		GameConfig.CheckGameConfig();
@@ -186,9 +186,9 @@ public class UIShopSceneController : UISceneController
 		{
 			if (item.CheckAvatarPosInShop() && CurrentAvatar != null && item.avatar_state != CurrentAvatar.avatar_state && item.avatarData.avatar_type == CurrentAvatar.avatarData.avatar_type)
 			{
-				currentAvatar = item;
-				OnAvatarSkinChanged();
-			}
+                currentAvatar = item;
+                OnAvatarSkinChanged(false);
+            }
 		}
 	}
 
@@ -203,14 +203,18 @@ public class UIShopSceneController : UISceneController
 		}
 	}
 
-	private void OnAvatarSkinChanged()
-	{
-		Debug.Log("Avatar Skin Changed, avatar:" + currentAvatar.avatarData.avatar_name);
-		level_up_eff.transform.position = currentAvatar.transform.position;
-		level_up_eff.Play();
-	}
+    private void OnAvatarSkinChanged(bool playFx = true)
+    {
+        Debug.Log("Avatar Skin Changed, avatar:" + currentAvatar.avatarData.avatar_name);
 
-	private void OnTapJoyPointsAdd()
+        if (playFx)
+        {
+            level_up_eff.transform.position = currentAvatar.transform.position;
+            level_up_eff.Play();
+        }
+    }
+
+    private void OnTapJoyPointsAdd()
 	{
 		MoneyController.UpdateInfo();
 	}

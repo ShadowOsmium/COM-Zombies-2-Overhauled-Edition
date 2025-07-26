@@ -422,6 +422,8 @@ public class HalloweenController : EnemyController
         base.PlayHalfHpEffect();
         eff_bellow.Play();
         eff_angry.Play();
+        if (GameSceneController.Instance.mission_day_type == MissionDayType.Endless)
+            return;
         Transform parent = base.transform.Find("cg_view");
         Camera.main.transform.parent = parent;
         Camera.main.transform.localPosition = Vector3.zero;
@@ -445,6 +447,7 @@ public class HalloweenController : EnemyController
         base.OnHalfHpEffOver();
         eff_bellow.Stop();
     }
+
     public void OnReplicationCast()
     {
         EnemyController selfController = GetComponent<EnemyController>();
@@ -455,6 +458,13 @@ public class HalloweenController : EnemyController
         {
             // Pass the boss controller to get correct elite minion spawning
             coopMission.StartCoroutine(coopMission.HalloweenSummon(selfController));
+            return;
+        }
+
+        EndlessMissionController endless = missionController as EndlessMissionController;
+        if (endless != null)
+        {
+            endless.StartCoroutine(endless.HalloweenSummon(selfController));
             return;
         }
 

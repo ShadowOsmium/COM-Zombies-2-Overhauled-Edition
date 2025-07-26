@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class GrenadeProjectile : ProjectileController
 {
+    private bool hasExploded = false;
+
     public override void Start()
     {
         base.Start();
@@ -27,7 +29,9 @@ public class GrenadeProjectile : ProjectileController
 
     public override void OnProjectileCollideEnter(GameObject obj)
     {
-        MineProjectile.ChainBoom(centroid, explode_radius);
+        if (hasExploded)
+            return;
+        hasExploded = true;
 
         if (obj.layer == PhysicsLayer.PLAYER)
         {

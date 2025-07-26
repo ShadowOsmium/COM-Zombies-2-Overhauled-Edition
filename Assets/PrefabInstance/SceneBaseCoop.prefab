@@ -62508,6 +62508,7 @@ MonoBehaviour:
   way_points: []
   mine_area: []
   is_boss_dead: 0
+  can_buy_ammo: 0
   screen_blood: {fileID: 114021672719808957}
   screen_blood_shield: {fileID: 114957056276851912}
   boss_screen_blood1: {fileID: 114579022008397988}
@@ -62583,6 +62584,7 @@ MonoBehaviour:
   enemy_standard_reward_total: 0
   enable_boss_spawn: 0
   enable_spawn_ani: 
+  is_skip_cg: 0
   tutorial_ui_over: 0
   player_death_count: 0
   cur_rebirth_cost: 0

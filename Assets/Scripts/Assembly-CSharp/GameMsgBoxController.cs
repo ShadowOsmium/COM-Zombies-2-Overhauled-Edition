@@ -85,43 +85,57 @@ public class GameMsgBoxController : UIPanelController
 		msg_content.Text = str;
 	}
 
-	public static GameMsgBoxController ShowMsgBox(MsgBoxType type, GameObject root_obj, string content, Action OnButtonOk, Action OnButtonCancel, bool auto_hide = true)
-	{
-		if (Instance == null)
-		{
-			GameObject gameObject = UnityEngine.Object.Instantiate(Resources.Load("TUI/Message_Box")) as GameObject;
-			Instance = gameObject.GetComponent<GameMsgBoxController>();
-		}
-		Instance.transform.parent = root_obj.transform;
-		Instance.transform.localPosition = new Vector3(0f, 0f, -60f);
-		Instance.transform.localRotation = Quaternion.identity;
-		Instance.m_auto_hide = auto_hide;
-		Instance.Show();
-		Instance.SetContent(content);
-		Instance.on_button_ok = OnButtonOk;
-		Instance.on_button_cancel = OnButtonCancel;
-		switch (type)
-		{
-		case MsgBoxType.SingleButton:
-			Instance.ok_button.gameObject.SetActive(true);
-			Instance.cancel_button.gameObject.SetActive(false);
-			Instance.ok_button.transform.localPosition = new Vector3(0f, Instance.ok_button.transform.localPosition.y, Instance.ok_button.transform.localPosition.z);
-			break;
-		case MsgBoxType.DoubleButton:
-			Instance.ok_button.gameObject.SetActive(true);
-			Instance.cancel_button.gameObject.SetActive(true);
-			Instance.ok_button.transform.localPosition = new Vector3(60f, Instance.ok_button.transform.localPosition.y, Instance.ok_button.transform.localPosition.z);
-			Instance.cancel_button.transform.localPosition = new Vector3(-60f, Instance.ok_button.transform.localPosition.y, Instance.ok_button.transform.localPosition.z);
-			break;
-		}
-		return Instance;
-	}
+    public static GameMsgBoxController ShowMsgBox(MsgBoxType type, GameObject root_obj, string content, Action OnButtonOk, Action OnButtonCancel, bool auto_hide = true)
+    {
+        DestroyMsgBox();
 
-	public static void DestroyMsgBox()
-	{
-		if (Instance != null)
-		{
-			UnityEngine.Object.Destroy(Instance.gameObject);
-		}
-	}
+        if (Instance == null)
+        {
+            GameObject gameObject = UnityEngine.Object.Instantiate(Resources.Load("TUI/Message_Box")) as GameObject;
+            Instance = gameObject.GetComponent<GameMsgBoxController>();
+        }
+
+        Instance.transform.parent = root_obj.transform;
+        Instance.transform.localPosition = new Vector3(0f, 0f, -60f);
+        Instance.transform.localRotation = Quaternion.identity;
+        Instance.m_auto_hide = auto_hide;
+        Instance.Show();
+        Instance.SetContent(content);
+        Instance.on_button_ok = OnButtonOk;
+        Instance.on_button_cancel = OnButtonCancel;
+
+        switch (type)
+        {
+            case MsgBoxType.SingleButton:
+                Instance.ok_button.gameObject.SetActive(true);
+                Instance.cancel_button.gameObject.SetActive(false);
+                Instance.ok_button.transform.localPosition = new Vector3(0f, Instance.ok_button.transform.localPosition.y, Instance.ok_button.transform.localPosition.z);
+                break;
+            case MsgBoxType.DoubleButton:
+                Instance.ok_button.gameObject.SetActive(true);
+                Instance.cancel_button.gameObject.SetActive(true);
+                Instance.ok_button.transform.localPosition = new Vector3(60f, Instance.ok_button.transform.localPosition.y, Instance.ok_button.transform.localPosition.z);
+                Instance.cancel_button.transform.localPosition = new Vector3(-60f, Instance.ok_button.transform.localPosition.y, Instance.ok_button.transform.localPosition.z);
+                break;
+        }
+
+        return Instance;
+    }
+
+    public static bool IsMsgBoxOpen
+    {
+        get
+        {
+            return Instance != null && Instance.gameObject.activeSelf;
+        }
+    }
+
+    public static void DestroyMsgBox()
+    {
+        if (Instance != null)
+        {
+            UnityEngine.Object.Destroy(Instance.gameObject);
+            Instance = null;
+        }
+    }
 }

@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using CoMZ2;
 using UnityEngine;
@@ -77,7 +77,6 @@ public class BossMissionController : MissionController
 
     public override IEnumerator Start()
     {
-        BossRoamEvent.Instance.hasSpawnedBoss = false;
         InitMissionController();
         mission_type = MissionType.Boss;
         CaculateDifficulty();
@@ -99,28 +98,17 @@ public class BossMissionController : MissionController
         while (!GameSceneController.Instance.enable_boss_spawn)
             yield return null;
 
-        boss = SpwanBossFromNest(bossType, zombie_boss_array[Random.Range(0, zombie_boss_array.Length)]);
+        boss = SpawnBossFromNest(bossType, zombie_boss_array[Random.Range(0, zombie_boss_array.Length)]);
+
         if (boss != null)
         {
             boss.IsBoss = true;
-
-            // Force correct enemyType in case prefab has wrong value
             boss.enemyType = bossType;
-
-            Debug.Log("[BossMissionController] Boss spawned of type (corrected): " + boss.enemyType);
-        }
-        else
-        {
-            Debug.LogError("[BossMissionController] Boss spawn failed: boss is null!");
-        }
-
-        if (boss == null)
-        {
-            Debug.LogError("[BossMissionController] Boss spawn failed: boss is null!");
-        }
-        else
-        {
             Debug.Log("[BossMissionController] Boss spawned of type: " + boss.enemyType);
+        }
+        else
+        {
+            Debug.LogError("[BossMissionController] Boss spawn failed: boss is null!");
         }
 
         while (GameSceneController.Instance.GamePlayingState == PlayingState.CG)
@@ -163,12 +151,12 @@ public class BossMissionController : MissionController
         yield return new WaitForSeconds(1f);
     }
 
-    private void SpawnEnemyFromSource(EnemySpawnInfo spawnInfo, Vector3 playerPos)
+    public void SpawnEnemyFromSource(EnemySpawnInfo spawnInfo, Vector3 playerPos, bool bypassLimit = false)
     {
         switch (spawnInfo.From)
         {
             case SpawnFromType.Grave:
-                SpwanZombiesFromGrave(spawnInfo.EType, FindClosedGrave(playerPos));
+                SpwanZombiesFromGrave(spawnInfo.EType, FindClosedGrave(playerPos), bypassLimit);
                 break;
             case SpawnFromType.Nest:
                 SpwanZombiesFromNest(spawnInfo.EType, zombie_nest_array[Random.Range(0, zombie_nest_array.Length)]);
@@ -207,7 +195,7 @@ public class BossMissionController : MissionController
     {
     }
 
-    public EnemyController SpwanBossFromNest(EnemyType type, GameObject nest)
+    public EnemyController SpawnBossFromNest(EnemyType type, GameObject nest)
     {
         if (nest == null)
         {
@@ -234,7 +222,7 @@ public class BossMissionController : MissionController
         GameObject grave = FindClosedGrave(boss.transform.position);
         for (int i = 0; i < minionCount; i++)
         {
-            SpwanZombiesFromGrave(minionType, grave);
+            SpwanZombiesFromGrave(minionType, grave, true); // ← bypass limit
             yield return null;
         }
     }
@@ -258,7 +246,7 @@ public class BossMissionController : MissionController
         GameObject grave = FindClosedGrave(boss.transform.position);
         for (int i = 0; i < minionCount; i++)
         {
-            SpwanZombiesFromGrave(minionType, grave);
+            SpwanZombiesFromGrave(minionType, grave, true); // ← bypass limit
             yield return null;
         }
     }
@@ -307,9 +295,9 @@ public class BossMissionController : MissionController
                 Debug.LogError("EnemyMap missing prefab for minion type: " + minionType);
                 yield break;
             }
-
+            bool bypassLimit = GameData.Instance.cur_quest_info.mission_day_type == MissionDayType.Endless;
             // Spawn minion explicitly by type at grave position
-            SpwanZombiesFromGrave(minionType, grave);
+            SpwanZombiesFromGrave(minionType, grave, bypassLimit);
 
             yield return null;
         }

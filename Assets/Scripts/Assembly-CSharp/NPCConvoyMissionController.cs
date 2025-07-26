@@ -116,7 +116,7 @@ public class NPCConvoyMissionController : MissionController
 					case SpawnFromType.Grave:
 					{
 						GameObject grave = FindClosedGrave(player.transform.position);
-						SpwanZombiesFromGrave(EType, grave);
+						SpwanZombiesFromGrave(EType, grave, false);
 						yield return new WaitForSeconds(0.3f);
 						break;
 					}

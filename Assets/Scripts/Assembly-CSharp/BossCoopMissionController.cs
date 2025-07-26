@@ -65,6 +65,7 @@ public class BossCoopMissionController : MissionController
     {
         InitMissionController();
         mission_type = MissionType.Coop;
+        GameData.Instance.cur_quest_info.mission_type = MissionType.Coop;
         CaculateDifficulty();
 
         var types = GetMissionEnemyTypeList();
@@ -120,7 +121,7 @@ public class BossCoopMissionController : MissionController
                 {
                     GameObject grave = FindClosedGrave(player.transform.position);
                     if (grave != null)
-                        SpwanZombiesFromGrave(spawnInfo.EType, grave);
+                        SpwanZombiesFromGrave(spawnInfo.EType, grave, false);
                 }
                 else if (spawnInfo.From == SpawnFromType.Nest)
                 {
@@ -137,7 +138,7 @@ public class BossCoopMissionController : MissionController
         if (boss == null)
         {
             GameObject bossNest = zombie_boss_array[Random.Range(0, zombie_boss_array.Length)];
-            boss = SpwanBossFromNest(bossCfg.boss_type, bossNest);
+            boss = SpawnBossFromNest(bossCfg.boss_type, bossNest);
             boss.SetEnemyBeCoopBoss(bossCfg);
             GameSceneCoopController.Instance.OnBossBirthCameraShow(boss);
         }
@@ -161,7 +162,7 @@ public class BossCoopMissionController : MissionController
                 {
                     GameObject grave = FindClosedGrave(player.transform.position);
                     if (grave != null)
-                        SpwanZombiesFromGrave(spawnInfo.EType, grave);
+                        SpwanZombiesFromGrave(spawnInfo.EType, grave, false);
                 }
                 else if (spawnInfo.From == SpawnFromType.Nest)
                 {
@@ -187,7 +188,7 @@ public class BossCoopMissionController : MissionController
     {
     }
 
-    public EnemyController SpwanBossFromNest(EnemyType type, GameObject nest)
+    public EnemyController SpawnBossFromNest(EnemyType type, GameObject nest)
     {
         if (nest == null)
         {
@@ -206,13 +207,14 @@ public class BossCoopMissionController : MissionController
         return enemy;
     }
 
-    public override float SpwanZombiesFromGrave(EnemyType type, GameObject grave)
+    public override EnemyController SpwanZombiesFromGrave(EnemyType type, GameObject grave, bool bypassSpawnLimit)
     {
         if (grave == null)
         {
             Debug.LogError("Spawn zombie from grave failed: grave is null.");
-            return 0f;
+            return null;
         }
+
         // Random position in grave bounds
         float x = Random.Range(-grave.transform.localScale.x / 2f, grave.transform.localScale.x / 2f);
         float z = Random.Range(-grave.transform.localScale.z / 2f, grave.transform.localScale.z / 2f);
@@ -222,18 +224,29 @@ public class BossCoopMissionController : MissionController
         if (enemyController == null)
         {
             Debug.LogError("Failed to spawn enemy: " + type);
-            return 0f;
+            return null;
         }
+
         enemyController.gameObject.SetActive(true);
+
         if (!GameSceneController.Instance.Enemy_Set.ContainsKey(enemyController.EnemyID))
+        {
             GameSceneController.Instance.Enemy_Set.Add(enemyController.EnemyID, enemyController);
+        }
+
+        // If bypassSpawnLimit is true, mark enemy to ignore spawn cap
+        enemyController.ignoreSpawnLimit = bypassSpawnLimit;
+
+        // Assign missionWeight property
+        enemyController.MissionWeight = GameConfig.Instance.EnemyConfig_Set[type].missionWeight;
 
         if (type != EnemyType.E_FATCOOK && type != EnemyType.E_HAOKE_A && type != EnemyType.E_HAOKE_B
             && GameData.Instance.cur_quest_info.mission_type != MissionType.Tutorial)
         {
             GameSceneController.Instance.ground_stone_pool.GetComponent<ObjectPool>().CreateObject(spawnPos, Quaternion.identity);
         }
-        return GameConfig.Instance.EnemyConfig_Set[type].missionWeight;
+
+        return enemyController;
     }
 
     public float SpwanZombiesFromNest(EnemyType type, GameObject nest)
@@ -267,7 +280,7 @@ public class BossCoopMissionController : MissionController
         GameObject grave = FindClosedGrave(boss.transform.position);
         for (int i = 0; i < minionCount; i++)
         {
-            SpwanZombiesFromGrave(minionType, grave);
+            SpwanZombiesFromGrave(minionType, grave, false);
             yield return null;
         }
     }
@@ -287,7 +300,7 @@ public class BossCoopMissionController : MissionController
         GameObject grave = FindClosedGrave(summoningBoss.transform.position);
         for (int i = 0; i < minionCount; i++)
         {
-            SpwanZombiesFromGrave(minionType, grave);
+            SpwanZombiesFromGrave(minionType, grave, false);
             yield return null;
         }
     }

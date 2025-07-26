@@ -61,7 +61,15 @@ public class CameraRoam : MonoBehaviour, IRoamEvent
 		m_cameraMove = cameraMove;
 	}
 
-	public void OnRoamTrigger()
+    public void SkipCutsceneManually()
+    {
+        CancelInvoke("OnStop");
+
+        Stop();
+        Clear();
+    }
+
+    public void OnRoamTrigger()
 	{
 		islookat = true;
 		Roam();

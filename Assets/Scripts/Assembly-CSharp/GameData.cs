@@ -47,6 +47,8 @@ public class GameData : MonoBehaviour
 
     public int daily_mission_count;
 
+    public QuestInfo EndlessQuestInfo;
+
     public int lottery_reset_count;
 
     private int lastSavedFreeSpinCount = 0;
@@ -79,8 +81,12 @@ public class GameData : MonoBehaviour
 
     private HashSet<string> usedPromoCodes = new HashSet<string>();
 
+    public string lastMissionCompleteDate = "";
+
     public int lastSavedCash = 0;
+
     public int lastSavedCrystal = 0;
+
     public int lastSavedVoucher = 0;
 
     private DateTime lastSaveTime = DateTime.MinValue;
@@ -91,8 +97,21 @@ public class GameData : MonoBehaviour
     private readonly int maxSuspiciousSaves = 4;
 
     private GameDataInt _total_cash = new GameDataInt(0);
+
     private GameDataInt _total_crystal = new GameDataInt(0);
+
     private GameDataInt _total_voucher = new GameDataInt(0);
+
+    public MissionType mission_type
+    {
+        get
+        {
+            if (GameSceneController.Instance != null)
+                return GameSceneController.Instance.mission_type;
+
+            return MissionType.None;
+        }
+    }
 
     public int tapjoyPoints;
 
@@ -170,7 +189,7 @@ public class GameData : MonoBehaviour
 
     public bool rewardSafeMode = false;
 
-    public string game_version = "1.3.1";
+    public string game_version = "1.3.3";
 
     public int enter_shop_count;
 
@@ -302,8 +321,8 @@ public class GameData : MonoBehaviour
         }
         cur_quest_info = new QuestInfo();
         cur_quest_info.mission_type = MissionType.Cleaner;
-        is_enter_tutorial = false;
-        game_version = "1.3.1";
+        is_enter_tutorial = true;
+        game_version = "1.3.3";
         user_id = DevicePlugin.GetUUID();
         if (!LoadData(null))
         {
@@ -316,9 +335,9 @@ public class GameData : MonoBehaviour
             showUpdatePoster = true;
         }
         GameEnhancer enhancer = GameObject.FindObjectOfType<GameEnhancer>();
-        if (game_version != "1.3.1")
+        if (game_version != "1.3.3")
         {
-            game_version = "1.3.1";
+            game_version = "1.3.3";
             OnGameDataVersionDifferent();
             showUpdatePoster = true;
         }
@@ -537,6 +556,8 @@ public class GameData : MonoBehaviour
         show_ui_tutorial = ParseBoolSafe(configure.GetSingle("Save", "ShowUITutorial"), show_ui_tutorial);
         show_ui_tutorial_weapon = ParseBoolSafe(configure.GetSingle("Save", "ShowUITutorialWeapon"), show_ui_tutorial_weapon);
         daily_mission_count = ParseIntSafe(configure.GetSingle("Save", "DailyMissionCount"));
+        int dailyCount = GameData.Instance.daily_mission_count;
+        Debug.Log("[LoadGameData] daily_mission_count loaded: " + dailyCount);
         showNicknamePrompt = configure.GetSingle("Save", "ShowNicknamePrompt") == "0";
 
         blackname = configure.GetSingle("Save", "Blackname") == "1";
@@ -568,11 +589,11 @@ public class GameData : MonoBehaviour
     private void HandleDailyReset(Configure configure)
     {
         save_date = SafeGetSingle(configure, "Save", "SaveDate", "");
+        lastMissionCompleteDate = configure.GetSingle("Save", "LastMissionCompleteDate") ?? "";
         cur_save_date = DateTime.Now.ToString("yyyy-MM-dd");
 
-        if (!save_date.Trim().Equals(cur_save_date.Trim(), StringComparison.Ordinal))
+        if (string.IsNullOrEmpty(lastMissionCompleteDate) || string.Compare(lastMissionCompleteDate, cur_save_date, StringComparison.Ordinal) < 0)
         {
-            save_date = cur_save_date;
             daily_mission_count = 0;
             lottery_reset_count = 0;
             lottery_count = 0;
@@ -583,6 +604,7 @@ public class GameData : MonoBehaviour
         {
             lottery_reset_count = ParseIntSafe(configure.GetSingle("Save", "LotteryResetCount"));
             lottery_count = ParseIntSafe(configure.GetSingle("Save", "LotteryCount"));
+            daily_mission_count = ParseIntSafe(configure.GetSingle("Save", "DailyMissionCount"));
         }
     }
 
@@ -1110,6 +1132,7 @@ public class GameData : MonoBehaviour
         SetOrAddSingle("Save", "LastSafeVoucher", lastSavedVoucher.ToString());
         SetOrAddSingle("Save", "LastSavedFreeSpins", lastSavedFreeSpins.ToString());
         SetOrAddSingle("Save", "DailyMissionCount", daily_mission_count.ToString());
+        SetOrAddSingle("Save", "LastMissionCompleteDate", lastMissionCompleteDate);
 
         SaveFreeSpinCount();
 
@@ -1380,16 +1403,16 @@ public class GameData : MonoBehaviour
 
     private void SaveFreeSpinCount()
     {
-        int spins = GameData.Instance.free_lottery_spins.GetIntVal();
+        int spins = Instance.free_lottery_spins.GetIntVal();
         SetOrAddSingle("Save", "FreeLotterySpins", spins.ToString());
-        Debug.Log("[SaveFreeSpinCount] Saved spins: " + spins);
+        //Debug.Log("[SaveFreeSpinCount] Saved spins: " + spins);
     }
 
     private void LoadFreeSpinCount(Configure configure)
     {
         int spins = ParseIntSafe(SafeGetSingle(configure, "Save", "FreeLotterySpins", "0"));
-        GameData.Instance.free_lottery_spins.SetIntVal(spins, GameDataIntPurpose.FreeSpin);
-        Debug.Log("[LoadFreeSpinCount] Loaded spins: " + spins);
+        Instance.free_lottery_spins.SetIntVal(spins, GameDataIntPurpose.FreeSpin);
+        //Debug.Log("[LoadFreeSpinCount] Loaded spins: " + spins);
     }
 
     public List<GameProb> GetWeaponFragmentProbs(string weapon_name)
@@ -1610,32 +1633,13 @@ public class GameData : MonoBehaviour
 
         List<string> list = new List<string> { "Church", "Depot", "Junkyard" };
 
-        int[] blockedDailyDays = new int[] { 2, 3, 6, 9, 12, 14, 15, 19, 25, 35 };
-
-        bool allowDaily = true;
-        for (int i = 0; i < blockedDailyDays.Length; i++)
-        {
-            if (Instance.day_level == blockedDailyDays[i])
-            {
-                allowDaily = false;
-                break;
-            }
-        }
-
-        if (allowDaily)
-        {
-            QuestInfo normalDaily = new QuestInfo();
-            normalDaily.mission_type = MissionType.Cleaner;
-            normalDaily.mission_day_type = MissionDayType.Daily;
-            normalDaily.scene_name = list[UnityEngine.Random.Range(0, list.Count)];
-            normalDaily.is_crazy_daily = false;
-            normalDaily.SetQuestComment();
-            mInfos.Add(normalDaily);
-        }
-        else
-        {
-            Debug.Log("[SetMapMissionList] Daily mission blocked on day level: " + Instance.day_level);
-        }
+        QuestInfo normalDaily = new QuestInfo();
+        normalDaily.mission_type = MissionType.Cleaner;
+        normalDaily.mission_day_type = MissionDayType.Daily;
+        normalDaily.scene_name = list[UnityEngine.Random.Range(0, list.Count)];
+        normalDaily.is_crazy_daily = false;
+        normalDaily.SetQuestComment();
+        mInfos.Add(normalDaily);
 
         QuestInfo coopQuest = new QuestInfo();
         coopQuest.mission_type = MissionType.Coop;
@@ -1673,7 +1677,6 @@ public class GameData : MonoBehaviour
             }
             GameData.Instance.total_crystal.SetIntVal(newCrystalValue, GameDataIntPurpose.Crystal);
 
-            Instance.daily_mission_count++;
             Instance.SaveData();
         }
     }
@@ -1756,6 +1759,7 @@ public class GameData : MonoBehaviour
         return sideEnemyStandardReward * GameConfig.Instance.GetStandaryEnemyCount(Instance.day_level);
     }
 
+    // Important Daily Stuff
     public int GetMissionRewardCash(MissionType mission_type, MissionDayType mission_day_type, int crazy_daily = 0)
     {
         float sideEnemyStandardRewardTotal = GetSideEnemyStandardRewardTotal();
@@ -1770,16 +1774,16 @@ public class GameData : MonoBehaviour
                         break;
                     case 1:
                         result = (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_a * sideEnemyStandardRewardTotal);
-                        if (GameData.Instance.day_level > 55)
+                        if (GameData.Instance.day_level > 35)
                         {
-                            result = (int)sideEnemyStandardRewardTotal * 5;
+                            result = (int)sideEnemyStandardRewardTotal * 10;
                         }
                         break;
                     case 2:
                         result = (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_b * sideEnemyStandardRewardTotal);
                         if (GameData.Instance.day_level > 85)
                         {
-                            result = (int)sideEnemyStandardRewardTotal * 10;
+                            result = (int)sideEnemyStandardRewardTotal * 15;
                         }
                         break;
                 }
@@ -1835,7 +1839,7 @@ public class GameData : MonoBehaviour
         return result;
     }
 
-
+    // Important Daily Stuff
     public int GetMissionRewardVoucher(MissionType mission_type, MissionDayType mission_day_type, int crazy_daily = 0)
     {
         int result = 0;
@@ -1851,13 +1855,13 @@ public class GameData : MonoBehaviour
                         break;
                     case 1:
                         result = (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_base * GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_a);
-                        if (GameData.Instance.day_level > 85)
-                            result = (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_a * 15);
+                        if (GameData.Instance.day_level > 35)
+                            result = (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_a * 20);
                         break;
                     case 2:
                         result = (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_base * GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_b);
                         if (GameData.Instance.day_level > 85)
-                            result = (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_b * 15);
+                            result = (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_b * 20);
                         break;
                 }
                 break;
@@ -2281,7 +2285,7 @@ public class GameData : MonoBehaviour
             content = DataDecrypt(content);
             configure.Load(content);
             string single = configure.GetSingle("Save", "Version");
-            if (single != "1.3.1")
+            if (single != "1.3.3")
             {
                 return true;
             }

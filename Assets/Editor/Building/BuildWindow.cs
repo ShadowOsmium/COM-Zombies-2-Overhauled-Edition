@@ -17,7 +17,7 @@ public class BuildWindow : EditorWindow // For Unity 2017 Projects
 
         if (GUILayout.Button("Build Windows Standalone"))
         {
-            StartBuild(BuildTarget.StandaloneWindows, "COM-Zombies-2");  // Change the project name here if your executable should be named differently
+            StartBuild(BuildTarget.StandaloneWindows64, "COM-Zombies-2");            // Change the project name here if your executable should be named differently
         }
 
         if (GUILayout.Button("Build Android APK"))
@@ -36,7 +36,7 @@ public class BuildWindow : EditorWindow // For Unity 2017 Projects
         string[] scenes = GetEnabledScenes();
 
         string version = PlayerSettings.bundleVersion;
-        string baseFolder = @"E:\COM-Zombies-2";  // CHANGE THIS PATH to your desired root output folder where builds will be saved
+        string baseFolder = @"E:\Mod Exports\" + PlayerSettings.productName;  // CHANGE THIS PATH to your desired root output folder where builds will be saved
         string versionFolder = System.IO.Path.Combine(baseFolder, version);
 
         string platformFolderName = target == BuildTarget.Android ? "Android" : "Windows";

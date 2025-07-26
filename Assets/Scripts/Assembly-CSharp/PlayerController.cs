@@ -160,7 +160,7 @@ public class PlayerController : ObjectController
 
 	protected Shader diffuse_shader;
 
-	protected Shader alpha_shader;
+    protected Shader alpha_shader;
 
 	protected bool is_rebirth_buff;
 
@@ -330,7 +330,7 @@ public class PlayerController : ObjectController
 		combo_buff_obj.SetActive(false);
 		StopBaseBallEff();
 		diffuse_shader = Shader.Find("Mobile/Diffuse");
-		alpha_shader = Shader.Find("Triniti/Character/COL_AB");
+        alpha_shader = Shader.Find("Triniti/Character/COL_AB");
 		if (GameData.Instance.cur_game_type == GameData.GamePlayType.Coop)
 		{
 			tnetObj = TNetConnection.Connection;
@@ -410,7 +410,15 @@ public class PlayerController : ObjectController
 				value.Dologic(Time.deltaTime);
 			}
 		}
-	}
+        if (queued_fire_state != null && fire_state != null)
+        {
+            var reloadState = fire_state as PlayerReloadState;
+            if (reloadState == null || reloadState.CanInterrupt())
+            {
+                SetFireState(queued_fire_state);
+            }
+        }
+    }
 
 	public void CheckFireWeapon()
 	{
@@ -507,6 +515,8 @@ public class PlayerController : ObjectController
 		}
 	}
 
+    private PlayerState queued_fire_state;
+
     public virtual void SetFireState(PlayerState state)
     {
         if (fire_state == null)
@@ -514,24 +524,18 @@ public class PlayerController : ObjectController
             last_fire_state = state;
             fire_state = state;
             fire_state.OnEnterState();
-            //if (GameData.Instance.cur_game_type == GameData.GamePlayType.Coop && tnetObj != null)
-            //{
-            //	SFSObject sFSObject = new SFSObject();
-            //	sFSObject.PutShort("data", (short)fire_state.GetStateType());
-            //	tnetObj.Send(new SetUserVariableRequest(TNetUserVarType.PlayerFireState, sFSObject));
-            //}
         }
         else if (fire_state.GetStateType() != state.GetStateType())
         {
-            // Ask current state if it can be interrupted
             var canInterrupt = true;
-            var canInterruptMethod = fire_state as PlayerReloadState;
-            if (canInterruptMethod != null)
-                canInterrupt = canInterruptMethod.CanInterrupt();
+            var reloadState = fire_state as PlayerReloadState;
+            if (reloadState != null)
+                canInterrupt = reloadState.CanInterrupt();
 
             if (!canInterrupt)
             {
-                Debug.Log("State change denied: current state does not allow interruption.");
+                Debug.Log("State change denied, queuing new state: " + state.GetStateType());
+                queued_fire_state = state;
                 return;
             }
 
@@ -539,19 +543,9 @@ public class PlayerController : ObjectController
             fire_state.OnExitState();
             fire_state = state;
             fire_state.OnEnterState();
-            //if (GameData.Instance.cur_game_type == GameData.GamePlayType.Coop && tnetObj != null)
-            //{
-            //	SFSObject sFSObject2 = new SFSObject();
-            //	sFSObject2.PutShort("data", (short)fire_state.GetStateType());
-            //	tnetObj.Send(new SetUserVariableRequest(TNetUserVarType.PlayerFireState, sFSObject2));
-            //}
-        }
-        else
-        {
-            //Debug.Log("Same state type requested, ignoring or refreshing.");
+            queued_fire_state = null; // clear after applying
         }
     }
-
 
     public virtual void SetAvatarData(AvatarData data)
 	{

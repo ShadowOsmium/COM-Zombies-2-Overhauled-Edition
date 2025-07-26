@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using CoMZ2;
 using UnityEngine;
+using System.Linq;
 
 public class MissionController : MonoBehaviour
 {
@@ -61,26 +62,28 @@ public class MissionController : MonoBehaviour
 		return result;
 	}
 
-    public virtual float SpwanZombiesFromGrave(EnemyType type, GameObject grave)
+    public virtual EnemyController SpwanZombiesFromGrave(EnemyType type, GameObject grave, bool bypassSpawnLimit)
     {
         if (grave == null)
         {
             Debug.LogError("Spawn zombie from grave, grave is null.");
-            return 0f;
+            return null;
         }
 
         float x = Random.Range(-grave.transform.localScale.x / 2f, grave.transform.localScale.x / 2f);
         float z = Random.Range(-grave.transform.localScale.z / 2f, grave.transform.localScale.z / 2f);
         Vector3 spawnPos = grave.transform.position + new Vector3(x, 0f, z);
 
+        EnemyController spawned = null;
+
         if (type == EnemyType.E_CROW && Application.loadedLevelName != "test_new1")
         {
             Vector3 crowSpawnPos = GameSceneController.Instance.way_points[0].transform.position;
-            EnemyFactory.CreateEnemyGetEnemyController(type, crowSpawnPos, Quaternion.identity);
+            spawned = EnemyFactory.CreateEnemyGetEnemyController(type, crowSpawnPos, Quaternion.identity);
         }
         else
         {
-            EnemyFactory.CreateEnemyGetEnemyController(type, spawnPos, Quaternion.identity);
+            spawned = EnemyFactory.CreateEnemyGetEnemyController(type, spawnPos, Quaternion.identity);
 
             if (type != EnemyType.E_FATCOOK && type != EnemyType.E_FATCOOK_E &&
                 type != EnemyType.E_HAOKE_A && type != EnemyType.E_HAOKE_B &&
@@ -90,7 +93,13 @@ public class MissionController : MonoBehaviour
             }
         }
 
-        return GameConfig.Instance.EnemyConfig_Set[type].missionWeight;
+        if (spawned != null)
+        {
+            spawned.ignoreSpawnLimit = bypassSpawnLimit;
+            spawned.MissionWeight = GameConfig.Instance.EnemyConfig_Set[type].missionWeight;
+        }
+
+        return spawned;
     }
 
     public virtual float SpwanZombiesFromNest(EnemyType type, GameObject nest)
@@ -156,7 +165,18 @@ public class MissionController : MonoBehaviour
 
         for (int i = 0; i < minionCount; i++)
         {
-            SpwanZombiesFromGrave(minionType, grave);
+            EnemyController minion = SpwanZombiesFromGrave(minionType, grave, true);
+            if (minion != null)
+            {
+                minion.gameObject.SetActive(true);
+                minion.ignoreSpawnLimit = true;
+                if (!GameSceneController.Instance.Enemy_Set.ContainsKey(minion.EnemyID))
+                    GameSceneController.Instance.Enemy_Set.Add(minion.EnemyID, minion);
+            }
+            else
+            {
+                Debug.LogWarning("[SummonBossMinions] Failed to spawn minion #" + i);
+            }
             yield return null;
         }
     }
@@ -164,7 +184,8 @@ public class MissionController : MonoBehaviour
 
     public virtual void MissionFinished()
 	{
-		is_mission_finished = true;
+        GameSceneController.Instance.pause_button_obj.SetActive(false);
+        is_mission_finished = true;
 		GameSceneController.Instance.MissionControllerFinished();
 	}
 

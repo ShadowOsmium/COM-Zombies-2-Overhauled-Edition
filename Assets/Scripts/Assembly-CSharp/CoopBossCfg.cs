@@ -28,6 +28,6 @@ public class CoopBossCfg
 
 	public override string ToString()
 	{
-		return string.Concat("boss_type:", boss_type, " boss_name:", boss_name, " hp_capacity:", hp_capacity, " damage_base:", damage_base, " day_level:", day_level, " reward_crystal:", reward_crystal, " reward_gold:", reward_gold, " reward_gold_failed:", reward_gold_failed);
+		return string.Concat("boss_type:", boss_type, " boss_name:", boss_name, " hp_capacity:", hp_capacity, " damage_base:", damage_base, " day_level:", day_level, " reward_crystal:", reward_crystal, " reward_gold:", reward_gold/*," reward_gold_failed:", reward_gold_failed*/);
 	}
 }

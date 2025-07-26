@@ -49,13 +49,13 @@
   <!--Xm1014-->
   
   <Weapon weapon_name="Xm1014" type="ShotGun" moveSpeedDrag="0.5" price ="12000" showName="Xm-1014" comment=""
-          BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
+          BuyCurrencyType="0.3" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
           battleButtleCountRatio ="1" bulletShopPrice="850" bulletBalletPrice="1700" initBullet ="120" buyBulletCount="350" 
           maxLevel="30" upPriceRatio="10" AfterFireTime="1" ComboBase="1" CrystalUnlockPrice="12" 
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="2" stretchRangeRun="5" AutoLock="0" Recoil="25" infinityAmmo="0" sellPrice="16000" 
-          existState ="0" owner="All" dmgRatio="5.8" combination="0" unlockDay="12" >
-    <Frequency base="0.8" max="0.5" />
+          existState ="0" owner="All" dmgRatio="5.5" combination="0" unlockDay="12" >
+    <Frequency base="0.8" max="0.6" />
     <stretchMaxRange base="15" max="15" />
     <Clip base="16" max="16" />
     <Range base="8" max="12" />
@@ -69,7 +69,7 @@
           maxLevel="30" upPriceRatio="23.7" AfterFireTime="1" ComboBase="0.8" CrystalUnlockPrice="26" 
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="1" stretchRangeRun="5" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="24000" 
-          existState ="0" owner="All" dmgRatio="16" combination="0" unlockDay="20" >
+          existState ="0" owner="All" dmgRatio="15" combination="0" unlockDay="20" >
     <Frequency base="0.16" max="0.16" />
     <stretchMaxRange base="20" max="10" />
     <Clip base="225" max="225" />
@@ -114,7 +114,7 @@
           maxLevel="30" upPriceRatio="30" AfterFireTime="1" ComboBase="2" CrystalUnlockPrice="55" 
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="5" stretchRangeRun="8" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="80000" 
-          existState ="0" owner="All" dmgRatio="36" combination="0" unlockDay="35" >
+          existState ="0" owner="All" dmgRatio="32" combination="0" unlockDay="35" >
     <Frequency base="1" max="1" />
     <stretchMaxRange base="1" max="1" />
     <Clip base="1" max="1" />
@@ -130,7 +130,7 @@
           maxLevel="30" upPriceRatio="18" AfterFireTime="1" ComboBase="0.7" CrystalUnlockPrice="69"
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="1" stretchRangeRun="5" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="45000"
-          existState ="0" owner="All" dmgRatio="18" combination="3" unlockDay="-1" >
+          existState ="0" owner="All" dmgRatio="17" combination="3" unlockDay="-1" >
     <Frequency base="0.16" max="0.16" />
     <stretchMaxRange base="20" max="10" />
     <Clip base="250" max="250" />
@@ -145,8 +145,8 @@
           maxLevel="30" upPriceRatio="15" AfterFireTime="1" ComboBase="1" CrystalUnlockPrice="129"
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="2" stretchRangeRun="5" AutoLock="0" Recoil="25" infinityAmmo="0" sellPrice="70000"
-          existState ="0" owner="All" dmgRatio="17.7" combination="3" unlockDay="-1" >
-    <Frequency base="0.85" max="0.55" />
+          existState ="0" owner="All" dmgRatio="20" combination="3" unlockDay="-1" >
+    <Frequency base="0.95" max="0.65" />
     <stretchMaxRange base="15" max="15" />
     <Clip base="24" max="24" />
     <Range base="8" max="12" />
@@ -160,7 +160,7 @@
           maxLevel="30" upPriceRatio="38" AfterFireTime="1" ComboBase="2" CrystalUnlockPrice="179"
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="5" stretchRangeRun="8" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="150000"
-          existState ="0" owner="All" dmgRatio="33" combination="3" unlockDay="-1" >
+          existState ="0" owner="All" dmgRatio="32.5" combination="3" unlockDay="-1" >
     <Frequency base="1.2" max="0.65" />
     <stretchMaxRange base="1" max="1" />
     <Clip base="32" max="32" />
@@ -170,7 +170,7 @@
   
   <!--Laser-->
   
-  <Weapon weapon_name="Laser" type="Laser" moveSpeedDrag="0.5" price="249" showName="Laser" comment=""
+  <Weapon weapon_name="Laser" type="Laser" moveSpeedDrag="0.5" price="349" showName="Laser" comment=""
           BuyCurrencyType="3" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
           battleButtleCountRatio ="1" bulletShopPrice="6500" bulletBalletPrice="6500" initBullet="400" buyBulletCount="650" 
           maxLevel="30" upPriceRatio="59.9" AfterFireTime="1" ComboBase="0.8" CrystalUnlockPrice="249" 
@@ -185,14 +185,14 @@
 
   <!--PGM-->
   
-  <Weapon weapon_name="PGM" type="PGM" moveSpeedDrag="1.5" price="349" showName="PGM" comment=""
+  <Weapon weapon_name="PGM" type="PGM" moveSpeedDrag="1.5" price="449" showName="PGM" comment=""
           BuyCurrencyType="3" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
           battleButtleCountRatio ="1" bulletShopPrice="4500" bulletBalletPrice="4500" initBullet="120" buyBulletCount="240" 
           maxLevel="30" upPriceRatio="40" AfterFireTime="1" ComboBase="2" CrystalUnlockPrice="0" 
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="5" stretchRangeRun="8" AutoLock="0" Recoil="10" infinityAmmo="0" sellPrice="400000" 
-          existState ="1" owner="All" dmgRatio="33.7" combination="0" unlockDay="0" >
-    <Frequency base="1.1" max="0.3" />
+          existState ="1" owner="All" dmgRatio="28.3" combination="0" unlockDay="0" >
+    <Frequency base="1.1" max="0.45" />
     <stretchMaxRange base="1" max="1" />
     <Clip base="50" max="50" />
     <Range base="0" max="0" />

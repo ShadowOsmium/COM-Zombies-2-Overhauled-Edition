@@ -14,7 +14,9 @@ public class GameCoverUIController : MonoBehaviour
 
 	private int ready_update_file_count;
 
-	private float cur_check_time;
+    private bool isMsgBoxActive = false;
+
+    private float cur_check_time;
 
 	private float total_check_time = 15f;
 
@@ -46,61 +48,79 @@ public class GameCoverUIController : MonoBehaviour
 		MenuAudioController.CheckGameMenuAudio();
 	}
 
-	private IEnumerator Start()
-	{
-		yield return 1;
-		if (GameDefine.IS_CONFIG_OUTPUT)
-		{
-			GameVersion.Instance.OutputVersionCheckFile();
-		}
-		yield return 1;
-		ShowMask(true);
-		yield return 1;
-		ready_update_file_count = 0;
-		GameVersion.Instance.CheckRemoteGameVersion(OnServerVersion, OnServerVersionError);
-		yield return 1;
-		OpenClikPlugin.Show(true);
-		if (TrinitiAdAndroidPlugin.Instance().CanChartboost())
-		{
-			ChartBoostAndroid.showInterstitial(null);
-		}
-		yield return 1;
-		IapCenter.Instance.CheckIapFailedReceipt(null, null);
-		float width4 = Screen.width;
-		float height4 = Screen.height;
-		if (Mathf.Max(width4, height4) == 2048f)
-		{
-			width4 /= 2f;
-			height4 /= 2f;
-		}
-//		Debug.LogError("------------ " + width4 + " " + height4);
-		string tex_name5 = string.Empty;
-		if (Mathf.Max(width4, height4) >= 1136f)
-		{
-			tex_name5 = "GameCoverUI_1136";
-			width4 = 1136f;
-			height4 = 640f;
-		}
-		else if (Mathf.Max(width4, height4) < 1136f && Mathf.Max(width4, height4) >= 960f)
-		{
-			tex_name5 = "GameCoverUI_1024";
-			width4 = 1136f;
-			height4 = 640f;
-		}
-		else
-		{
-			tex_name5 = "GameCoverUI_960";
-		}
-		tex_name5 = "GameCoverUI_1136";
-		width4 = 1136f;
-		height4 = 640f;
-		bg_img.CustomizeTexture = Resources.Load("TUI/Textures/" + tex_name5) as Texture2D;
-		bg_img.CustomizeRect = new Rect(0f, 0f, width4, height4);
-		Hashtable data_tem = new Hashtable { { "count", 1 } };
-		GameData.Instance.UploadStatistics("Login", data_tem);
-	}
+    private IEnumerator Start()
+    {
+        yield return 1;
 
-	private void Update()
+        if (GameDefine.IS_CONFIG_OUTPUT)
+        {
+            GameVersion.Instance.OutputVersionCheckFile();
+        }
+
+        ShowMask(true);
+
+        yield return 1;
+
+        ready_update_file_count = 0;
+        GameVersion.Instance.CheckRemoteGameVersion(OnServerVersion, OnServerVersionError);
+        bool isVersionOk = !GameData.Instance.needsUpdate;
+        OnServerVersion(isVersionOk);
+
+        yield return 1;
+
+        OpenClikPlugin.Show(true);
+
+        if (TrinitiAdAndroidPlugin.Instance().CanChartboost())
+        {
+            ChartBoostAndroid.showInterstitial(null);
+        }
+
+        yield return 1;
+
+        IapCenter.Instance.CheckIapFailedReceipt(null, null);
+
+        // Setup background texture size
+        float width4 = Screen.width;
+        float height4 = Screen.height;
+
+        if (Mathf.Max(width4, height4) == 2048f)
+        {
+            width4 /= 2f;
+            height4 /= 2f;
+        }
+
+        string tex_name5 = string.Empty;
+        if (Mathf.Max(width4, height4) >= 1136f)
+        {
+            tex_name5 = "GameCoverUI_1136";
+            width4 = 1136f;
+            height4 = 640f;
+        }
+        else if (Mathf.Max(width4, height4) < 1136f && Mathf.Max(width4, height4) >= 960f)
+        {
+            tex_name5 = "GameCoverUI_1024";
+            width4 = 1136f;
+            height4 = 640f;
+        }
+        else
+        {
+            tex_name5 = "GameCoverUI_960";
+        }
+
+        // Force use of 1136 anyway
+        tex_name5 = "GameCoverUI_1136";
+        width4 = 1136f;
+        height4 = 640f;
+
+        bg_img.CustomizeTexture = Resources.Load("TUI/Textures/" + tex_name5) as Texture2D;
+        bg_img.CustomizeRect = new Rect(0f, 0f, width4, height4);
+
+        // Upload stats for login
+        Hashtable data_tem = new Hashtable { { "count", 1 } };
+        GameData.Instance.UploadStatistics("Login", data_tem);
+    }
+
+    private void Update()
 	{
 		if (!check_time_out)
 		{
@@ -144,6 +164,7 @@ public class GameCoverUIController : MonoBehaviour
         GameData.Instance.needsUpdate = true;
         GameData.Instance.SaveData();
 
+        // Just show the message box, no mask or overlay stuff:
         GameMsgBoxController.ShowMsgBox(
             GameMsgBoxController.MsgBoxType.SingleButton,
             tui_root,
@@ -168,26 +189,17 @@ public class GameCoverUIController : MonoBehaviour
     }
 
     public void ShowMask(bool state)
-	{
-		if (state)
-		{
-			if (mask_ui != null)
-			{
-				mask_ui.SetActive(state);
-			}
-			IndicatorBlockController.ShowIndicator(tui_root.gameObject, string.Empty);
-		}
-		else
-		{
-			if (mask_ui != null)
-			{
-				mask_ui.SetActive(state);
-			}
-			IndicatorBlockController.Hide();
-		}
-	}
+    {
+        if (mask_ui != null)
+            mask_ui.SetActive(state);
 
-	private void CheckConfigVersion()
+        if (state)
+            IndicatorBlockController.ShowIndicator(tui_root.gameObject, string.Empty);
+        else
+            IndicatorBlockController.Hide();
+    }
+
+    private void CheckConfigVersion()
 	{
 		if (check_time_out)
 		{

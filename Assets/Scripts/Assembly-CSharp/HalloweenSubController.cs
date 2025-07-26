@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using CoMZ2;
 using TNetSdk;
@@ -63,31 +64,54 @@ public class HalloweenSubController : EnemyController
     }
 
     public override void Init()
-	{
-		ANI_IDLE = "Zombie_Hook_Demon_Idle01";
-		ANI_ATTACK = "Zombie_Hook_Demon_Attack01";
-		ANI_INJURED = "Zombie_Hook_Demon_Damage01";
-		ANI_DEAD = "Zombie_Hook_Demon_Death01";
-		ANI_RUN = "Zombie_Hook_Demon_Run01";
-		ANI_SHOW = "Zombie_Hook_Demon_Show01";
-		ANI_HALF_HP = "Zombie_Hook_Demon_Bellow01";
-		ANI_SHOW = ANI_REPLICATION_02;
-		hp_ratio = (float)enemy_data.config.Ex_conf["replicationHpRatio"];
-		enemy_data.cur_hp = (enemy_data.hp_capacity = GameSceneController.Instance.GetBossData().hp_capacity * hp_ratio);
-		base.Init();
-		SKILL_WINDSWORD_STATE = EnemyState.Create(EnemyStateType.HalloweenWindSwordSub, this);
-		injured_val_percent = (float)enemy_data.config.Ex_conf["injuredPercent"];
-		life_time = (float)enemy_data.config.Ex_conf["LifeTime"];
-		windsword_range = (float)enemy_data.config.Ex_conf["WindSwordRange"];
-		windsword_interval_time = (float)enemy_data.config.Ex_conf["WindSwordCDTime"];
-		windsword_dmg_ratio = (float)enemy_data.config.Ex_conf["WindSwordDmgRatio"];
-		windsword_speed = (float)enemy_data.config.Ex_conf["WindSwordSpeed"];
-		cur_windsword_time = Random.Range(0f, windsword_interval_time);
-		CreateHpBar(Vector3.up * 3.4f);
-		SetState(SHOW_STATE);
-	}
+    {
+        Debug.Log("HalloweenSubController.Init() running — self: " + gameObject.name);
 
-	public override void CheckHit()
+        if (enemy_data == null || enemy_data.config == null || enemy_data.config.Ex_conf == null)
+        {
+            Debug.LogError("[HalloweenSubController.Init] enemy_data or config is missing for " + gameObject.name);
+            return;
+        }
+
+        ApplyInit(GameSceneController.Instance.GetBossData());
+    }
+
+    public void ApplyInit(EnemyData bossData)
+    {
+        if (bossData == null)
+        {
+            Debug.LogError("[HalloweenSubController.ApplyInit] Boss data is NULL for " + gameObject.name);
+            return;
+        }
+
+        ANI_IDLE = "Zombie_Hook_Demon_Idle01";
+        ANI_ATTACK = "Zombie_Hook_Demon_Attack01";
+        ANI_INJURED = "Zombie_Hook_Demon_Damage01";
+        ANI_DEAD = "Zombie_Hook_Demon_Death01";
+        ANI_RUN = "Zombie_Hook_Demon_Run01";
+        ANI_SHOW = "Zombie_Hook_Demon_Show01";
+        ANI_HALF_HP = "Zombie_Hook_Demon_Bellow01";
+        ANI_SHOW = ANI_REPLICATION_02;
+
+        float hp_ratio = (float)enemy_data.config.Ex_conf["replicationHpRatio"];
+        enemy_data.cur_hp = (enemy_data.hp_capacity = bossData.hp_capacity * hp_ratio);
+
+        base.Init();
+
+        SKILL_WINDSWORD_STATE = EnemyState.Create(EnemyStateType.HalloweenWindSwordSub, this);
+        injured_val_percent = (float)enemy_data.config.Ex_conf["injuredPercent"];
+        life_time = (float)enemy_data.config.Ex_conf["LifeTime"];
+        windsword_range = (float)enemy_data.config.Ex_conf["WindSwordRange"];
+        windsword_interval_time = (float)enemy_data.config.Ex_conf["WindSwordCDTime"];
+        windsword_dmg_ratio = (float)enemy_data.config.Ex_conf["WindSwordDmgRatio"];
+        windsword_speed = (float)enemy_data.config.Ex_conf["WindSwordSpeed"];
+        cur_windsword_time = Random.Range(0f, windsword_interval_time);
+
+        CreateHpBar(Vector3.up * 3.4f);
+        SetState(SHOW_STATE);
+    }
+
+    public override void CheckHit()
 	{
 		if (enemyState == SHOOT_STATE)
 		{

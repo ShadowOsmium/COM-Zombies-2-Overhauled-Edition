@@ -1,8 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using CoMZ2;
 using TNetSdk;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public class GameSceneController : MonoBehaviour
 {
@@ -13,6 +16,10 @@ public class GameSceneController : MonoBehaviour
 	public const string frame_crystal = "shuijing";
 
 	protected static GameSceneController instance;
+
+    private bool isCutsceneEnding = false;
+
+    private bool hasFinishedCutscene = false;
 
     public Transform dropParent;
 
@@ -594,6 +601,10 @@ public class GameSceneController : MonoBehaviour
 		{
 			music_name = "MusicMap02";
 		}
+        else if (Application.loadedLevelName == "Street")
+        {
+            music_name = "MusicMap04";
+        }
 		else
 		{
 			music_name = "MusicMap03";
@@ -605,6 +616,8 @@ public class GameSceneController : MonoBehaviour
 
     public bool is_game_paused = false;
     public bool canPressEscape;
+    private float escapeCooldown = 0.2f;
+    private float lastEscapeTime = -1f;
     private void Update()
 	{
 		if (Time.deltaTime != 0f && Time.timeScale != 0f && Time.time - last_check_mission_finished >= check_mission_rate)
@@ -616,27 +629,34 @@ public class GameSceneController : MonoBehaviour
         {
             OnAddBulletButton();
         }
-        if (Input.GetKeyDown(KeyCode.Space) && is_play_cg)
+        float now = Time.unscaledTime;
+
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            is_skip_cg = true;
-        }
-        if (Input.GetKeyDown(KeyCode.Escape) && GameSceneController.Instance.canPressEscape)
-        {
-            Debug.Log("Escape pressed and GameSceneController.canPressEscape = true");
-            if (is_game_paused)
+            if (!GameSceneController.Instance.canPressEscape)
             {
-                GameSceneController.Instance.OnGameResume();    
-                is_game_paused = false;
+                Debug.Log("Escape pressed but canPressEscape = false");
+                return;
+            }
+
+            if (now - lastEscapeTime < escapeCooldown)
+            {
+                Debug.Log("Escape pressed but still in cooldown");
+                return;
+            }
+
+            lastEscapeTime = now;
+
+            if (Time.timeScale == 0f)
+            {
+                Debug.Log("Unpausing game");
+                GameSceneController.Instance.OnGameResume();
             }
             else
             {
+                Debug.Log("Pausing game");
                 GameSceneController.Instance.OnGamePause();
-                is_game_paused = true;
             }
-        }
-        else if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            Debug.Log("Escape pressed but GameSceneController.canPressEscape = false");
         }
     }
 
@@ -823,7 +843,11 @@ public class GameSceneController : MonoBehaviour
 
     public virtual void MissionFinished()
     {
+        pause_button_obj.SetActive(false);
+        canPressEscape = false;
+
         Debug.Log("Mission Finished:" + GamePlayingState);
+
         OpenClikPlugin.Show(false);
         HidePanels();
 
@@ -844,51 +868,42 @@ public class GameSceneController : MonoBehaviour
             game_reward_panel.Show();
             music_name = "MusicWin";
         }
+
         tAudioController.PlayAudio(music_name);
 
         MissionStatistics();
 
-        if (GamePlayingState == PlayingState.Win)
-        {
-            bool shouldIncrement = false;
-
-            if (mission_day_type == MissionDayType.Main || mission_day_type == MissionDayType.Side)
-            {
-                shouldIncrement = true;
-            }
-            else if (mission_day_type == MissionDayType.Daily)
-            {
-                int level = GameData.Instance.day_level;
-                shouldIncrement = ShouldIncrementMainDayLevel(level);
-            }
-
-            if (shouldIncrement)
-            {
-                GameData.Instance.day_level++;
-                Debug.Log("[MissionFinished] day_level incremented to: " + GameData.Instance.day_level);
-            }
-        }
-
-
-        if (GameData.Instance != null && GameData.Instance.blackname)
-        {
-            delayedCashReward += mission_total_cash;
-
-            mission_total_cash = 0;
-        }
-        else
-        {
-            GameData.Instance.total_cash.SetIntVal(
-                GameData.Instance.total_cash.GetIntVal() + mission_total_cash,
-                GameDataIntPurpose.Cash
-            );
-            mission_total_cash = 0;
-        }
+        GameData.Instance.total_cash.SetIntVal(
+            GameData.Instance.total_cash.GetIntVal() + mission_total_cash,
+            GameDataIntPurpose.Cash
+        );
+        mission_total_cash = 0;
 
         GameData.Instance.SaveData();
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+    }
+
+    protected void IncrementDayLevelIfNeeded()
+    {
+        bool shouldIncrement = false;
+
+        if (mission_day_type == MissionDayType.Main || mission_day_type == MissionDayType.Side)
+        {
+            shouldIncrement = true;
+        }
+        else if (mission_day_type == MissionDayType.Daily)
+        {
+            int level = GameData.Instance.day_level;
+            shouldIncrement = ShouldIncrementMainDayLevel(level);
+        }
+
+        if (shouldIncrement)
+        {
+            GameData.Instance.day_level++;
+            Debug.Log("[IncrementDayLevelIfNeeded] day_level incremented to: " + GameData.Instance.day_level);
+        }
     }
 
     private bool ShouldIncrementMainDayLevel(int level)
@@ -906,7 +921,9 @@ public class GameSceneController : MonoBehaviour
 
     private void MissionStatistics()
 	{
-		Hashtable hashtable = new Hashtable();
+        pause_button_obj.SetActive(false);
+        canPressEscape = false;
+        Hashtable hashtable = new Hashtable();
 		int num = 0;
 		if (GamePlayingState == PlayingState.Lose)
 		{
@@ -915,7 +932,9 @@ public class GameSceneController : MonoBehaviour
 		else if (GamePlayingState == PlayingState.Win)
 		{
 			num = 1;
-		}
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
 		if (mission_day_type == MissionDayType.Side)
 		{
 			hashtable.Add("Level", GameData.Instance.day_level);
@@ -967,7 +986,9 @@ public class GameSceneController : MonoBehaviour
 	{
 		if (!mission_controller_finished)
 		{
-			Debug.Log("Mission Controller Finished.");
+            pause_button_obj.SetActive(false);
+            canPressEscape = false;
+            Debug.Log("Mission Controller Finished.");
 			mission_controller_finished = true;
         }
 	}
@@ -976,34 +997,53 @@ public class GameSceneController : MonoBehaviour
 	{
 		player_death_count++;
 		cur_rebirth_man = object_controller;
-		ChangeCameraFocus(object_controller.transform);
+        canPressEscape = false;
+        ChangeCameraFocus(object_controller.transform);
 		mission_controller.SetMissionPaused(true);
 		MissionFailed();
 	}
 
 	public virtual void MissionFailed()
 	{
-		is_logic_paused = true;
+        canPressEscape = false;
+        is_logic_paused = true;
 		mission_check_finished = true;
 		Invoke("SetLoseState", 1f);
-	}
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
 
-	public virtual void MissionWin()
-	{
-		mission_check_finished = true;
-		MissionReward();
-		Invoke("SetWinState", 1f);
-		Invoke("MissionFinished", 4f);
-	}
+    public virtual void MissionWin()
+    {
+        canPressEscape = false;
+        IncrementDayLevelIfNeeded();
 
-	public virtual void SetWinState()
+        if (GameData.Instance.cur_quest_info.mission_day_type == MissionDayType.Daily)
+        {
+            GameData.Instance.daily_mission_count++;
+            GameData.Instance.lastMissionCompleteDate = DateTime.Now.ToString("yyyy-MM-dd");
+            Debug.Log("[MissionWin] Incremented daily mission count to: " + GameData.Instance.daily_mission_count);
+            GameData.Instance.SaveData();
+        }
+        mission_check_finished = true;
+        Invoke("SetWinState", 1f);
+        Invoke("MissionFinished", 4f);
+        MissionReward();
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    public virtual void SetWinState()
 	{
-		GamePlayingState = PlayingState.Win;
+        canPressEscape = false;
+        GamePlayingState = PlayingState.Win;
 		CleanSceneEnemy();
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
+    // For later
     public virtual void SetLoseState()
     {
         GamePlayingState = PlayingState.Lose;
@@ -1016,18 +1056,21 @@ public class GameSceneController : MonoBehaviour
         if (GameData.Instance.cur_quest_info.mission_type != MissionType.Tutorial &&
             GameData.Instance.total_crystal.GetIntVal() >= cur_rebirth_cost)
         {
+            canPressEscape = false;
             game_main_panel.rebirth_panel.Show();
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
         else
         {
+            canPressEscape = false;
             Invoke("MissionFinished", 4f);
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
     }
 
+    // Important Daily Stuff
     public virtual void MissionReward()
     {
         List<GameReward> list = new List<GameReward>();
@@ -1042,13 +1085,19 @@ public class GameSceneController : MonoBehaviour
         num3 = GameData.Instance.GetMissionRewardVoucher(GetComponent<MissionController>().mission_type, GameData.Instance.cur_quest_info.mission_day_type);
 
         bool isDaily = (GameData.Instance.cur_quest_info.mission_day_type == MissionDayType.Daily);
-        bool dayBonus = (GameData.Instance.day_level >= 85);
+        bool dayBonus35 = (GameData.Instance.day_level >= 35);
+        bool dayBonus85 = (GameData.Instance.day_level >= 85);
 
-        if (isDaily && dayBonus)
+        if (isDaily && dayBonus85)
         {
-            Debug.Log("[Reward Bonus] Daily mission on day " + GameData.Instance.day_level + ": applying 50% reward bonus.");
-            num = Mathf.RoundToInt(num * 2f);
-            num2 = Mathf.RoundToInt(num2 * 1.5f);
+            num = Mathf.RoundToInt(num * 3f);
+            //num2 = Mathf.RoundToInt(num2 * 2f);
+            num3 = Mathf.RoundToInt(num3 * 2f);
+        }
+        else if (isDaily && dayBonus35)
+        {
+            num = Mathf.RoundToInt(num * 1.5f);
+            //num2 = Mathf.RoundToInt(num2 * 1.5f);
             num3 = Mathf.RoundToInt(num3 * 1.5f);
         }
 
@@ -1195,7 +1244,12 @@ public class GameSceneController : MonoBehaviour
 		}
 	}
 
-	public void LootCash(int cash)
+    public static int GetCountForSpawnCap()
+    {
+        return Instance.Enemy_Set.Values.Count(e => e != null && !e.ignoreSpawnLimit);
+    }
+
+    public void LootCash(int cash)
 	{
 		mission_total_cash += cash;
         GameData.Instance.total_cash.SetIntVal(
@@ -1384,6 +1438,7 @@ public class GameSceneController : MonoBehaviour
 
         return distanceScore + bossBonus + damageRecency;
     }
+
     public static bool CheckBlockBetweenIgnoreTagged(Vector3 startPos, Vector3 endPos, string ignoreTag, GameObject ignoreObject = null)
     {
         Vector3 direction = endPos - startPos;
@@ -1409,6 +1464,7 @@ public class GameSceneController : MonoBehaviour
 
     public virtual void OnGamePause()
     {
+        canPressEscape = false;
         OpenClikPlugin.Show(false);
         HidePanels();
         game_pause_panel.Show();
@@ -1430,6 +1486,7 @@ public class GameSceneController : MonoBehaviour
 
     public virtual void OnGameResume()
     {
+        canPressEscape = true;
         OpenClikPlugin.Hide();
         HidePanels();
         game_main_panel.Show();
@@ -1443,7 +1500,8 @@ public class GameSceneController : MonoBehaviour
 
     public virtual void OnGameQuit()
 	{
-		OpenClikPlugin.Hide();
+        canPressEscape = false;
+        OpenClikPlugin.Hide();
 		Time.timeScale = 1f;
 		TAudioManager.instance.musicVolume = 1f;
 		TAudioManager.instance.soundVolume = 1f;
@@ -1507,16 +1565,19 @@ public class GameSceneController : MonoBehaviour
         }
 	}
 
-	public virtual EnemyData GetBossData()
-	{
-		if (mission_controller.mission_type == MissionType.Boss)
-		{
-			return ((BossMissionController)mission_controller).MissionBoss.enemy_data;
-		}
-		return null;
-	}
+    private EnemyData currentBossData;
 
-	public void OnStartConvoyed()
+    public void SetBossData(EnemyData data)
+    {
+        currentBossData = data;
+    }
+
+    public virtual EnemyData GetBossData()
+    {
+        return currentBossData;
+    }
+
+    public void OnStartConvoyed()
 	{
 		NPCConvoyMissionController nPCConvoyMissionController = mission_controller as NPCConvoyMissionController;
 		if (nPCConvoyMissionController != null)
@@ -1764,8 +1825,20 @@ public class GameSceneController : MonoBehaviour
 
     public void OnGameCgEnd()
     {
+        if (hasFinishedCutscene)
+        {
+            Debug.Log("[GameSceneController] OnGameCgEnd() skipped — already called.");
+            return;
+        }
+
+        Debug.Log("[GameSceneController] OnGameCgEnd() running.");
+
+        hasFinishedCutscene = true;
+        isCutsceneEnding = false;
+
         cg_panel.Hide();
         game_main_panel.Show();
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
@@ -1783,6 +1856,8 @@ public class GameSceneController : MonoBehaviour
 
     public void StartCameraRoam()
     {
+        hasFinishedCutscene = false;
+
         OnGameCgStart();
         GamePlayingState = PlayingState.CG;
 
@@ -1796,32 +1871,57 @@ public class GameSceneController : MonoBehaviour
                 text += "_Boss";
                 break;
         }
+
         GameObject gameObject = GameObject.Find(text);
-        roam_order = gameObject.transform.Find("CameraRoamOrder").gameObject.GetComponent<RoamOrder>();
+        roam_order = gameObject.transform.Find("CameraRoamOrder").GetComponent<RoamOrder>();
         roam_order.OnShow(main_camera.GetComponent<Camera>(), true);
     }
 
     public void StopCameraRoam()
     {
+        if (isCutsceneEnding)
+        {
+            return;
+        }
+
+        Debug.Log("[GameSceneController] Skip button pressed via StopCameraRoam()");
+
+        isCutsceneEnding = true;
         is_skip_cg = true;
-        roam_order.OnEnd();
-        Instance.enable_boss_spawn = true;
-        GamePlayingState = PlayingState.Gaming;
+        is_play_cg = false;
+
+        if (roam_order != null)
+        {
+            roam_order.OnEnd();
+        }
+
+        if (BossRoamEvent.Instance != null)
+        {
+            BossRoamEvent.Instance.CancelInvoke();
+            BossRoamEvent.Instance.StopAllCoroutines();
+            BossRoamEvent.Instance.SkipCutsceneManually();
+        }
+        else
+        {
+            Debug.LogWarning("BossRoamEvent.Instance not found during skip.");
+        }
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        Invoke("OnGameCgEnd", 1f);
+        Invoke("OnGameCgEnd", 0.1f);
     }
 
     public virtual void OnBossMissionOver()
 	{
-		is_boss_dead = true;
-        canPressEscape = false;
+        pause_button_obj.SetActive(false);
+        is_boss_dead = true;
         game_main_panel.boss_panel.SetContent(1 + " / " + 1);
 		CleanSceneEnemy();
 		HidePanels();
 		((GameCgPanelController)cg_panel).HideSkipButton();
 		cg_panel.Show();
+        canPressEscape = false;
     }
 
 	public void CleanSceneEnemy()
@@ -1976,6 +2076,8 @@ public class GameSceneController : MonoBehaviour
 	{
 		if (mission_controller.mission_type == MissionType.Boss)
 		{
+            pause_button_obj.SetActive(false);
+            canPressEscape = false;
 			mission_controller.MissionFinished();
 		}
 		else

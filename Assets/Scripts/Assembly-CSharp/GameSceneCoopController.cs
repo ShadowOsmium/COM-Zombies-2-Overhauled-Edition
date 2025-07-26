@@ -141,6 +141,7 @@ public class GameSceneCoopController : GameSceneController
                 break;
         }
         wait_server_tip.gameObject.SetActive(false);
+        OnCoopSceneColorReset();
     }
 
     public override void OnSceneColorReset()
@@ -337,6 +338,69 @@ public class GameSceneCoopController : GameSceneController
             CheckMissionFinished();
             CheckCoopMissionOver();
         }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (!GameSceneController.Instance.canPressEscape)
+            {
+                Debug.Log("Escape pressed but GameSceneController.canPressEscape = false");
+                return;
+            }
+
+            Debug.Log("Escape pressed and GameSceneController.canPressEscape = true");
+
+            if (Time.timeScale == 0f)
+            {
+                GameSceneController.Instance.OnGameResume();
+            }
+            else
+            {
+                GameSceneController.Instance.OnGamePause();
+            }
+        }
+    }
+
+    public virtual void OnCoopSceneColorReset()
+    {
+        if (!(Application.loadedLevelName != "Depot") || !(Application.loadedLevelName != "Church") || !(Application.loadedLevelName != "GameTutorial") || !(Application.loadedLevelName != "Junkyard"))
+        {
+            return;
+        }
+        if (Application.loadedLevelName.StartsWith("COM2_"))
+        {
+            GameObject gameObject = Object.Instantiate(Resources.Load("Prefabs/ChannelMaterialSet")) as GameObject;
+            if (GameConfig.Instance.Channel_Scene_Color_Set.ContainsKey(Application.loadedLevelName))
+            {
+                foreach (Material item in gameObject.GetComponent<MaterialPrefabReference>().material_set)
+                {
+                    item.SetColor("_Color", GameConfig.Instance.Channel_Scene_Color_Set[Application.loadedLevelName]);
+                }
+                return;
+            }
+            {
+                foreach (Material item2 in gameObject.GetComponent<MaterialPrefabReference>().material_set)
+                {
+                    item2.SetColor("_Color", Color.white);
+                }
+                return;
+            }
+        }
+        if (!Application.loadedLevelName.StartsWith("Lab_"))
+        {
+            return;
+        }
+        GameObject gameObject2 = Object.Instantiate(Resources.Load("Prefabs/LabMaterialSet")) as GameObject;
+        if (GameConfig.Instance.Channel_Scene_Color_Set.ContainsKey(Application.loadedLevelName))
+        {
+            foreach (Material item3 in gameObject2.GetComponent<MaterialPrefabReference>().material_set)
+            {
+                item3.SetColor("_Color", GameConfig.Instance.Channel_Scene_Color_Set[Application.loadedLevelName]);
+            }
+            return;
+        }
+        foreach (Material item4 in gameObject2.GetComponent<MaterialPrefabReference>().material_set)
+        {
+            item4.SetColor("_Color", Color.white);
+        }
     }
 
     private void DisableFireStickOnPCCoop()
@@ -488,26 +552,35 @@ public class GameSceneCoopController : GameSceneController
 
 	public override void MissionFailed()
 	{
-		is_logic_paused = true;
+        canPressEscape = false;
+        is_logic_paused = true;
 		mission_check_finished = true;
 		Invoke("SetLoseState", 1f);
-	}
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
 
 	public override void MissionWin()
 	{
-		mission_check_finished = true;
+        canPressEscape = false;
+        mission_check_finished = true;
 		mission_controller_finished = true;
 		Invoke("SetWinState", 1f);
 		Invoke("MissionFinished", 4f);
-	}
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
 
 	public override void SetWinState()
 	{
-		GamePlayingState = PlayingState.Win;
+        canPressEscape = false;
+        GamePlayingState = PlayingState.Win;
 		CleanSceneEnemy();
 		MissionReward();
 		Debug.Log("SetWinState");
-	}
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
 
     public override void SetLoseState()
     {
@@ -519,13 +592,17 @@ public class GameSceneCoopController : GameSceneController
 
         if (GameData.Instance.total_crystal.GetIntVal() >= cur_rebirth_cost)
         {
+            canPressEscape = false;
             game_main_panel.rebirth_panel.Show();
-            Screen.lockCursor = false;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
         else
         {
-            SetPlayerCoopDead();
-            Screen.lockCursor = true;
+            canPressEscape = false;
+            Invoke("MissionFinished", 4f);
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
     }
 
@@ -573,7 +650,8 @@ public class GameSceneCoopController : GameSceneController
             );
 
             list.Add(item);
-            Screen.lockCursor = false;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
 
         Debug.Log("Total Coop Reward Added: " + Mathf.FloorToInt(totalDamage / 10f));
@@ -586,195 +664,220 @@ public class GameSceneCoopController : GameSceneController
     }
 
     public override void MissionReward()
-	{
-		List<GameRewardCoop> list = new List<GameRewardCoop>();
-		CoopBossCfg coopBossCfg = GameConfig.Instance.Coop_Boss_Cfg_Set[GameConfig.GetEnemyTypeFromBossType(GameData.Instance.cur_coop_boss)];
-		Debug.Log("Coop boss reward:" + coopBossCfg.ToString());
-		List<string> rewards_weapon_fragments = coopBossCfg.rewards_weapon_fragments;
-		PlayerID playerID = new PlayerID(player_controller.avatar_data.avatar_type, player_controller.avatar_data.avatar_state, player_controller.avatar_data.show_name, 0);
-		float num = 0f;
-		foreach (PlayerID key in Player_damage_Set.Keys)
-		{
-			if (Player_damage_Set[key] > num)
-			{
-				playerID = key;
-				num = Player_damage_Set[key];
-			}
-		}
-        //if (playerID.tnet_id == player_controller.tnet_user.Id)
+    {
+        List<GameRewardCoop> list = new List<GameRewardCoop>();
+        CoopBossCfg coopBossCfg = GameConfig.Instance.Coop_Boss_Cfg_Set[
+            GameConfig.GetEnemyTypeFromBossType(GameData.Instance.cur_coop_boss)];
+
+        Debug.Log("Coop boss reward: " + coopBossCfg);
+
+        List<string> rewards_weapon_fragments = coopBossCfg.rewards_weapon_fragments;
+
+        // Determine the player who did the most damage
+        PlayerID topPlayer = new PlayerID(
+            player_controller.avatar_data.avatar_type,
+            player_controller.avatar_data.avatar_state,
+            player_controller.avatar_data.show_name,
+            0
+        );
+
+        float maxDamage = 0f;
+        foreach (PlayerID key in Player_damage_Set.Keys)
+        {
+            if (Player_damage_Set[key] > maxDamage)
+            {
+                topPlayer = key;
+                maxDamage = Player_damage_Set[key];
+            }
+        }
+
+        // Local player gets crystal reward
+        // if (topPlayer.tnet_id == player_controller.tnet_user.Id)
         {
             GameData.Instance.total_crystal.SetIntVal(
                 GameData.Instance.total_crystal.GetIntVal() + coopBossCfg.reward_crystal,
                 GameDataIntPurpose.Crystal
             );
         }
-        //else
+        // else
         {
-            int num2 = (int)((float)coopBossCfg.reward_gold * (Player_damage_Set[player_controller.player_id] / coopBossCfg.hp_capacity));
+            int goldReward = (int)((float)coopBossCfg.reward_gold *
+                (Player_damage_Set[player_controller.player_id] / coopBossCfg.hp_capacity));
+
             GameData.Instance.total_cash.SetIntVal(
-                GameData.Instance.total_cash.GetIntVal() + num2,
+                GameData.Instance.total_cash.GetIntVal() + goldReward,
                 GameDataIntPurpose.Cash
             );
         }
-        Dictionary<string, int> dictionary = new Dictionary<string, int>();
-		int num3 = 0;
-		foreach (string item2 in rewards_weapon_fragments)
-		{
-			if (GameData.Instance.WeaponFragmentProbs_Set.ContainsKey(item2))
-			{
-				num3++;
-			}
-		}
-		switch (num3)
-		{
-		case 1:
-			foreach (string item3 in rewards_weapon_fragments)
-			{
-				if (GameData.Instance.WeaponFragmentProbs_Set.ContainsKey(item3))
-				{
-					dictionary.Add(item3, 40);
-				}
-				else
-				{
-					dictionary.Add(item3, 30);
-				}
-			}
-			break;
-		case 2:
-			foreach (string item4 in rewards_weapon_fragments)
-			{
-				if (GameData.Instance.WeaponFragmentProbs_Set.ContainsKey(item4))
-				{
-					dictionary.Add(item4, 40);
-				}
-				else
-				{
-					dictionary.Add(item4, 20);
-				}
-			}
-			break;
-		default:
-			foreach (string item5 in rewards_weapon_fragments)
-			{
-				dictionary.Add(item5, 33);
-			}
-			break;
-		}
-		bool flag = false;
-		int num4 = Random.Range(0, 101);
-		if (num4 == 100)
-		{
-			flag = true;
-		}
-		int num5 = 0;
-		string text = string.Empty;
-		foreach (string key2 in dictionary.Keys)
-		{
-			num5 += dictionary[key2];
-			if (num4 <= num5)
-			{
-				text = key2;
-				break;
-			}
-		}
-		bool flag2 = false;
-		bool fragment_sell = false;
-		//foreach (PlayerID key3 in Player_damage_Set.Keys)
-		//{
-			GameProb gameProb = null;
-			GameReward gameReward = null;
-			//flag2 = ((key3.tnet_id == player_controller.tnet_user.Id) ? true : false);
-			flag2 = true;
-			if (flag2)
-			{
-				if (flag)
-				{
-					if (GameData.Instance.WeaponData_Set[coopBossCfg.reward_weapon].LotteryReward(false))
-					{
-						Debug.Log("weapon:" + coopBossCfg.reward_weapon + " is unlocked, it enable combime.");
-						unlock_new_weapon_name = coopBossCfg.reward_weapon;
-						unlock_new_weapon = true;
-						UnlockInGame unlockInGame = new UnlockInGame();
-						unlockInGame.Type = UnlockInGame.UnlockType.Weapon;
-						unlockInGame.Name = coopBossCfg.reward_weapon;
-						GameData.Instance.UnlockList.Add(unlockInGame);
-					}
-					else
-					{
-						award_get_changed = true;
-						src_img = "Gameui_" + coopBossCfg.reward_weapon;
-						des_img = "Cash_s";
-						des_count = GameData.Instance.WeaponData_Set[coopBossCfg.reward_weapon].config.sell_price.GetIntVal();
-						show_bk = false;
-					}
-				}
-				else if (GameData.Instance.WeaponData_Set[coopBossCfg.reward_weapon].exist_state != 0 || GameData.Instance.WeaponFragmentProbs_Set.ContainsKey(text))
-				{
-					Debug.Log("drop_fragment already own.");
-					fragment_sell = true;
-					award_get_changed = true;
-					src_img = text;
-					des_img = "Cash_s";
-					des_count = ((WeaponFragmentProbsCfg)GameConfig.Instance.ProbsConfig_Set[text]).sell_price.GetIntVal();
-					show_bk = true;
-				}
-				else
-				{
-					gameProb = new GameProb();
-					gameProb.prob_cfg = GameConfig.Instance.ProbsConfig_Set[text];
-					gameProb.count = 1;
-					GameData.Instance.WeaponFragmentProbs_Set.Add(text, gameProb);
-					fragment_sell = false;
-					string weapon_name = ((WeaponFragmentProbsCfg)gameProb.prob_cfg).weapon_name;
-					Debug.Log("check weapon combine:" + weapon_name);
-					if (GameData.Instance.CheckFragmentProbCombine(weapon_name) && GameData.Instance.WeaponData_Set[weapon_name].Unlock())
-					{
-						Debug.Log("weapon:" + weapon_name + " is now unlocked! You can now buy the weapon.");
-						unlock_new_weapon_name = weapon_name;
-						unlock_new_weapon = true;
-						UnlockInGame unlockInGame2 = new UnlockInGame();
-						unlockInGame2.Type = UnlockInGame.UnlockType.Weapon;
-						unlockInGame2.Name = weapon_name;
-						GameData.Instance.UnlockList.Add(unlockInGame2);
-					}
-				}
-			}
-			else
-			{
-				text = rewards_weapon_fragments[Random.Range(0, rewards_weapon_fragments.Count)];
-				fragment_sell = false;
-			}
-			if (flag && flag2)
-			{
-				Debug.Log("Get weapon:" + coopBossCfg.reward_weapon);
-				gameReward = new GameReward(GameReward.GameRewardType.WEAPON, "Gameui_" + coopBossCfg.reward_weapon, 1);
-			}
-			else
-			{
-				Debug.Log("Get fragment:" + text + " mySelf:" + flag2);
-				WeaponFragmentProbsCfg weaponFragmentProbsCfg = GameConfig.Instance.ProbsConfig_Set[text] as WeaponFragmentProbsCfg;
-				gameReward = new GameReward(GameReward.GameRewardType.WEAPONFRAGMENT, weaponFragmentProbsCfg.image_name, 1);
-			}
-			GameRewardCoop item;
-			//if (key3.tnet_id == playerID.tnet_id)
-			//{
-				item = new GameRewardCoop(playerID.avatar_type, playerID.avatar_state, playerID.player_name, (int)coopBossCfg.hp_capacity, GameRewardCoop.RewardMoneyType.CRYSTAL, coopBossCfg.reward_crystal, gameReward, flag2, fragment_sell);
-			//}
-			//else
-			//{
-			//	reward_cash_temp = (int)((float)coopBossCfg.reward_gold * (Player_damage_Set[key3] / coopBossCfg.hp_capacity));
-			//	item = new GameRewardCoop(key3.avatar_type, key3.avatar_state, key3.player_name, (int)Player_damage_Set[key3], GameRewardCoop.RewardMoneyType.CASH, reward_cash_temp, gameReward, flag2, fragment_sell);
-			//}
-			list.Add(item);
-		//}
-		reward_coop_panel.ResetGameReward(list);
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("Boss", coopBossCfg.boss_name);
-		hashtable.Add("Time", (int)(Time.time - coop_start_time));
-		GameData.Instance.UploadStatistics("Coop_Mission_Win", hashtable);
-	}
 
-	public override void CheckMissionFinished()
+        Dictionary<string, int> dropWeights = new Dictionary<string, int>();
+        int totalWeight = 0;
+
+        foreach (string fragName in rewards_weapon_fragments)
+        {
+            if (GameConfig.Instance.ProbsConfig_Set.ContainsKey(fragName))
+            {
+                WeaponFragmentProbsCfg cfg = GameConfig.Instance.ProbsConfig_Set[fragName] as WeaponFragmentProbsCfg;
+                if (cfg != null)
+                {
+                    dropWeights.Add(fragName, cfg.weight);
+                    totalWeight += cfg.weight;
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Missing fragment config: " + fragName);
+            }
+        }
+
+        string selectedFragment = string.Empty;
+        int roll = Random.Range(0, totalWeight);
+        int running = 0;
+
+        foreach (string key in dropWeights.Keys)
+        {
+            running += dropWeights[key];
+            if (roll < running)
+            {
+                selectedFragment = key;
+                break;
+            }
+        }
+
+        bool gotFullWeapon = (Random.Range(0, 100) == 99);
+
+        bool isLocalPlayer = true;
+        bool fragment_sell = false;
+
+        // foreach (PlayerID key3 in Player_damage_Set.Keys)
+        // {
+        GameProb gameProb = null;
+        GameReward gameReward = null;
+
+        // isLocalPlayer = (key3.tnet_id == player_controller.tnet_user.Id);
+        isLocalPlayer = true;
+
+        if (isLocalPlayer)
+        {
+            if (gotFullWeapon)
+            {
+                if (GameData.Instance.WeaponData_Set[coopBossCfg.reward_weapon].LotteryReward(false))
+                {
+                    Debug.Log("Weapon unlocked: " + coopBossCfg.reward_weapon);
+                    unlock_new_weapon_name = coopBossCfg.reward_weapon;
+                    unlock_new_weapon = true;
+
+                    UnlockInGame unlock = new UnlockInGame();
+                    unlock.Type = UnlockInGame.UnlockType.Weapon;
+                    unlock.Name = coopBossCfg.reward_weapon;
+                    GameData.Instance.UnlockList.Add(unlock);
+                }
+                else
+                {
+                    // Already owned, give sell cash instead
+                    award_get_changed = true;
+                    src_img = "Gameui_" + coopBossCfg.reward_weapon;
+                    des_img = "Cash_s";
+                    des_count = GameData.Instance.WeaponData_Set[coopBossCfg.reward_weapon].config.sell_price.GetIntVal();
+                    show_bk = false;
+                }
+            }
+            else
+            {
+                if (GameData.Instance.WeaponData_Set[coopBossCfg.reward_weapon].exist_state != 0 ||
+                    GameData.Instance.WeaponFragmentProbs_Set.ContainsKey(selectedFragment))
+                {
+                    Debug.Log("Fragment already owned, selling: " + selectedFragment);
+                    fragment_sell = true;
+                    award_get_changed = true;
+                    src_img = selectedFragment;
+                    des_img = "Cash_s";
+                    des_count = ((WeaponFragmentProbsCfg)GameConfig.Instance.ProbsConfig_Set[selectedFragment])
+                        .sell_price.GetIntVal();
+                    show_bk = true;
+                }
+                else
+                {
+                    gameProb = new GameProb();
+                    gameProb.prob_cfg = GameConfig.Instance.ProbsConfig_Set[selectedFragment];
+                    gameProb.count = 1;
+
+                    GameData.Instance.WeaponFragmentProbs_Set.Add(selectedFragment, gameProb);
+                    fragment_sell = false;
+
+                    string weaponName = ((WeaponFragmentProbsCfg)gameProb.prob_cfg).weapon_name;
+                    Debug.Log("Checking fragment combine for: " + weaponName);
+
+                    if (GameData.Instance.CheckFragmentProbCombine(weaponName) &&
+                        GameData.Instance.WeaponData_Set[weaponName].Unlock())
+                    {
+                        Debug.Log("Weapon unlocked via fragments: " + weaponName);
+                        unlock_new_weapon_name = weaponName;
+                        unlock_new_weapon = true;
+
+                        UnlockInGame unlock = new UnlockInGame();
+                        unlock.Type = UnlockInGame.UnlockType.Weapon;
+                        unlock.Name = weaponName;
+                        GameData.Instance.UnlockList.Add(unlock);
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Fallback fragment for remote players
+            selectedFragment = rewards_weapon_fragments[Random.Range(0, rewards_weapon_fragments.Count)];
+            fragment_sell = false;
+        }
+
+        // Final reward construction
+        if (gotFullWeapon && isLocalPlayer)
+        {
+            Debug.Log("Get weapon: " + coopBossCfg.reward_weapon);
+            gameReward = new GameReward(GameReward.GameRewardType.WEAPON, "Gameui_" + coopBossCfg.reward_weapon, 1);
+        }
+        else
+        {
+            Debug.Log("Get fragment: " + selectedFragment + " isLocal: " + isLocalPlayer);
+            WeaponFragmentProbsCfg fragCfg = GameConfig.Instance.ProbsConfig_Set[selectedFragment] as WeaponFragmentProbsCfg;
+            gameReward = new GameReward(GameReward.GameRewardType.WEAPONFRAGMENT, fragCfg.image_name, 1);
+        }
+
+        GameRewardCoop rewardItem;
+        // if (key3.tnet_id == topPlayer.tnet_id)
+        // {
+        rewardItem = new GameRewardCoop(
+            topPlayer.avatar_type,
+            topPlayer.avatar_state,
+            topPlayer.player_name,
+            (int)coopBossCfg.hp_capacity,
+            GameRewardCoop.RewardMoneyType.CRYSTAL,
+            coopBossCfg.reward_crystal,
+            gameReward,
+            isLocalPlayer,
+            fragment_sell
+        );
+        // }
+        // else
+        // {
+        // int reward_cash_temp = (int)((float)coopBossCfg.reward_gold * (Player_damage_Set[key3] / coopBossCfg.hp_capacity));
+        // rewardItem = new GameRewardCoop(key3.avatar_type, key3.avatar_state, key3.player_name, (int)Player_damage_Set[key3], GameRewardCoop.RewardMoneyType.CASH, reward_cash_temp, gameReward, isLocalPlayer, fragment_sell);
+        // }
+
+        list.Add(rewardItem);
+        // }
+
+        // Update UI with rewards
+        reward_coop_panel.ResetGameReward(list);
+
+        // Upload mission stat
+        Hashtable stats = new Hashtable();
+        stats.Add("Boss", coopBossCfg.boss_name);
+        stats.Add("Time", (int)(Time.time - coop_start_time));
+        GameData.Instance.UploadStatistics("Coop_Mission_Win", stats);
+    }
+
+    public override void CheckMissionFinished()
 	{
 		if (/*TNetConnection.IsServer && */mission_controller_finished && !mission_check_finished && Enemy_Set.Count == 0)
 		{
@@ -947,8 +1050,8 @@ public class GameSceneCoopController : GameSceneController
 
 	public override void OnBossMissionOver()
 	{
-		is_boss_dead = true;
         canPressEscape = false;
+        is_boss_dead = true;
         game_main_panel.boss_panel.SetContent(1 + " / " + 1);
 		CleanSceneEnemy();
 		HidePanels();
