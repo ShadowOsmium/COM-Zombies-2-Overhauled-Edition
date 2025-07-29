@@ -1588,6 +1588,16 @@ public class GameSceneController : MonoBehaviour
         }
 	}
 
+    public bool IsBossActive()
+    {
+        foreach (var enemy in Enemy_Set.Values)
+        {
+            if (enemy != null && enemy.IsBoss && enemy.enemy_data.cur_hp > 0)
+                return true;
+        }
+        return false;
+    }
+
     private EnemyData currentBossData;
 
     public void SetBossData(EnemyData data)

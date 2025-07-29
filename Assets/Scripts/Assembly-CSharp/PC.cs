@@ -111,11 +111,11 @@ public class PC : MonoBehaviour
         }
         else if (coopController != null)
         {
-            coopController.OnGameResume(); // ✅ correct for coop
+            coopController.OnGameResume();
         }
         else if (regularController != null)
         {
-            regularController.OnGameResume(); // ✅ normal mode
+            regularController.OnGameResume();
         }
 
         if (pausePanel != null)

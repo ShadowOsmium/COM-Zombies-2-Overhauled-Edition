@@ -75,6 +75,8 @@ public class GameData : MonoBehaviour
 
     public bool daily_mode_enable;
 
+    public bool isNewSave;
+
     public GameDataInt free_lottery_spins = new GameDataInt(0, GameDataIntPurpose.FreeSpin);
 
     public bool is_crazy_daily;
@@ -177,7 +179,7 @@ public class GameData : MonoBehaviour
 
     private int sessionVoucherSpent = 0;
 
-    public bool is_enter_tutorial = true;
+    public bool is_enter_tutorial = false;
 
     public bool show_ui_tutorial = true;
 
@@ -193,7 +195,7 @@ public class GameData : MonoBehaviour
 
     public bool rewardSafeMode = false;
 
-    public string game_version = "1.3.3";
+    public string game_version = "";
 
     public int enter_shop_count;
 
@@ -250,12 +252,12 @@ public class GameData : MonoBehaviour
             GameObject gameObject = new GameObject("_AndroidPlatform");
             gameObject.transform.position = Vector3.zero;
             gameObject.transform.rotation = Quaternion.identity;
-            UnityEngine.Object.DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(gameObject);
             DevicePlugin.InitAndroidPlatform();
             gameObject.AddComponent<TrinitiAdAndroidPlugin>();
         }
         Instance = this;
-        UnityEngine.Object.DontDestroyOnLoad(base.gameObject);
+        DontDestroyOnLoad(base.gameObject);
         finally_save_date = GetCurDateTime();
         TRINITI_IAP_CEHCK = true;
     }
@@ -268,6 +270,7 @@ public class GameData : MonoBehaviour
         total_crystal.SetIntVal(0, GameDataIntPurpose.Crystal);
         total_voucher.SetIntVal(0, GameDataIntPurpose.Voucher);
         cur_avatar = AvatarType.Human;
+
         foreach (AvatarConfig value in GameConfig.Instance.AvatarConfig_Set.Values)
         {
             AvatarData avatarData = new AvatarData();
@@ -281,17 +284,11 @@ public class GameData : MonoBehaviour
             avatarData.primary_equipment = "MP5";
             for (int i = 0; i < 2; i++)
             {
-                if (i == 0)
-                {
-                    avatarData.skill_list.Add(value.first_skill);
-                }
-                else
-                {
-                    avatarData.skill_list.Add("null");
-                }
+                avatarData.skill_list.Add(i == 0 ? value.first_skill : "null");
             }
             AvatarData_Set[avatarData.avatar_type] = avatarData;
         }
+
         foreach (SkillConfig value2 in GameConfig.Instance.Skill_Avatar_Set.Values)
         {
             SkillData skillData = new SkillData();
@@ -302,6 +299,7 @@ public class GameData : MonoBehaviour
             skillData.ResetData();
             Skill_Avatar_Set[skillData.skill_name] = skillData;
         }
+
         foreach (WeaponConfig value3 in GameConfig.Instance.WeaponConfig_Set.Values)
         {
             WeaponData weaponData = new WeaponData();
@@ -315,47 +313,74 @@ public class GameData : MonoBehaviour
             weaponData.exist_state = value3.exist_state;
             WeaponData_Set[weaponData.weapon_name] = weaponData;
         }
+
         foreach (string value4 in GameConfig.Instance.Enemy_Loading_Set.Values)
         {
             Enemy_Loading_Set[value4] = 0;
         }
+
         for (int j = 0; j < 14; j++)
         {
             lottery_seat_state.Add("null");
         }
+
         cur_quest_info = new QuestInfo();
         cur_quest_info.mission_type = MissionType.Cleaner;
-        is_enter_tutorial = true;
-        game_version = "1.3.3";
+
         user_id = DevicePlugin.GetUUID();
+
         if (!LoadData(null))
         {
+            Debug.Log("Save failed to load. Initializing new save.");
+
+            isNewSave = true;
+
+            is_enter_tutorial = true;
+
             if (Application.platform == RuntimePlatform.IPhonePlayer && Screen.height >= 700)
             {
                 sensitivity_ratio = 0.6f;
             }
+
             SaveData();
             UploadStatistics("FirstTime", new Hashtable());
             showUpdatePoster = true;
         }
-        GameEnhancer enhancer = GameObject.FindObjectOfType<GameEnhancer>();
-        if (game_version != "1.3.3")
+
+        // Set the game version AFTER attempting to load
+        game_version = VersionHelper.LoadVersionFromFile();
+
+        GameEnhancer enhancer = GameObject.FindObjectOfType(typeof(GameEnhancer)) as GameEnhancer;
+
+        if (!isNewSave)
         {
-            game_version = "1.3.3";
-            OnGameDataVersionDifferent();
-            showUpdatePoster = true;
+            string latestVersion = VersionHelper.LoadVersionFromFile();
+            Debug.Log("Comparing versions: '" + game_version + "' vs '" + latestVersion + "'");
+
+            if (game_version != latestVersion)
+            {
+                Debug.Log("Version mismatch detected. Forcing update.");
+                game_version = latestVersion;
+                OnGameDataVersionDifferent();
+                showUpdatePoster = true;
+            }
         }
+
         foreach (WeaponData value5 in WeaponData_Set.Values)
         {
-            if (value5.exist_state == WeaponExistState.Locked && value5.config.unlockDay >= 0 && value5.config.unlockDay < day_level)
+            if (value5.exist_state == WeaponExistState.Locked &&
+                value5.config.unlockDay >= 0 &&
+                value5.config.unlockDay < day_level)
             {
                 value5.Unlock();
             }
             value5.ResetData();
         }
+
         foreach (AvatarData value6 in AvatarData_Set.Values)
         {
-            if (value6.exist_state == AvatarExistState.Locked && value6.config.unlockDay < day_level)
+            if (value6.exist_state == AvatarExistState.Locked &&
+                value6.config.unlockDay < day_level)
             {
                 value6.Unlock();
             }
@@ -388,10 +413,6 @@ public class GameData : MonoBehaviour
     {
         if (string.IsNullOrEmpty(saveFilePath))
         {
-            // Use SHA256 save file path (new system)
-            // saveFilePath = Utils.SavePath() + SHA256Sample.GetSha256String("CoMZ2").Substring(0, 32) + ".bytes";
-
-            // Use legacy MD5 save file path (old system)
             saveFilePath = Utils.SavePath() + MD5Sample.GetMd5String("CoMZ2") + ".bytes";
         }
 
@@ -406,35 +427,56 @@ public class GameData : MonoBehaviour
             }
         }
 
-        if (GameEnhancer.Instance != null && !GameEnhancer.Instance.CanSave())
+        if (Instance == null)
         {
-            Debug.LogWarning("[SaveData] Save blocked: player is blacklisted.");
+            Debug.LogWarning("[SaveData] Skipped save: GameData instance not initialized.");
             return;
         }
 
         try
         {
-            configure = new Configure();
+            // Load existing config first
+            Configure config = new Configure();
 
+            if (File.Exists(saveFilePath))
+            {
+                string existingData = null;
+                if (Utils.FileReadString(saveFilePath, ref existingData) && !string.IsNullOrEmpty(existingData))
+                {
+                    existingData = DataDecrypt(existingData);
+                    config.Load(existingData);
+                }
+            }
+
+            if (config.GetSection("Save") == null)
+            {
+                config.AddSection("Save", "", "");
+            }
+
+            // Always set the Blackname flag
             if (Instance.blackname)
             {
-                Debug.LogWarning("[SaveData] Blocked save for blacklisted player.");
+                if (config.GetValue("Save", "Blackname") == null)
+                    config.AddValueSingle("Save", "Blackname", "1", "", "");
+                else
+                    config.SetSingle("Save", "Blackname", "1");
+            }
+
+            // If blacklisted, write flag and exit early
+            if (GameEnhancer.Instance != null && !GameEnhancer.Instance.CanSave())
+            {
+                string flaggedData = config.Save();
+                flaggedData = DataEncipher(flaggedData);
+                Utils.FileWriteString(saveFilePath, flaggedData);
+
+                Debug.LogWarning("[SaveData] Player blacklisted - saved flag only.");
                 return;
             }
 
-            if (!CheckCurrencyJumpAndUpdateState())
-            {
-                Debug.LogWarning("[SaveData] Aborted save due to suspicious currency jump.");
-                return;
-            }
-
-            if (!configure.AddSection("Save", "", ""))
-            {
-                Debug.LogWarning("[SaveData] Failed to add Save section.");
-            }
+            // Continue normal save
+            configure = config;
 
             PopulateConfigureValues(isTesterSave);
-
             SaveWeaponsData();
             SaveAvatarsData();
             SaveSkillAvatarData();
@@ -448,28 +490,28 @@ public class GameData : MonoBehaviour
             string savedData = configure.Save();
             savedData = DataEncipher(savedData);
             Utils.FileWriteString(saveFilePath, savedData);
+
+            Debug.Log("[SaveData] Save completed successfully.");
         }
         catch (Exception ex)
         {
-            Debug.LogError("Exception in SaveData: " + ex.Message);
+            Debug.LogError("Exception in SaveData: " + ex.GetType().Name + " - " + ex.Message + "\nStack Trace:\n" + ex.StackTrace);
         }
     }
 
-    public bool LoadData(string saveFilePath = null)
+    public bool LoadData(string saveFilePath = null, bool forceReload = false)
     {
-        if (hasAttemptedLoad)
+        if (hasAttemptedLoad && !forceReload)
         {
             Debug.Log("[LoadData] Already attempted load, skipping.");
             return hasLoadedData;
         }
 
-        hasAttemptedLoad = true;
+        if (!forceReload)
+            hasAttemptedLoad = true;
 
         if (string.IsNullOrEmpty(saveFilePath))
         {
-            // Use SHA256 save file path (new system)
-            // saveFilePath = Utils.SavePath() + SHA256Sample.GetSha256String("CoMZ2").Substring(0, 32) + ".bytes";
-
             // Use legacy MD5 save file path (old system)
             saveFilePath = Utils.SavePath() + MD5Sample.GetMd5String("CoMZ2") + ".bytes";
         }
@@ -504,6 +546,7 @@ public class GameData : MonoBehaviour
 
             LoadBasicStats(configure);
             LoadPlayerSettings(configure);
+            LoadTutorialFlagsOnly(configure);
             LoadUrlsAndFlags(configure);
             LoadUsedPromoCodes(configure);
             HandleDailyReset(configure);
@@ -521,15 +564,6 @@ public class GameData : MonoBehaviour
 
             hasLoadedData = true;
 
-            try
-            {
-                SaveData();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("[LoadData] SaveData failed after load: " + e);
-            }
-
             return true;
         }
         catch (Exception ex)
@@ -539,6 +573,7 @@ public class GameData : MonoBehaviour
             return false;
         }
     }
+
 
     private void LoadBasicStats(Configure configure)
     {
@@ -568,9 +603,6 @@ public class GameData : MonoBehaviour
 
         sensitivity_ratio = ParseFloatSafe(configure.GetSingle("Save", "SensitivityRatio"), sensitivity_ratio);
 
-        is_enter_tutorial = ParseBoolSafe(configure.GetSingle("Save", "EnterTutorial"), is_enter_tutorial);
-        show_ui_tutorial = ParseBoolSafe(configure.GetSingle("Save", "ShowUITutorial"), show_ui_tutorial);
-        show_ui_tutorial_weapon = ParseBoolSafe(configure.GetSingle("Save", "ShowUITutorialWeapon"), show_ui_tutorial_weapon);
         daily_mission_count = ParseIntSafe(configure.GetSingle("Save", "DailyMissionCount"));
         int dailyCount = GameData.Instance.daily_mission_count;
         Debug.Log("[LoadGameData] daily_mission_count loaded: " + dailyCount);
@@ -581,6 +613,16 @@ public class GameData : MonoBehaviour
         string nickNameStr = configure.GetSingle("Save", "NickName");
         if (!string.IsNullOrEmpty(nickNameStr))
             NickName = nickNameStr;
+    }
+
+    public void LoadTutorialFlagsOnly(Configure configure)
+    {
+        string enterTutorialStr = configure.GetSingle("Save", "EnterTutorial");
+        bool loadedTutorialFlag = ParseBoolSafe(enterTutorialStr, false);
+        Debug.Log("[LoadPlayerSettings] Loaded EnterTutorial flag: " + loadedTutorialFlag + " (raw string: " + enterTutorialStr + ")");
+        is_enter_tutorial = loadedTutorialFlag;
+        show_ui_tutorial = ParseBoolSafe(configure.GetSingle("Save", "ShowUITutorial"), show_ui_tutorial);
+        show_ui_tutorial_weapon = ParseBoolSafe(configure.GetSingle("Save", "ShowUITutorialWeapon"), show_ui_tutorial_weapon);
     }
 
     private void LoadUrlsAndFlags(Configure configure)
@@ -603,19 +645,37 @@ public class GameData : MonoBehaviour
         usedPromoCodes = string.IsNullOrEmpty(usedCodesStr) ? new HashSet<string>() : new HashSet<string>(usedCodesStr.Split(','));
     }
 
-    private void HandleDailyReset(Configure configure)
+    private void HandleDailyReset(Configure configure, bool skipSave = false)
     {
+        if (configure == null)
+        {
+            Debug.LogWarning("[HandleDailyReset] Configure is null, skipping daily reset.");
+            return;
+        }
+
         save_date = SafeGetSingle(configure, "Save", "SaveDate", "");
         lastMissionCompleteDate = configure.GetSingle("Save", "LastMissionCompleteDate") ?? "";
         cur_save_date = DateTime.Now.ToString("yyyy-MM-dd");
 
-        if (string.IsNullOrEmpty(lastMissionCompleteDate) || string.Compare(lastMissionCompleteDate, cur_save_date, StringComparison.Ordinal) < 0)
+        if (string.IsNullOrEmpty(lastMissionCompleteDate) ||
+            string.Compare(lastMissionCompleteDate, cur_save_date, StringComparison.Ordinal) < 0)
         {
             daily_mission_count = 0;
             lottery_reset_count = 0;
             lottery_count = 0;
             is_daily_cd_crystal = false;
-            SaveData();
+
+            if (!skipSave)
+            {
+                try
+                {
+                    SaveData();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError("[HandleDailyReset] Failed to save after daily reset: " + ex.Message);
+                }
+            }
         }
         else
         {
@@ -1367,6 +1427,23 @@ public class GameData : MonoBehaviour
             }
         }
         return list;
+    }
+
+    public static class VersionHelper
+    {
+        public static string LoadVersionFromFile()
+        {
+            TextAsset versionText = Resources.Load<TextAsset>("version");
+            if (versionText != null)
+            {
+                return versionText.text.Trim();
+            }
+            else
+            {
+                Debug.LogWarning("[VersionHelper] Resources/version.txt not found. Using fallback version.");
+                return "1.0";
+            }
+        }
     }
 
     public List<WeaponData> GetCouldIntensifierWeapons()
@@ -2313,13 +2390,16 @@ public class GameData : MonoBehaviour
             Configure configure = new Configure();
             content = DataDecrypt(content);
             configure.Load(content);
-            string single = configure.GetSingle("Save", "Version");
-            if (single != "1.3.3")
+
+            string saveVersion = configure.GetSingle("Save", "Version");
+            string latestVersion = VersionHelper.LoadVersionFromFile();
+
+            if (saveVersion != latestVersion)
             {
+                Debug.Log("[Version Check] Save version mismatch: save=" + saveVersion + ", expected=" + latestVersion);
                 return true;
             }
         }
         return false;
     }
-
 }

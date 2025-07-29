@@ -28,15 +28,12 @@ public class EnemyFactory : MonoBehaviour
                 dummy.name = "[WarmUpDummy] " + prefab.name;
                 dummy.SetActive(false);
 
-                // Optional: Disable NavMeshAgent
                 UnityEngine.AI.NavMeshAgent agent = dummy.GetComponent<UnityEngine.AI.NavMeshAgent>();
                 if (agent != null) agent.enabled = false;
 
-                // Optional: Rebind Animator
                 Animator animator = dummy.GetComponentInChildren<Animator>();
                 if (animator != null) animator.Rebind();
 
-                // Optional: Disable collider
                 Collider col = dummy.GetComponent<Collider>();
                 if (col != null) col.enabled = false;
 

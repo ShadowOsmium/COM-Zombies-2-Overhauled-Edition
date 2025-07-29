@@ -58,7 +58,6 @@ public class SharkProjectile : ProjectileController
             // Make sure targetPos updates every frame from target_trans (so it doesn't get stale)
             targetPos = target_trans.position;
 
-            // Optionally clamp Y so we don't LookAt below ground level (optional, tweak groundLevelY)
             float groundLevelY = 0f;
             if (targetPos.y < groundLevelY) targetPos.y = groundLevelY;
 
@@ -69,7 +68,7 @@ public class SharkProjectile : ProjectileController
             Quaternion targetRot = Quaternion.LookRotation(desiredDir);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, turnSpeed * deltaTime);
 
-            // Move forward manually (assuming Rigidbody is kinematic)
+            // Move forward manually
             Vector3 launchDir = transform.forward;
             transform.Translate(fly_speed * launchDir * deltaTime, Space.World);
         }

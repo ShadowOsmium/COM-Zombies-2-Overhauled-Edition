@@ -27,7 +27,7 @@ public class Configure
 		public string comment2;
 	}
 
-	private class Section
+	public class Section
 	{
 		public string section;
 
@@ -430,7 +430,7 @@ public class Configure
 		return true;
 	}
 
-	private Section GetSection(string section)
+	public Section GetSection(string section)
 	{
 		for (int i = 0; i < m_configure.Count; i++)
 		{

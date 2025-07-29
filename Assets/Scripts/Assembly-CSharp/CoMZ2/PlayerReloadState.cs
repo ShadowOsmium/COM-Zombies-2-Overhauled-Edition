@@ -21,11 +21,6 @@ namespace CoMZ2
                 // Allow player input to change fire state normally once reload is mostly done
                 m_player.CalculateSetFireState();
             }
-            else
-            {
-                // Block input/state changes until reload almost done
-                // (you can optionally ignore or queue input here)
-            }
         }
 
 

@@ -237,7 +237,7 @@ public class GameCoverUIController : MonoBehaviour
 			string md5String = MD5Sample.GetMd5String(item);
 			string empty = string.Empty;
 			empty = ((!GameVersion.Instance.is_test_config) ? "Config/" : "ConfigTest/");
-			string url = "https://github.com/ShadowOsmium/COM-Zombies-2/releases/latest" + empty + md5String + ".bytes?rand=" + Random.Range(10, 99999);
+			string url = "https://github.com/ShadowOsmium/COM-Zombies-2-Overhauled-Edition/releases/latest" + empty + md5String + ".bytes?rand=" + Random.Range(10, 99999);
 			wwwClient.Instance.SendHttpRequest(url, null, OnConfigUpdateFinish, OnConfigUpdateError, item);
 		}
 		if (!flag)

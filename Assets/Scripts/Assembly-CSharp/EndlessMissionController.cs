@@ -16,26 +16,21 @@ public class EndlessMissionController : MissionController
     }
     protected EnemyController boss;
 
-    private const int DayLevelStart = 30;
+    private const int DayLevelStart = 45;
     private const int DayLevelIncrement = 5;
     private const float DayLevelIncrementInterval = 45f;
     private int lastBossDayLevel = -1;
     private bool isBossCoroutineRunning = false;
     private float bossSpawnLockTimestamp = 0f;
-    private float bossSpawnLockDuration = 5f;
+    EnemyType lastSpawnedBossType = EnemyType.E_NONE;
 
-    private const float SpawnIncreaseInterval = 45f;
-
-    private Coroutine bossCoroutine = null;
-
+    private Coroutine bossCoroutine;
+    private bool spawnBossInProgress = false;
     private bool bossActive = false;
+    private List<EnemyType> spawnedBossTypes = new List<EnemyType>();
+    private static bool spawnLock = false;
 
     private const float UpdateInfoRate = 0.3f;
-
-    private int lastLoggedDay = -1;
-    private float lastBossSpawnLogTime = 0f;
-    private const float bossSpawnLogCooldown = 5f;
-    private int lastLoggedDayForSpawn = -1;
 
     public float mission_life_time = 0f;
 
@@ -66,10 +61,10 @@ public class EndlessMissionController : MissionController
     private int lastSpawnedBossWaveDay = -1;
     public EnemyController Boss;
 
+    private int bossSpawnCount = 0;
     public int goldCollected = 0;
     public int crystalsCollected = 0;
 
-    private bool spawnBossInProgress = false;
     private float lastBossSpawnTime = -999f;
     private const float BossSpawnCooldown = 1.5f;
 
@@ -86,7 +81,6 @@ public class EndlessMissionController : MissionController
 
     private int currentSpawnDayLevel = -1;
     private List<EnemyWaveInfo> currentEnemyWaveInfoSet = null;
-    private HashSet<EnemyType> spawnedBossTypes = new HashSet<EnemyType>();
 
     protected bool is_logic_paused = false;
     protected bool mission_check_finished = false;
@@ -225,7 +219,6 @@ public class EndlessMissionController : MissionController
         {
             dayLevelTimer = 0f;
             GameData.Instance.day_level += DayLevelIncrement;
-            lastSpawnedBossWaveDay = -1;
 
             int currentDay = GameData.Instance.day_level;
             Debug.Log("[Endless] Day level incremented to: " + currentDay);
@@ -242,9 +235,17 @@ public class EndlessMissionController : MissionController
                 if (IsBossDay(currentDay))
                 {
                     List<EnemyWaveInfo> bossWaveInfo = GetBossWaveInfoForDay(currentDay);
-                    List<EnemyType> bossTypes = GetBossTypesWithCounts(bossWaveInfo);
 
-                    foreach (EnemyType bossType in bossTypes)
+                    HashSet<EnemyType> uniqueBossTypes = new HashSet<EnemyType>();
+                    foreach (EnemyWaveInfo wave in bossWaveInfo)
+                    {
+                        foreach (EnemySpawnInfo spawn in wave.spawn_info_list)
+                        {
+                            uniqueBossTypes.Add(spawn.EType);
+                        }
+                    }
+
+                    foreach (EnemyType bossType in uniqueBossTypes)
                     {
                         if (!enemyTypesForDay.Contains(bossType))
                             enemyTypesForDay.Add(bossType);
@@ -286,7 +287,8 @@ public class EndlessMissionController : MissionController
 
     private IEnumerator HandleBossWaveUsingBossConfig(int dayLevel)
     {
-        yield return null;
+        Debug.Log("[BossCoroutine] Starting for day " + dayLevel);
+        spawnBossInProgress = true;
 
         spawnedBossTypes.Clear();
 
@@ -299,15 +301,13 @@ public class EndlessMissionController : MissionController
             bossCoroutine = null;
             spawnBossInProgress = false;
             bossActive = false;
-            isBossCoroutineRunning = false;
             yield break;
         }
 
-        GameObject grave = FindClosedGrave(GameSceneController.Instance.player_controller.transform.position);
-        Debug.Log("[Endless] Grave found: " + (grave != null ? grave.name : "null"));
-
         int bossCount = GetBossCountForDay(dayLevel);
         int spawnedCount = 0;
+
+        EnemyType lastSpawnedType = EnemyType.E_NONE;
 
         foreach (EnemyWaveInfo wave in waveList)
         {
@@ -318,6 +318,13 @@ public class EndlessMissionController : MissionController
                     if (spawnedCount >= bossCount)
                         break;
 
+                    if (spawnInfo.EType == lastSpawnedType)
+                    {
+                        Debug.Log("[Endless] Skipping back-to-back duplicate boss: " + spawnInfo.EType);
+                        continue;
+                    }
+
+                    GameObject grave = FindClosedGrave(GameSceneController.Instance.player_controller.transform.position);
                     if (grave == null)
                     {
                         Debug.LogWarning("[Endless] No grave found for boss spawn: " + spawnInfo.EType);
@@ -331,24 +338,26 @@ public class EndlessMissionController : MissionController
                             GameData.Instance.cur_quest_info.mission_day_type == MissionDayType.Endless)
                         {
                             float originalHp = boss.enemy_data.hp_capacity;
-
                             boss.enemy_data.hp_capacity *= 2.5f;
                             boss.enemy_data.cur_hp = boss.enemy_data.hp_capacity;
 
-                            Debug.Log(string.Format("[Endless] Boss spawned: {0}, HP doubled from {1} to {2}",
+                            Debug.Log(string.Format("[Endless] Boss spawned: {0}, HP scaled from {1} to {2}",
                                 spawnInfo.EType, originalHp, boss.enemy_data.cur_hp));
                         }
                         else
                         {
-                            Debug.Log("[Boss spawned: " + spawnInfo.EType + ", HP: " + boss.enemy_data.cur_hp + "]");
+                            Debug.Log("[Endless] Boss spawned: " + spawnInfo.EType +
+                                      ", HP: " + boss.enemy_data.cur_hp);
                         }
 
                         GameSceneController.Instance.SetBossData(boss.enemy_data);
-
                         boss.IsBoss = true;
                         boss.enemyType = spawnInfo.EType;
                         boss.ignoreSpawnLimit = true;
                         spawnedBossTypes.Add(spawnInfo.EType);
+
+                        lastSpawnedType = spawnInfo.EType;
+
                         spawnedCount++;
                     }
                     else
@@ -368,114 +377,88 @@ public class EndlessMissionController : MissionController
                 break;
         }
 
-        Debug.Log("[Endless] Boss wave spawned, coroutine finishing.");
+        Debug.Log("[BossCoroutine] Boss wave spawned, finishing coroutine.");
 
         spawnBossInProgress = false;
         bossActive = false;
         bossCoroutine = null;
-
         bossSpawnLockTimestamp = Time.time + 3f;
+
+        spawnLock = false;
     }
 
-    private List<EnemyType> GetBossTypesWithCounts(List<EnemyWaveInfo> waveList)
+    private bool IsBossTypeAlive(EnemyType bossType)
     {
-        List<EnemyType> types = new List<EnemyType>();
-        foreach (EnemyWaveInfo wave in waveList)
+        if (GameSceneController.Instance == null)
+            return false;
+
+        foreach (var enemyPair in GameSceneController.Instance.Enemy_Set)
         {
-            foreach (EnemySpawnInfo spawn in wave.spawn_info_list)
+            EnemyController enemy = enemyPair.Value;
+            if (enemy != null && enemy.IsBoss && enemy.enemyType == bossType && enemy.enemy_data.cur_hp > 0)
             {
-                for (int i = 0; i < spawn.Count; i++)
-                {
-                    types.Add(spawn.EType);
-                }
+                return true;
             }
         }
-        return types;
+        return false;
     }
 
     private List<EnemyWaveInfo> GetBossWaveInfoForDay(int dayLevel)
     {
         var waveDict = GameConfig.Instance.EnemyWaveInfo_Endless_Bosses;
-        List<EnemyWaveInfo> result = new List<EnemyWaveInfo>();
-
         List<int> sortedKeys = new List<int>(waveDict.Keys);
         sortedKeys.Sort();
 
-        int maxKey = -1;
-        for (int i = sortedKeys.Count - 1; i >= 0; i--)
+        if (waveDict.ContainsKey(dayLevel))
         {
-            if (sortedKeys[i] <= dayLevel)
-            {
-                maxKey = sortedKeys[i];
-                break;
-            }
+            return waveDict[dayLevel].wave_info_list;
         }
 
-        if (maxKey == -1)
-        {
-            Debug.LogWarning("[Endless] No valid boss wave key found for day " + dayLevel);
-            return result;
-        }
-
-        Debug.Log("[Endless] Using boss wave key " + maxKey + " for day " + dayLevel);
-
-        List<EnemyWaveInfo> originalWaves = waveDict[maxKey].wave_info_list;
-        int intervalsPassed = (dayLevel - maxKey) / GameConfig.Instance.bossUpgradeInterval;
-        float baseChance = GameConfig.Instance.bossUpgradeChance;
-
-        Debug.Log("[Endless] Cloning wave from key " + maxKey + ", intervals passed: " + intervalsPassed);
-
-        foreach (EnemyWaveInfo wave in originalWaves)
-        {
-            Debug.Log("[Endless] Original wave had " + wave.spawn_info_list.Count + " spawn entries");
-
-            EnemyWaveInfo clonedWave = new EnemyWaveInfo();
-
-            foreach (EnemySpawnInfo spawn in wave.spawn_info_list)
-            {
-                EnemySpawnInfo newSpawn = spawn.Clone();
-                newSpawn.TryApplyBoost(intervalsPassed, baseChance);
-
-                Debug.Log("[Endless] → Boosted spawn: " + newSpawn.EType);
-
-                clonedWave.spawn_info_list.Add(newSpawn);
-            }
-
-            result.Add(clonedWave);
-        }
-
-        return result;
+        Debug.LogWarning("[Endless] No exact boss wave key found for day " + dayLevel);
+        return new List<EnemyWaveInfo>();
     }
 
     void TrySpawnBoss()
     {
         int currentDay = GameData.Instance.day_level;
-        float now = Time.time;
 
-        if (currentDay != lastLoggedDay)
-        {
-            Debug.Log("[Endless] TrySpawnBoss() called at day " + currentDay);
-            lastLoggedDay = currentDay;
-        }
+        if (lastSpawnedBossWaveDay == currentDay)
+            return;
 
-        Debug.Log("[Endless] Checking if day " + currentDay + " is a boss day: " + IsBossDay(currentDay));
-        if (!IsBossDay(currentDay)) return;
-
-        if (spawnBossInProgress || lastSpawnedBossWaveDay == currentDay) return;
-
-        if ((currentDay != lastLoggedDayForSpawn) || (now - lastBossSpawnLogTime > bossSpawnLogCooldown))
-        {
-            Debug.Log("[Endless] Boss spawn conditions passed for day " + currentDay);
-            lastBossSpawnLogTime = now;
-            lastLoggedDayForSpawn = currentDay;
-        }
+        var bossWave = GetBossWaveInfoForDay(currentDay);
+        if (bossWave == null || bossWave.Count == 0)
+            return;
 
         lastSpawnedBossWaveDay = currentDay;
+        spawnLock = true;
         spawnBossInProgress = true;
 
-        Debug.Log("[Endless] Spawning boss wave for day " + currentDay);
-
+        Debug.Log("[TrySpawnBoss] Spawning boss wave for day " + currentDay);
         bossCoroutine = StartCoroutine(HandleBossWaveUsingBossConfig(currentDay));
+    }
+
+    private int GetBossCountForDay(int dayLevel)
+    {
+        if (!GameConfig.Instance.EnemyWaveInfo_Endless_Bosses.ContainsKey(dayLevel))
+            return 0;
+
+        var waveList = GameConfig.Instance.EnemyWaveInfo_Endless_Bosses[dayLevel].wave_info_list;
+        HashSet<EnemyType> uniqueBossTypes = new HashSet<EnemyType>();
+
+        int count = 0;
+        foreach (var wave in waveList)
+        {
+            foreach (var spawn in wave.spawn_info_list)
+            {
+                if (IsBossType(spawn.EType))
+                {
+                    uniqueBossTypes.Add(spawn.EType);
+                    count += spawn.Count;
+                }
+            }
+        }
+
+        return count > 0 ? count : 1;
     }
 
     private IEnumerator StartSpawningEnemies()
@@ -566,22 +549,6 @@ public class EndlessMissionController : MissionController
         return closest;
     }
 
-    private int GetBossCountForDay(int dayLevel)
-    {
-        if (GameConfig.Instance.EnemyWaveInfo_Endless_Bosses.ContainsKey(dayLevel))
-        {
-            var waveList = GameConfig.Instance.EnemyWaveInfo_Endless_Bosses[dayLevel].wave_info_list;
-            int count = 0;
-            foreach (var wave in waveList)
-            {
-                count += wave.spawn_info_list.Count(spawn => IsBossType(spawn.EType));
-            }
-            return count > 0 ? count : 1;
-        }
-
-        return 0;
-    }
-
     private void SpawnEnemyFromSource(EnemySpawnInfo spawnInfo, Vector3 playerPos)
     {
         if (spawnInfo == null) return;
@@ -619,11 +586,15 @@ public class EndlessMissionController : MissionController
     {
         if (grave == null)
         {
-            Debug.LogError("[Endless] SpawnBossFromNest failed: grave is null.");
+            //Debug.LogError("[Endless] SpawnBossFromNest failed: grave is null.");
             return null;
         }
 
-        EnemyController boss = EnemyFactory.CreateEnemyGetEnemyController(bossType, grave.transform.position, grave.transform.rotation);
+        EnemyController boss = EnemyFactory.CreateEnemyGetEnemyController(
+            bossType,
+            grave.transform.position,
+            grave.transform.rotation
+        );
 
         if (boss == null)
         {
@@ -632,6 +603,11 @@ public class EndlessMissionController : MissionController
         }
 
         GameSceneController.Instance.SetBossData(boss.enemy_data);
+
+        boss.IsBoss = true;
+        boss.enemyType = bossType;
+
+        Debug.Log("[Endless] Boss spawned: " + bossType + ", Base HP: " + boss.enemy_data.hp_capacity);
 
         return boss;
     }
@@ -712,7 +688,6 @@ public class EndlessMissionController : MissionController
         return waveDict.ContainsKey(dayLevel);
     }
 
-
     private void UpdateEnemyCounterUI()
     {
         if (enemyCounterText == null || GameSceneController.Instance == null) return;
@@ -721,18 +696,21 @@ public class EndlessMissionController : MissionController
         GameSceneController.Instance.game_main_panel.time_alive_panel.SetContent(
             timeSpan.Minutes.ToString("D2") + ":" + timeSpan.Seconds.ToString("D2"));
 
-        int count = GameSceneController.Instance.Enemy_Set.Count;
+        // Count only enemies affected by the spawn cap
+        int count = GameSceneController.Instance.Enemy_Set.Values.Count(
+            e => e != null && !e.ignoreSpawnLimit);
+
         int dayLevel = GameData.Instance.day_level;
         string waveLabel = "Wave " + dayLevel;
 
         StringBuilder sb = new StringBuilder();
         sb.AppendLine("Day: " + dayLevel + " (" + waveLabel + ")");
         sb.AppendLine("Enemies: " + count + " / " + maxEnemyCount);
-        sb.AppendLine("Spawn Rate: " + (1f / spawnRate).ToString("F1") + " per sec");
+        /*sb.AppendLine("Spawn Rate: " + (1f / spawnRate).ToString("F1") + " per sec");
         sb.AppendLine("Crystal Drop: " + crystalDropChance.ToString("F1") + "%");
         sb.AppendLine("Crystals Collected: " + crystalsCollected);
         sb.AppendLine("Gold Drop: " + goldDropChance.ToString("F1") + "%");
-        sb.AppendLine("Gold Collected: " + goldCollected);
+        sb.AppendLine("Gold Collected: " + goldCollected);*/
 
         enemyCounterText.text = sb.ToString();
     }
@@ -750,8 +728,16 @@ public class EndlessMissionController : MissionController
             {
                 previousLevel = currentLevel;
                 int levelIndex = (currentLevel - DayLevelStart) / DayLevelIncrement;
+
                 maxEnemyCount = 12 + (4 * levelIndex);
-                spawnRate = Mathf.Max(0.05f, 0.75f * Mathf.Pow(0.80f, levelIndex));
+
+                float baseRate = 0.90f;
+                float minRate = 0.02f;
+                spawnRate = Mathf.Max(minRate, 0.75f * Mathf.Pow(baseRate, levelIndex));
+
+                Debug.Log("[Endless] Day " + currentLevel +
+                          " | LevelIndex=" + levelIndex +
+                          " | SpawnRate=" + spawnRate);
             }
         }
     }
@@ -803,12 +789,12 @@ public class EndlessMissionController : MissionController
         EnemyType bossType = boss.enemy_data.enemy_type;
 
         EnemyType minionType = EnemyType.E_HALLOWEEN_SUB;
-        int minionCount = 2;
+        int minionCount = 1;
 
         if (bossType == EnemyType.E_HALLOWEEN_E)
         {
             minionType = EnemyType.E_HALLOWEEN_SUB_E;
-            minionCount = 3;
+            minionCount = 2;
         }
 
         Debug.Log("[HalloweenSummon] Boss enemy type: " + bossType);
@@ -875,7 +861,6 @@ public class EndlessMissionController : MissionController
 
         return clone;
     }
-
 
     public void ResumeEndlessGame()
     {

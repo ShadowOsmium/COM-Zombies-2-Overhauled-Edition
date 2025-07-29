@@ -17,13 +17,13 @@ public class UIMoneyController : MonoBehaviour
 
     public void UpdateInfo()
     {
-        if (GameData.Instance.blackname)
+        /*if (GameData.Instance.blackname)
         {
             CashLabel.Text = "9999999";
             CrystalLabel.Text = "9999999";
             VoucherLabel.Text = "9999999";
         }
-        else
+        else*/
         {
             CashLabel.Text = GameData.Instance.total_cash.ToString();
             CrystalLabel.Text = GameData.Instance.total_crystal.ToString();

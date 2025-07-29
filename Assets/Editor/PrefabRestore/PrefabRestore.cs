@@ -44,7 +44,6 @@ public class PrefabRestore : EditorWindow
             if (originalPrefab == null)
             {
                 Debug.LogWarning("Original prefab not found (empty prefab missing?): " + originalPrefabPath);
-                // You can optionally move the backup prefab back here or skip
                 continue;
             }
 

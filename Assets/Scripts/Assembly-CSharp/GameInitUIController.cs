@@ -5,9 +5,16 @@ using UnityEngine.Video;
 using UnityEngine.SceneManagement;
 using CoMZ2;
 using System;
+using UnityEngine.Networking;
 
 public class GameInitUIController : MonoBehaviour
 {
+    [Serializable]
+    private class GitHubRelease
+    {
+        public string tag_name;
+    }
+
     public VideoPlayer videoPlayer;
     public RawImage videoImage;
     public RenderTexture renderTexture;
@@ -31,35 +38,81 @@ public class GameInitUIController : MonoBehaviour
         GameData.CheckGameData();
     }
 
+    private string remoteVersion; // To store the fetched remote version
+
     private IEnumerator Start()
     {
         GameConfig.CheckGameConfig();
 
         bool loaded = GameData.Instance.LoadData();
         Debug.Log("Save loaded: " + loaded);
-        if (!loaded || GameData.Instance.needsUpdate)
-        {
-            Debug.Log("[Init] Blocking play due to update needed or load failed.");
-            SceneManager.LoadScene("GameCover");
-            yield break;
-        }
 
+        bool isNewSave = false;
+
+        // 1. Init save if load failed
         if (!loaded)
         {
             Debug.LogWarning("Save failed to load. Initializing new save.");
             GameData.Instance.Init();
-            GameData.Instance.game_version = Application.version;
+
+            string localVersion = LoadLocalVersionFromResources();
+            GameData.Instance.game_version = localVersion ?? "1.3.3";
             GameData.Instance.needsUpdate = false;
+
             GameData.Instance.SaveData();
-        }
-        else if (GameData.Instance.game_version != Application.version)
-        {
-            Debug.LogWarning("Save version mismatch. Patching save for new version.");
-            GameData.Instance.needsUpdate = true;
-            GameData.Instance.game_version = Application.version;
-            GameData.Instance.SaveData();
+
+            isNewSave = true; // mark this as a new save
         }
 
+        // 2. Attempt to get remote version
+        yield return StartCoroutine(GetRemoteGameVersion());
+
+        bool hasRemote = !string.IsNullOrEmpty(remoteVersion);
+        Debug.Log(string.Format("Remote Version: {0}, Local Version: {1}", remoteVersion, GameData.Instance.game_version));
+
+        if (hasRemote)
+        {
+            if (!VersionsMatch(GameData.Instance.game_version, remoteVersion))
+            {
+                Debug.LogWarning("Version mismatch detected. Forcing update.");
+
+                GameData.Instance.needsUpdate = true;
+                GameData.Instance.game_version = remoteVersion;
+                GameData.Instance.SaveData();
+
+                SceneManager.LoadScene("GameCover");
+                yield break;
+            }
+            else
+            {
+                GameData.Instance.needsUpdate = false;
+                GameData.Instance.SaveData();
+            }
+        }
+        else
+        {
+            // Offline check — only block if update is actually required
+            // AND this is NOT a new save
+            if (GameData.Instance.needsUpdate && !isNewSave)
+            {
+                Debug.LogWarning("Offline but update flagged. Blocking access.");
+                SceneManager.LoadScene("GameCover");
+                yield break;
+            }
+            else
+            {
+                Debug.Log("[Offline] No update needed or new save, allowing play.");
+            }
+
+#if UNITY_EDITOR || UNITY_STANDALONE
+            // Fallback to version.txt (editor/pc only)
+            string localVersion = LoadLocalVersionFromResources();
+            GameData.Instance.game_version = localVersion ?? "DEV-PC";
+            Debug.Log("[Editor] Loaded local version: " + GameData.Instance.game_version);
+#endif
+        }
+
+        // 3. Update login date
         if (GameData.Instance != null)
         {
             GameData.Instance.lastLoginDate = DateTime.Today;
@@ -67,14 +120,12 @@ public class GameInitUIController : MonoBehaviour
             Debug.Log("[Init] Updated lastLoginDate to: " + GameData.Instance.lastLoginDate);
         }
 
+        // 4. Continue initialization (ads, video, etc.)
         OpenClikPlugin.Initialize("A36F6C65-C1E3-47D4-AD07-AA8A6C90132C");
 
-        // This method only exists on real Android devices (not Editor or PC builds)
 #if UNITY_ANDROID && !UNITY_EDITOR
-        // Android native player path
-        yield return PlayAndroidVideosSequentially();
+    yield return PlayAndroidVideosSequentially();
 #else
-        // VideoPlayer path
         if (videoPlayer == null || videoImage == null || renderTexture == null)
         {
             Debug.LogError("Missing components: VideoPlayer, RawImage, or RenderTexture.");
@@ -87,13 +138,66 @@ public class GameInitUIController : MonoBehaviour
 
         AudioSource audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
-        {
             audioSource = gameObject.AddComponent<AudioSource>();
-        }
-        videoPlayer.SetTargetAudioSource(0, audioSource);
 
+        videoPlayer.SetTargetAudioSource(0, audioSource);
         yield return PlayVideoClip(promotionClip);
 #endif
+    }
+
+    private string LoadLocalVersionFromResources()
+    {
+        TextAsset versionAsset = Resources.Load<TextAsset>("version");
+        if (versionAsset != null)
+        {
+            return versionAsset.text.Trim();
+        }
+        Debug.LogWarning("Could not load version.txt from Resources.");
+        return null;
+    }
+
+    private IEnumerator GetRemoteGameVersion()
+    {
+        // Replace with your actual GitHub release URL or API endpoint
+        string url = "https://api.github.com/repos/ShadowOsmium/COM-Zombies-2-Overhauled-Edition/releases/latest";
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
+        {
+            // Send the request and wait for a response
+            yield return webRequest.SendWebRequest();
+
+            // Check for network errors
+            if (webRequest.isNetworkError || webRequest.isHttpError)
+            {
+                Debug.LogError("Error fetching remote version: " + webRequest.error);
+            }
+            else
+            {
+                // Parse the response to get the version
+                string jsonResponse = webRequest.downloadHandler.text;
+
+                try
+                {
+                    GitHubRelease release = JsonUtility.FromJson<GitHubRelease>(jsonResponse);
+                    remoteVersion = release.tag_name;
+
+                    if (!string.IsNullOrEmpty(remoteVersion))
+                    {
+                        remoteVersion = remoteVersion.Trim();
+                        if (remoteVersion.StartsWith("v"))
+                        {
+                            remoteVersion = remoteVersion.Substring(1);
+                        }
+                    }
+
+                    Debug.Log("Cleaned remote version: " + remoteVersion);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Failed to parse GitHub version: " + e);
+                }
+            }
+        }
     }
 
     // This method only exists on real Android devices (not Editor or PC builds)
@@ -243,10 +347,11 @@ private IEnumerator PlayAndroidVideosSequentially()
 
         LoadNextScene();
     }
-
     private void LoadNextScene()
     {
         PushNotification.ReSetNotifications();
+
+        Debug.Log("[LoadNextScene] needsUpdate: " + GameData.Instance.needsUpdate + ", is_enter_tutorial: " + GameData.Instance.is_enter_tutorial);
 
         if (GameData.Instance.needsUpdate)
         {
@@ -257,20 +362,25 @@ private IEnumerator PlayAndroidVideosSequentially()
 
         if (GameData.Instance.is_enter_tutorial)
         {
+            Debug.Log("[Init] Tutorial NOT completed, loading tutorial scene.");
+
             if (GameData.Instance.cur_quest_info == null)
                 GameData.Instance.cur_quest_info = new QuestInfo();
 
             GameData.Instance.cur_quest_info.mission_type = MissionType.Tutorial;
             GameData.Instance.cur_quest_info.mission_day_type = MissionDayType.Tutorial;
             GameData.Instance.loading_to_scene = "GameTutorial";
+
             SceneManager.LoadScene("Loading");
+            return;  // Important to return here to avoid falling through
         }
         else
         {
+            Debug.Log("[Init] Tutorial completed or skipped, loading default scene.");
+            // Tutorial done, go to normal game scene
             SceneManager.LoadScene(defaultNextScene);
         }
     }
-
 
     private void OnApplicationFocus(bool hasFocus)
     {
@@ -295,5 +405,10 @@ private IEnumerator PlayAndroidVideosSequentially()
                 Debug.Log("Pausing video on focus lost.");
             }
         }
+    }
+
+    private bool VersionsMatch(string local, string remote)
+    {
+        return local.Trim().ToLower() == remote.Trim().ToLower();
     }
 }
