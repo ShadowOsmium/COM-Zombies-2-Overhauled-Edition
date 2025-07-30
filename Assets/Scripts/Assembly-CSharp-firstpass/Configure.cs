@@ -142,22 +142,40 @@ public class Configure
 		return true;
 	}
 
+    public void AddSingle(string sectionName, string key, string value)
+    {
+        // Ensure section exists
+        if (GetSection(sectionName) == null)
+        {
+            AddSection(sectionName, "", "");
+        }
+
+        // If the key exists, update it
+        if (GetSingle(sectionName, key) != null)
+        {
+            SetSingle(sectionName, key, value);
+        }
+        else
+        {
+            // Otherwise, create a new entry
+            SetSingle(sectionName, key, value);
+        }
+    }
+
     public List<string> GetAllKeysInSection(string sectionName)
     {
         List<string> keys = new List<string>();
-        for (int i = 0; i < m_configure.Count; i++)
+
+        Section section = GetSection(sectionName);
+        if (section == null)
+            return keys;
+
+        for (int i = 0; i < section.values.Count; i++)
         {
-            Configure.Section section = m_configure[i] as Configure.Section;
-            if (section != null && section.section == sectionName)
+            Value val = section.values[i] as Value;
+            if (val != null && !string.IsNullOrEmpty(val.key))
             {
-                foreach (Configure.Value val in section.values)
-                {
-                    if (!string.IsNullOrEmpty(val.key))
-                    {
-                        keys.Add(val.key);
-                    }
-                }
-                break;
+                keys.Add(val.key);
             }
         }
         return keys;
@@ -476,7 +494,39 @@ public class Configure
 		return true;
 	}
 
-	public bool AddValueSingle(string section, string key, string value, string comment1, string comment2)
+    public bool RemoveSection(string sectionName)
+    {
+        for (int i = 0; i < m_configure.Count; i++)
+        {
+            Section section = m_configure[i] as Section;
+            if (section != null && section.section == sectionName)
+            {
+                m_configure.RemoveAt(i);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool RemoveValue(string section, string key)
+    {
+        Section sec = GetSection(section);
+        if (sec == null)
+            return false;
+
+        for (int i = 0; i < sec.values.Count; i++)
+        {
+            Value val = sec.values[i] as Value;
+            if (val != null && val.key == key)
+            {
+                sec.values.RemoveAt(i);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool AddValueSingle(string section, string key, string value, string comment1, string comment2)
 	{
 		Section section2 = GetSection(section);
 		if (section2 == null)

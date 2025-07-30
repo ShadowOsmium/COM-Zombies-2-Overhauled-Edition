@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.IO;
 
 public class TesterSaveManager : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class TesterSaveManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject); // prevent duplicates
+            Destroy(gameObject); // avoid duplicates
             return;
         }
         Instance = this;
@@ -23,7 +24,6 @@ public class TesterSaveManager : MonoBehaviour
     private string GetSaveFilePath(string key)
     {
         return Utils.SavePath() + MD5Sample.GetMd5String(key) + ".bytes";
-//      return Utils.SavePath() + SHA256Sample.GetSha256String(key).Substring(0, 32) + ".bytes";
     }
 
     public string CurrentSavePath
@@ -33,22 +33,19 @@ public class TesterSaveManager : MonoBehaviour
             if (allowTesterSaves)
             {
                 string testerPath = GetSaveFilePath(testerKey);
-                if (System.IO.File.Exists(testerPath))
+                if (File.Exists(testerPath))
                     return testerPath;
 
-                // Tester saves allowed but tester save missing → no fallback!
+                // Tester saves allowed but none found — no fallback to regular save
                 return null;
             }
             else
             {
                 string regularPath = GetSaveFilePath(regularKey);
-                if (System.IO.File.Exists(regularPath))
-                    return regularPath;
-
-                return null; // no save found
+                return File.Exists(regularPath) ? regularPath : null;
             }
         }
-    }   
+    }
 
     public bool LoadSave(GameData gameData)
     {
@@ -62,7 +59,8 @@ public class TesterSaveManager : MonoBehaviour
 
         Debug.Log("[TesterSaveManager] Loading save from: " + path);
 
-        bool loaded = gameData.LoadData(path);
+        // Your LoadData method now is parameterless, so just call it directly on GameData instance
+        bool loaded = gameData.LoadData();
 
         if (!loaded)
         {
@@ -72,22 +70,24 @@ public class TesterSaveManager : MonoBehaviour
 
         if (!allowTesterSaves && gameData.isTesterSave)
         {
-            Debug.LogWarning("[TesterSaveManager] Tester save was loaded via renamed file. Moving it back to tester path...");
+            Debug.LogWarning("[TesterSaveManager] Tester save was loaded in regular mode. Moving it back...");
 
             string realTesterPath = GetSaveFilePath(testerKey);
             string regularPath = GetSaveFilePath(regularKey);
 
-            if (path == regularPath && !System.IO.File.Exists(realTesterPath))
+            // Move the file back to tester path if it exists on regular path and tester path is missing
+            if (path == regularPath && !File.Exists(realTesterPath))
             {
-                System.IO.File.Move(regularPath, realTesterPath);
+                File.Move(regularPath, realTesterPath);
             }
 
-            if (System.IO.File.Exists(regularPath))
+            // Delete the regular save if it still exists
+            if (File.Exists(regularPath))
             {
-                System.IO.File.Delete(regularPath);
+                File.Delete(regularPath);
             }
 
-            return false;
+            return false; // Prevent loading tester save in regular mode
         }
 
         return true;
@@ -98,39 +98,28 @@ public class TesterSaveManager : MonoBehaviour
         allowTesterSaves = enable;
 
         if (enable)
-        {
             EnsureTesterSaveExists(gameData);
-        }
 
-        // Always reload the save after toggling
+        // Always reload the save after toggling mode
         if (!LoadSave(gameData))
-        {
             Debug.LogWarning("[TesterSaveManager] Reload after toggling tester saves failed.");
-        }
     }
-
 
     public void EnsureTesterSaveExists(GameData gameData)
     {
         string testerSavePath = GetSaveFilePath(testerKey);
 
-        if (!System.IO.File.Exists(testerSavePath))
+        if (!File.Exists(testerSavePath))
         {
-            Debug.Log("Creating new tester save file...");
+            Debug.Log("[TesterSaveManager] Creating new tester save file...");
             // Save current game data into tester save with tester flag on
-            gameData.SaveData(testerSavePath, true);
+            gameData.SaveData();
         }
     }
 
     public void SaveGame(GameData gameData)
     {
-        string savePath;
-
-        if (allowTesterSaves)
-            savePath = GetSaveFilePath(testerKey);
-        else
-            savePath = GetSaveFilePath(regularKey);
-
-        gameData.SaveData(savePath, allowTesterSaves);
+        string savePath = allowTesterSaves ? GetSaveFilePath(testerKey) : GetSaveFilePath(regularKey);
+        gameData.SaveData();
     }
 }
