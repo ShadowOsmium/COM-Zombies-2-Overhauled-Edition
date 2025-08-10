@@ -4,11 +4,9 @@ public class SceneRoamEvent : MonoBehaviour, IRoamEvent
 {
     void Update()
     {
-        //Debug.Log("Update running");
         if (Input.GetKeyDown(KeyCode.Space) && GameSceneController.Instance.is_play_cg)
         {
-            Debug.Log("Space pressed and is_play_cg true");
-            GameSceneController.Instance.is_skip_cg = true;
+            GameSceneController.Instance.StopCameraRoam();
             OnGameCgEnd();
         }
     }
@@ -40,19 +38,6 @@ public class SceneRoamEvent : MonoBehaviour, IRoamEvent
 			OnGameCgEnd();
 		}
 	}
-
-    public void SkipCutsceneManually()
-    {
-        Debug.Log("[SceneRoamEvent] SkipCutsceneManually called");
-
-        GameSceneController.Instance.is_skip_cg = true;
-        GameSceneController.Instance.is_play_cg = false;
-
-        CancelInvoke();
-        StopAllCoroutines();
-
-        OnGameCgEnd();
-    }
 
     private void OnGameCgEnd()
     {

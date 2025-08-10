@@ -11,10 +11,4 @@ public class RoamEvent : MonoBehaviour, IRoamEvent
     {
         Debug.Log(base.gameObject.name + ":RoamStop");
     }
-
-    public void SkipCutsceneManually()
-    {
-        Debug.Log(base.gameObject.name + ":SkipCutsceneManually");
-        OnRoamStop();
-    }
 }

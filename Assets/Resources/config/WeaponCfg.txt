@@ -201,7 +201,7 @@
   
   <!--Ion Cannon-->
   
-  <Weapon weapon_name="IonCannon" type="IonCannon" moveSpeedDrag="1.5" price="800000" showName="Ion Cannon" comment=""
+  <Weapon weapon_name="IonCannon" type="IonCannon" moveSpeedDrag="1.5" price="600000" showName="Ion Cannon" comment=""
           BuyCurrencyType="1" UpgradeCurrencyType="1" BulletShopCurrencyType="1" BulletBattleCurrencyType="1"
           battleButtleCountRatio ="1" bulletShopPrice="5500" bulletBalletPrice="5500" initBullet="100" buyBulletCount="240"
           maxLevel="30" upPriceRatio="70" AfterFireTime="1" ComboBase="2" CrystalUnlockPrice="699"
@@ -223,11 +223,11 @@
           maxLevel="30" upPriceRatio="60" AfterFireTime="1" ComboBase="1.5" CrystalUnlockPrice="799"
           upDamagePriceRatio="1" upFrequencyPriceRatio="1" upClipPriceRatio="1" upStretchPriceRatio="1" upRangePriceRatio="1"
           stretchRange="2" stretchRangeRun="5" AutoLock="0" Recoil="25" infinityAmmo="0" sellPrice="800000"
-          existState ="0" owner="All" dmgRatio="70" combination="3" unlockDay="-1" >
+          existState ="0" owner="All" dmgRatio="86" combination="3" unlockDay="-1" >
     <Frequency base="0.75" max="0.5" />
-    <stretchMaxRange base="15" max="15" />
-    <Clip base="40" max="40" />
-    <Range base="8" max="12" />
+    <stretchMaxRange base="10" max="10" />
+    <Clip base="30" max="30" />
+    <Range base="16" max="16" />
     <Ex frozenTime="2.5" />
   </Weapon>
   

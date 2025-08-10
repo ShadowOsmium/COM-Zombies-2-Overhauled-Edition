@@ -47,6 +47,8 @@ public class GameData : MonoBehaviour
 
     public int daily_mission_count;
 
+    public bool didResetSave = false;
+
     public QuestInfo EndlessQuestInfo;
 
     public int lottery_reset_count;
@@ -107,6 +109,13 @@ public class GameData : MonoBehaviour
     private GameDataInt _total_crystal = new GameDataInt(0);
 
     private GameDataInt _total_voucher = new GameDataInt(0);
+
+    private Queue<DateTime> recentSaveTimestamps = new Queue<DateTime>();
+
+    private const int MaxSavesInWindow = 6;
+
+    private readonly TimeSpan SaveWindow = TimeSpan.FromSeconds(3);
+
 
     public MissionType mission_type
     {
@@ -173,6 +182,10 @@ public class GameData : MonoBehaviour
 
     private bool loadedFromLegacySave = false;
 
+    public DateTime lastLotteryAwardTime = DateTime.MinValue;
+
+    public int lastSavedFreeSpins = 0;
+
     private int sessionCashSpent = 0;
 
     private int sessionCrystalSpent = 0;
@@ -192,6 +205,12 @@ public class GameData : MonoBehaviour
     public string NickName = string.Empty;
 
     public int FightStrength;
+
+    private bool isLoading = false;
+
+    private bool isLoaded = false;
+
+    private bool isSaving = false;
 
     public bool rewardSafeMode = false;
 
@@ -335,6 +354,7 @@ public class GameData : MonoBehaviour
 
             isNewSave = true;
 
+            // Always start tutorial on brand new save or after reset
             is_enter_tutorial = true;
 
             if (Application.platform == RuntimePlatform.IPhonePlayer && Screen.height >= 700)
@@ -345,6 +365,18 @@ public class GameData : MonoBehaviour
             SaveData();
             UploadStatistics("FirstTime", new Hashtable());
             showUpdatePoster = true;
+        }
+        else
+        {
+            // If save loaded successfully, check if reset flag is set
+            if (didResetSave)
+            {
+                Debug.Log("Detected save reset flag. Triggering tutorial.");
+
+                is_enter_tutorial = true;
+                didResetSave = false;   // Clear the flag so tutorial only runs once
+                SaveData();            // Save flag clear immediately
+            }
         }
 
         // Set the game version AFTER attempting to load
@@ -401,263 +433,310 @@ public class GameData : MonoBehaviour
 
     public void SaveData()
     {
-        Configure configure = new Configure();
-        configure.AddSection("Save", string.Empty, string.Empty);
-
-        // === CORE VALUES ===
-        configure.AddValueSingle("Save", "IAPResend_android", Iap_Resend.Get_IAP_android_list(), "", "");
-        configure.AddValueSingle("Save", "Cash", total_cash.ToString(), "", "");
-        configure.AddValueSingle("Save", "Crystal", total_crystal.ToString(), "", "");
-        configure.AddValueSingle("Save", "Voucher", total_voucher.ToString(), "", "");
-        configure.AddValueSingle("Save", "TapjoyPoints", tapjoyPoints.ToString(), "", "");
-        configure.AddValueSingle("Save", "DayLevel", day_level.ToString(), "", "");
-        configure.AddValueSingle("Save", "AvatarType", ((int)cur_avatar).ToString(), "", "");
-        configure.AddValueSingle("Save", "SensitivityRatio", sensitivity_ratio.ToString(), "", "");
-        configure.AddValueSingle("Save", "Version", game_version, "", "");
-        configure.AddValueSingle("Save", "EnterShopCount", enter_shop_count.ToString(), "", "");
-        configure.AddValueSingle("Save", "TimeserverUrl", timeserver_url, "", "");
-        configure.AddValueSingle("Save", "StatisticsUrl", statistics_url, "", "");
-        configure.AddValueSingle("Save", "IapUrl", iap_check_url, "", "");
-        configure.AddValueSingle("Save", "RedeemGetUrl", redeem_get_url, "", "");
-        configure.AddValueSingle("Save", "RedeemAcceptUrl", redeem_accept_url, "", "");
-        configure.AddValueSingle("Save", "RedeemAwardRatio", redeem_change_ratio.ToString(), "", "");
-        configure.AddValueSingle("Save", "NickName", NickName, "", "");
-        configure.AddValueSingle("Save", "ShowNicknamePrompt", showNicknamePrompt ? "0" : "1", "", "");
-        configure.AddValueSingle("Save", "Blackname", blackname ? "1" : "0", "", "");
-        configure.AddValueSingle("Save", "EnterTutorial", is_enter_tutorial ? "1" : "0", "", "");
-        configure.AddValueSingle("Save", "ShowUITutorial", show_ui_tutorial ? "1" : "0", "", "");
-        configure.AddValueSingle("Save", "ShowUITutorialWeapon", show_ui_tutorial_weapon ? "1" : "0", "", "");
-        configure.AddValueSingle("Save", "IapCheck", TRINITI_IAP_CEHCK ? "1" : "0", "", "");
-        configure.AddValueSingle("Save", "NeedsUpdate", needsUpdate ? "1" : "0", "", "");
-        configure.AddValueSingle("Save", "LastResetDate", lastResetDate.ToString("o"), "", "");
-        configure.AddValueSingle("Save", "LastResetSystemTime", lastResetSystemTime.ToString("o"), "", "");
-        configure.AddValueSingle("Save", "MaxDateReached", maxDateReached.ToString("o"), "", "");
-        configure.AddValueSingle("Save", "LastSafeCash", lastSavedCash.ToString(), "", "");
-        configure.AddValueSingle("Save", "LastSafeCrystal", lastSavedCrystal.ToString(), "", "");
-        configure.AddValueSingle("Save", "LastSafeVoucher", lastSavedVoucher.ToString(), "", "");
-        configure.AddValueSingle("Save", "LastSavedFreeSpins", lastSavedFreeSpins.ToString(), "", "");
-        configure.AddValueSingle("Save", "DailyMissionCount", daily_mission_count.ToString(), "", "");
-        configure.AddValueSingle("Save", "LastMissionCompleteDate", lastMissionCompleteDate, "", "");
-
-        // === HASH FOR ANTI-TAMPER ===
-        string dataString = total_cash + "|" + total_crystal + "|" + total_voucher + "|" +
-                            tapjoyPoints + "|" + day_level + "|" + enter_shop_count + "|" +
-                            lastSavedCash + "|" + lastSavedCrystal + "|" + lastSavedVoucher;
-        string dataHash = GenerateDataHash(configure);
-        configure.AddValueSingle("Save", "DataHash", dataHash, "", "");
-
-        // === USED PROMO CODES ===
-        string usedPromoCodesJoined = string.Join(",", new List<string>(usedPromoCodes).ToArray());
-        configure.AddValueSingle("Save", "UsedPromoCodes", usedPromoCodesJoined, "", "");
-
-        // === SAVE DATE ===
-        finally_save_date = GetCurDateTime();
-        configure.AddValueSingle("Save", "SaveDate", finally_save_date.ToString(), "", "");
-
-        // === WEAPON DATA ===
-        ArrayList arrayList = new ArrayList();
-        foreach (WeaponData value in WeaponData_Set.Values)
+        if (blackname == true)
         {
-            StringLine line = new StringLine();
-            line.AddString(value.weapon_name);
-            line.AddString(((int)value.weapon_type).ToString());
-            line.AddString(value.level.ToString());
-            line.AddString(value.total_bullet_count.ToString());
-            line.AddString(((int)value.exist_state).ToString());
-            line.AddString(value.damage_level.ToString());
-            line.AddString(value.frequency_level.ToString());
-            line.AddString(value.clip_level.ToString());
-            line.AddString(value.range_level.ToString());
-            line.AddString(value.stretch_level.ToString());
-            arrayList.Add(line.content);
-        }
-        configure.AddValueArray2("Save", "WeaponsData", arrayList, "", "");
-        configure.AddValueSingle("Save", "WeaponsDataCount", arrayList.Count.ToString(), "", "");
-
-        // === AVATAR DATA ===
-        ArrayList arrayList2 = new ArrayList();
-        foreach (AvatarData value2 in AvatarData_Set.Values)
-        {
-            StringLine line2 = new StringLine();
-            line2.AddString(value2.avatar_name);
-            line2.AddString(((int)value2.avatar_type).ToString());
-            line2.AddString("null");
-            line2.AddString(value2.level.ToString());
-            line2.AddString(value2.armor_level.ToString());
-            line2.AddString(value2.cur_exp.ToString());
-            line2.AddString(((int)value2.exist_state).ToString());
-            line2.AddString(value2.primary_equipment);
-            line2.AddString(value2.hp_level.ToString());
-            line2.AddString(value2.damage_level.ToString());
-            foreach (string item in value2.skill_list)
-            {
-                line2.AddString(item);
-            }
-            arrayList2.Add(line2.content);
-        }
-        configure.AddValueArray2("Save", "AvatarsData", arrayList2, "", "");
-        configure.AddValueSingle("Save", "AvatarsDataCount", arrayList2.Count.ToString(), "", "");
-
-        // === SKILL DATA ===
-        ArrayList arrayList3 = new ArrayList();
-        foreach (SkillData value3 in Skill_Avatar_Set.Values)
-        {
-            StringLine line3 = new StringLine();
-            line3.AddString(value3.skill_name);
-            line3.AddString(value3.level.ToString());
-            line3.AddString(((int)value3.exist_state).ToString());
-            arrayList3.Add(line3.content);
-        }
-        configure.AddValueArray2("Save", "SkillAvatarData", arrayList3, "", "");
-        configure.AddValueSingle("Save", "SkillAvatarDataCount", arrayList3.Count.ToString(), "", "");
-
-        // === STORY PROB DATA ===
-        ArrayList arrayList4 = new ArrayList();
-        foreach (string key in GameStoryProbs_Set.Keys)
-        {
-            StringLine line4 = new StringLine();
-            line4.AddString(key);
-            line4.AddString(GameStoryProbs_Set[key].count.ToString());
-            arrayList4.Add(line4.content);
-        }
-        configure.AddValueArray2("Save", "StoryProbData", arrayList4, "", "");
-        configure.AddValueSingle("Save", "StoryProbDataCount", arrayList4.Count.ToString(), "", "");
-
-        // === FRAGMENT PROB DATA ===
-        ArrayList arrayList5 = new ArrayList();
-        foreach (string key2 in WeaponFragmentProbs_Set.Keys)
-        {
-            StringLine line5 = new StringLine();
-            line5.AddString(key2);
-            line5.AddString(WeaponFragmentProbs_Set[key2].count.ToString());
-            arrayList5.Add(line5.content);
-        }
-        configure.AddValueArray2("Save", "FragmentProbData", arrayList5, "", "");
-        configure.AddValueSingle("Save", "FragmentProbDataCount", arrayList5.Count.ToString(), "", "");
-
-        // === INTENSIFIER PROB DATA ===
-        ArrayList arrayList6 = new ArrayList();
-        foreach (string key3 in WeaponIntensifierProbs_Set.Keys)
-        {
-            StringLine line6 = new StringLine();
-            line6.AddString(key3);
-            line6.AddString(WeaponIntensifierProbs_Set[key3].count.ToString());
-            arrayList6.Add(line6.content);
-        }
-        configure.AddValueArray2("Save", "IntensifierProbData", arrayList6, "", "");
-        configure.AddValueSingle("Save", "IntensifierProbDataCount", arrayList6.Count.ToString(), "", "");
-
-        // === ENEMY LOAD DATA ===
-        ArrayList arrayList7 = new ArrayList();
-        foreach (string key4 in Enemy_Loading_Set.Keys)
-        {
-            StringLine line7 = new StringLine();
-            line7.AddString(key4);
-            line7.AddString(Enemy_Loading_Set[key4].ToString());
-            arrayList7.Add(line7.content);
-        }
-        configure.AddValueArray2("Save", "EnemyLoadData", arrayList7, "", "");
-        configure.AddValueSingle("Save", "EnemyLoadDataCount", arrayList7.Count.ToString(), "", "");
-
-        // === LOTTERY SEAT DATA ===
-        StringLine line8 = new StringLine();
-        foreach (string item2 in lottery_seat_state)
-        {
-            line8.AddString(item2);
-        }
-        configure.AddValueArray("Save", "LotterySeatData", line8.content, "", "");
-        configure.AddValueSingle("Save", "LotterySeatCount", lottery_seat_state.Count.ToString(), "", "");
-
-        // === CONFIG VERSION DATA ===
-        ArrayList arrayList8 = new ArrayList();
-        foreach (string key5 in GameConfig.Instance.Config_Version_Set.Keys)
-        {
-            StringLine line9 = new StringLine();
-            line9.AddString(key5);
-            line9.AddString(GameConfig.Instance.Config_Version_Set[key5]);
-            arrayList8.Add(line9.content);
-        }
-        configure.AddValueArray2("Save", "ConfigVersion", arrayList8, "", "");
-        configure.AddValueSingle("Save", "ConfigVersionCount", arrayList8.Count.ToString(), "", "");
-
-        // === IAP FAILED INFO ===
-        configure.AddValueSingle("Save", "IapFailedCount", Iap_failed_info.Count.ToString(), "", "");
-        if (Iap_failed_info.Count > 0)
-        {
-            int num2 = 1;
-            foreach (string key6 in Iap_failed_info.Keys)
-            {
-                configure.AddValueSingle("Save", "IapFailedInfoTid" + num2, key6, "", "");
-                string data = Iap_failed_info[key6];
-                data = DataEncipher(data);
-                Utils.FileWriteString(Utils.SavePath() + MD5Sample.GetMd5String("IapFailedInfoReceipt" + num2) + ".bytes", data);
-                num2++;
-            }
-        }
-
-        // === ENCRYPT AND SAVE FILE ===
-        string data2 = configure.Save();
-        data2 = DataEncipher(data2);
-        Utils.FileWriteString(Utils.SavePath() + MD5Sample.GetMd5String("CoMZ2") + ".bytes", data2);
-    }
-
-    public void DumpConfigureSectionFull(string sectionName)
-    {
-        if (configure == null)
-        {
-            Debug.LogWarning("DumpConfigureSectionFull: configure is null!");
+            Debug.LogWarning("Suspicious save detected.");
+            MenuAudioController.DestroyGameMenuAudio();
+            Instance.didResetSave = true;
+            Instance.Init();
+            Instance.blackname = false;
+            SceneManager.LoadScene("InitScene");
             return;
         }
 
-        var keys = configure.GetAllKeysInSection(sectionName);
-        Debug.Log("[DumpConfigureSectionFull] Dumping keys and values for section: " + sectionName);
-
-        foreach (var key in keys)
+        if (isSaving)
         {
-            var val = configure.GetSingle(sectionName, key);
-
-            if (val != null)
-            {
-                // Single value, print directly
-                Debug.Log(string.Format("[{0}] {1} = {2}", sectionName, key, val));
-                continue;
-            }
-
-            // Maybe it’s an Array type?
-            int countArray = configure.CountArray(sectionName, key);
-            if (countArray > 0)
-            {
-                string arrayValues = "";
-                for (int i = 0; i < countArray; i++)
-                {
-                    arrayValues += configure.GetArray(sectionName, key, i);
-                    if (i < countArray - 1) arrayValues += ", ";
-                }
-                Debug.Log(string.Format("[{0}] {1} = [ {2} ]", sectionName, key, arrayValues));
-                continue;
-            }
-
-            // Maybe Array2 type?
-            int countArray2 = configure.CountArray2(sectionName, key);
-            if (countArray2 > 0)
-            {
-                Debug.Log(string.Format("[{0}] {1} = [ Array2 count: {2} ]", sectionName, key, countArray2));
-                for (int i = 0; i < countArray2; i++)
-                {
-                    int innerCount = configure.CountArray2(sectionName, key, i);
-                    string innerValues = "";
-                    for (int j = 0; j < innerCount; j++)
-                    {
-                        innerValues += configure.GetArray2(sectionName, key, i, j);
-                        if (j < innerCount - 1) innerValues += ", ";
-                    }
-                    Debug.Log(string.Format("\t[{0}]: {1}", i, innerValues));
-                }
-                continue;
-            }
-
-            Debug.Log(string.Format("[{0}] {1} = <unknown or empty>", sectionName, key));
+            Debug.LogWarning("SaveData is already running, skipping duplicate call.");
+            return;
         }
+        isSaving = true;
+
+        try
+        {
+            Configure configure = new Configure();
+            configure.AddSection("Save", string.Empty, string.Empty);
+
+            // === CORE VALUES ===
+            configure.AddValueSingle("Save", "IAPResend_android", Iap_Resend.Get_IAP_android_list(), "", "");
+            configure.AddValueSingle("Save", "Cash", total_cash.ToString(), "", "");
+            configure.AddValueSingle("Save", "Crystal", total_crystal.ToString(), "", "");
+            configure.AddValueSingle("Save", "Voucher", total_voucher.ToString(), "", "");
+            configure.AddValueSingle("Save", "TapjoyPoints", tapjoyPoints.ToString(), "", "");
+            configure.AddValueSingle("Save", "DayLevel", day_level.ToString(), "", "");
+            configure.AddValueSingle("Save", "AvatarType", ((int)cur_avatar).ToString(), "", "");
+            configure.AddValueSingle("Save", "SensitivityRatio", sensitivity_ratio.ToString(), "", "");
+            configure.AddValueSingle("Save", "Version", game_version, "", "");
+            configure.AddValueSingle("Save", "EnterShopCount", enter_shop_count.ToString(), "", "");
+            configure.AddValueSingle("Save", "TimeserverUrl", timeserver_url, "", "");
+            configure.AddValueSingle("Save", "StatisticsUrl", statistics_url, "", "");
+            configure.AddValueSingle("Save", "IapUrl", iap_check_url, "", "");
+            configure.AddValueSingle("Save", "RedeemGetUrl", redeem_get_url, "", "");
+            configure.AddValueSingle("Save", "RedeemAcceptUrl", redeem_accept_url, "", "");
+            configure.AddValueSingle("Save", "RedeemAwardRatio", redeem_change_ratio.ToString(), "", "");
+            configure.AddValueSingle("Save", "NickName", NickName, "", "");
+            configure.AddValueSingle("Save", "ShowNicknamePrompt", showNicknamePrompt ? "0" : "1", "", "");
+            configure.AddValueSingle("Save", "Blackname", blackname ? "1" : "0", "", "");
+            configure.AddValueSingle("Save", "EnterTutorial", is_enter_tutorial ? "1" : "0", "", "");
+            configure.AddValueSingle("Save", "ShowUITutorial", show_ui_tutorial ? "1" : "0", "", "");
+            configure.AddValueSingle("Save", "ShowUITutorialWeapon", show_ui_tutorial_weapon ? "1" : "0", "", "");
+            configure.AddValueSingle("Save", "IapCheck", TRINITI_IAP_CEHCK ? "1" : "0", "", "");
+            configure.AddValueSingle("Save", "NeedsUpdate", needsUpdate ? "1" : "0", "", "");
+            configure.AddValueSingle("Save", "LastResetDate", lastResetDate.ToString("o"), "", "");
+            configure.AddValueSingle("Save", "LastResetSystemTime", lastResetSystemTime.ToString("o"), "", "");
+            configure.AddValueSingle("Save", "MaxDateReached", maxDateReached.ToString("o"), "", "");
+            configure.AddValueSingle("Save", "LastSafeCash", lastSavedCash.ToString(), "", "");
+            configure.AddValueSingle("Save", "LastSafeCrystal", lastSavedCrystal.ToString(), "", "");
+            configure.AddValueSingle("Save", "LastSafeVoucher", lastSavedVoucher.ToString(), "", "");
+            configure.AddValueSingle("Save", "LastSavedFreeSpins", lastSavedFreeSpins.ToString(), "", "");
+            configure.AddValueSingle("Save", "DailyMissionCount", daily_mission_count.ToString(), "", "");
+            configure.AddValueSingle("Save", "LastMissionCompleteDate", lastMissionCompleteDate, "", "");
+
+            string dataString = total_cash + "|" + total_crystal + "|" + total_voucher + "|" +
+                                tapjoyPoints + "|" + day_level + "|" + enter_shop_count + "|" +
+                                lastSavedCash + "|" + lastSavedCrystal + "|" + lastSavedVoucher;
+            string dataHash = GenerateDataHash(configure);
+            configure.AddValueSingle("Save", "DataHash", dataHash, "", "");
+
+            // === USED PROMO CODES ===
+            string usedPromoCodesJoined = string.Join(",", new List<string>(usedPromoCodes).ToArray());
+            configure.AddValueSingle("Save", "UsedPromoCodes", usedPromoCodesJoined, "", "");
+
+            // === SAVE DATE ===
+            finally_save_date = GetCurDateTime();
+            configure.AddValueSingle("Save", "SaveDate", finally_save_date.ToString(), "", "");
+
+            // === WEAPON DATA ===
+            ArrayList arrayList = new ArrayList();
+            foreach (WeaponData value in WeaponData_Set.Values)
+            {
+                StringLine line = new StringLine();
+                line.AddString(value.weapon_name);
+                line.AddString(((int)value.weapon_type).ToString());
+                line.AddString(value.level.ToString());
+                line.AddString(value.total_bullet_count.ToString());
+                line.AddString(((int)value.exist_state).ToString());
+                line.AddString(value.damage_level.ToString());
+                line.AddString(value.frequency_level.ToString());
+                line.AddString(value.clip_level.ToString());
+                line.AddString(value.range_level.ToString());
+                line.AddString(value.stretch_level.ToString());
+                arrayList.Add(line.content);
+            }
+            configure.AddValueArray2("Save", "WeaponsData", arrayList, "", "");
+            configure.AddValueSingle("Save", "WeaponsDataCount", arrayList.Count.ToString(), "", "");
+
+            // === AVATAR DATA ===
+            ArrayList arrayList2 = new ArrayList();
+            foreach (AvatarData value2 in AvatarData_Set.Values)
+            {
+                StringLine line2 = new StringLine();
+                line2.AddString(value2.avatar_name);
+                line2.AddString(((int)value2.avatar_type).ToString());
+                line2.AddString("null");
+                line2.AddString(value2.level.ToString());
+                line2.AddString(value2.armor_level.ToString());
+                line2.AddString(value2.cur_exp.ToString());
+                line2.AddString(((int)value2.exist_state).ToString());
+                line2.AddString(value2.primary_equipment);
+                line2.AddString(value2.hp_level.ToString());
+                line2.AddString(value2.damage_level.ToString());
+                foreach (string item in value2.skill_list)
+                {
+                    line2.AddString(item);
+                }
+                arrayList2.Add(line2.content);
+            }
+            configure.AddValueArray2("Save", "AvatarsData", arrayList2, "", "");
+            configure.AddValueSingle("Save", "AvatarsDataCount", arrayList2.Count.ToString(), "", "");
+
+            // === SKILL DATA ===
+            ArrayList arrayList3 = new ArrayList();
+            foreach (SkillData value3 in Skill_Avatar_Set.Values)
+            {
+                StringLine line3 = new StringLine();
+                line3.AddString(value3.skill_name);
+                line3.AddString(value3.level.ToString());
+                line3.AddString(((int)value3.exist_state).ToString());
+                arrayList3.Add(line3.content);
+            }
+            configure.AddValueArray2("Save", "SkillAvatarData", arrayList3, "", "");
+            configure.AddValueSingle("Save", "SkillAvatarDataCount", arrayList3.Count.ToString(), "", "");
+
+            // === STORY PROB DATA ===
+            ArrayList arrayList4 = new ArrayList();
+            foreach (string key in GameStoryProbs_Set.Keys)
+            {
+                StringLine line4 = new StringLine();
+                line4.AddString(key);
+                line4.AddString(GameStoryProbs_Set[key].count.ToString());
+                arrayList4.Add(line4.content);
+            }
+            configure.AddValueArray2("Save", "StoryProbData", arrayList4, "", "");
+            configure.AddValueSingle("Save", "StoryProbDataCount", arrayList4.Count.ToString(), "", "");
+
+            // === FRAGMENT PROB DATA ===
+            ArrayList arrayList5 = new ArrayList();
+            foreach (string key2 in WeaponFragmentProbs_Set.Keys)
+            {
+                StringLine line5 = new StringLine();
+                line5.AddString(key2);
+                line5.AddString(WeaponFragmentProbs_Set[key2].count.ToString());
+                arrayList5.Add(line5.content);
+            }
+            configure.AddValueArray2("Save", "FragmentProbData", arrayList5, "", "");
+            configure.AddValueSingle("Save", "FragmentProbDataCount", arrayList5.Count.ToString(), "", "");
+
+            // === INTENSIFIER PROB DATA ===
+            ArrayList arrayList6 = new ArrayList();
+            foreach (string key3 in WeaponIntensifierProbs_Set.Keys)
+            {
+                StringLine line6 = new StringLine();
+                line6.AddString(key3);
+                line6.AddString(WeaponIntensifierProbs_Set[key3].count.ToString());
+                arrayList6.Add(line6.content);
+            }
+            configure.AddValueArray2("Save", "IntensifierProbData", arrayList6, "", "");
+            configure.AddValueSingle("Save", "IntensifierProbDataCount", arrayList6.Count.ToString(), "", "");
+
+            // === ENEMY LOAD DATA ===
+            ArrayList arrayList7 = new ArrayList();
+            foreach (string key4 in Enemy_Loading_Set.Keys)
+            {
+                StringLine line7 = new StringLine();
+                line7.AddString(key4);
+                line7.AddString(Enemy_Loading_Set[key4].ToString());
+                arrayList7.Add(line7.content);
+            }
+            configure.AddValueArray2("Save", "EnemyLoadData", arrayList7, "", "");
+            configure.AddValueSingle("Save", "EnemyLoadDataCount", arrayList7.Count.ToString(), "", "");
+
+            // === LOTTERY SEAT DATA ===
+            StringLine line8 = new StringLine();
+            foreach (string item2 in lottery_seat_state)
+            {
+                line8.AddString(item2);
+            }
+            configure.AddValueArray("Save", "LotterySeatData", line8.content, "", "");
+            configure.AddValueSingle("Save", "LotterySeatCount", lottery_seat_state.Count.ToString(), "", "");
+
+            // === CONFIG VERSION DATA ===
+            ArrayList arrayList8 = new ArrayList();
+            foreach (string key5 in GameConfig.Instance.Config_Version_Set.Keys)
+            {
+                StringLine line9 = new StringLine();
+                line9.AddString(key5);
+                line9.AddString(GameConfig.Instance.Config_Version_Set[key5]);
+                arrayList8.Add(line9.content);
+            }
+            configure.AddValueArray2("Save", "ConfigVersion", arrayList8, "", "");
+            configure.AddValueSingle("Save", "ConfigVersionCount", arrayList8.Count.ToString(), "", "");
+
+            // === IAP FAILED INFO ===
+            /*configure.AddValueSingle("Save", "IapFailedCount", Iap_failed_info.Count.ToString(), "", "");
+
+            if (Iap_failed_info.Count > 0)
+            {
+                int num2 = 1;
+                foreach (string key6 in Iap_failed_info.Keys)
+                {
+                    configure.AddValueSingle("Save", "IapFailedInfoTid" + num2, key6, "", "");
+                    string data = Iap_failed_info[key6];
+                    data = DataEncipher(data);
+                    Utils.FileWriteString(Utils.SavePath() + MD5Sample.GetMd5String("IapFailedInfoReceipt" + num2) + ".bytes", data);
+                    num2++;
+                }
+            }*/
+
+            string data2 = configure.Save();
+            data2 = DataEncipher(data2);
+            Utils.FileWriteString(Utils.SavePath() + MD5Sample.GetMd5String("CoMZ2") + ".bytes", data2);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("[Save] Exception while saving data: " + ex);
+        }
+        finally
+        {
+            isSaving = false;
+            Debug.Log("[Save] Save data successfully written.");
+        }
+    }
+
+    public bool LoadData()
+    {
+        if (isLoaded)
+        {
+            Debug.Log("[GameData] LoadData called but data is already loaded — skipping.");
+            return true;
+        }
+
+        string mainSavePath = Utils.SavePath() + MD5Sample.GetMd5String("CoMZ2") + ".bytes";
+
+        Func<string, bool> tryLoadSave = (string path) =>
+        {
+            string content = string.Empty;
+            if (!Utils.FileReadString(path, ref content))
+            {
+                Debug.LogWarning("[Load] Save file not found or unreadable: " + path);
+                return false;
+            }
+
+            try
+            {
+                Configure configure = new Configure();
+                content = DataDecrypt(content);
+                configure.Load(content);
+
+                // Verify integrity with hash check
+                string savedHash = configure.GetSingle("Save", "DataHash");
+                string calculatedHash = GenerateDataHash(configure);
+
+                if (string.IsNullOrEmpty(savedHash) || savedHash != calculatedHash)
+                {
+                    Debug.LogWarning("[Load] DataHash mismatch or missing! Save file corrupted: " + path);
+                    return false;
+                }
+
+                // If hash matches, proceed with loading all data
+                LoadBasicStats(configure);
+                LoadPlayerSettings(configure);
+                LoadTutorialFlagsOnly(configure);
+                LoadUrlsAndFlags(configure);
+                LoadUsedPromoCodes(configure);
+                HandleDailyReset(configure);
+                LoadResetDatesSafely(configure);
+                LoadIAPResendAndroid(configure);
+                LoadWeapons(configure);
+                LoadAvatars(configure);
+                LoadSkills(configure);
+                LoadProbabilities(configure);
+                LoadFreeSpinCount(configure);
+                LoadLotterySeatState(configure);
+                LoadRollbackDate(configure);
+
+                // Promo codes again in case needed
+                string usedCodes = configure.GetSingle("Save", "UsedPromoCodes");
+                if (!string.IsNullOrEmpty(usedCodes))
+                    usedPromoCodes = new HashSet<string>(usedCodes.Split(','));
+
+                isLoaded = true;
+                Debug.Log("[Load] Successfully loaded save file: " + path);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[Load] Exception while loading save file: " + path + "\n" + ex);
+                return false;
+            }
+        };
+
+        // Try main save first
+        if (tryLoadSave(mainSavePath))
+            return true;
+
+        Debug.LogError("[Load] Main save failed to load. Resetting to default data.");
+        Init();
+        return false;
     }
 
     private void EnsureDefault(string section, string key, string defaultValue)
@@ -667,49 +746,6 @@ public class GameData : MonoBehaviour
             configure.AddSingle(section, key, defaultValue);
             Debug.Log("[SaveData] Added missing default: " + key + " = " + defaultValue);
         }
-    }
-
-    private bool isLoaded = false;
-    public bool LoadData()
-    {
-        if (isLoaded)
-        {
-            Debug.Log("[GameData] LoadData called but data is already loaded — skipping.");
-            return true;
-        }
-
-        string content = string.Empty;
-        if (!Utils.FileReadString(Utils.SavePath() + MD5Sample.GetMd5String("CoMZ2") + ".bytes", ref content))
-            return false;
-
-        Configure configure = new Configure();
-        content = DataDecrypt(content);
-        configure.Load(content);
-
-        LoadBasicStats(configure);
-        LoadPlayerSettings(configure);
-        LoadTutorialFlagsOnly(configure);
-        LoadUrlsAndFlags(configure);
-        LoadUsedPromoCodes(configure);
-        HandleDailyReset(configure);
-        LoadResetDatesSafely(configure);
-        LoadIAPResendAndroid(configure);
-
-        LoadWeapons(configure);
-        LoadAvatars(configure);
-        LoadSkills(configure);
-        LoadProbabilities(configure);
-        LoadFreeSpinCount(configure);
-        LoadLotterySeatState(configure);
-        LoadRollbackDate(configure);
-
-        // Promo codes
-        string usedCodes = configure.GetSingle("Save", "UsedPromoCodes");
-        if (!string.IsNullOrEmpty(usedCodes))
-            usedPromoCodes = new HashSet<string>(usedCodes.Split(','));
-
-        isLoaded = true;
-        return true;
     }
 
     private void LoadBasicStats(Configure configure)
@@ -774,7 +810,7 @@ public class GameData : MonoBehaviour
         needsUpdate = ParseBoolSafe(configure.GetSingle("Save", "NeedsUpdate"), false);
         Debug.Log("Loaded NeedsUpdate: " + needsUpdate);
 
-        iap_check_url = "http://192.225.224.97:7600/gameapi/GameCommon.do?action=groovy&json=";
+        //iap_check_url = "http://192.225.224.97:7600/gameapi/GameCommon.do?action=groovy&json=";
         TRINITI_IAP_CEHCK = ParseBoolSafe(configure.GetSingle("Save", "IapCheck"), TRINITI_IAP_CEHCK);
     }
 
@@ -1221,11 +1257,13 @@ public class GameData : MonoBehaviour
         }
     }
 
-    public DateTime lastLotteryAwardTime = DateTime.MinValue;
-    public int lastSavedFreeSpins = 0;
-
     private bool CheckCurrencyJumpAndUpdateState()
     {
+        if (!CheckSaveFrequency())
+        {
+            return false;
+        }
+
         DateTime now = DateTime.Now;
 
         int currentCash = Math.Min(1500000, Math.Max(0, total_cash.GetIntVal()));
@@ -1250,7 +1288,6 @@ public class GameData : MonoBehaviour
         TimeSpan gracePeriod = TimeSpan.FromSeconds(2);
         bool inGracePeriod = (now - lastLotteryAwardTime) < gracePeriod;
 
-        // Skip anti-cheat on lottery reward or grace period
         if (justReceivedLotteryReward || inGracePeriod)
         {
             suspiciousSaveCount = 0;
@@ -1275,7 +1312,6 @@ public class GameData : MonoBehaviour
             return true;
         }
 
-        // Detect suspicious jumps
         if (cashJump || crystalJump || voucherJump || freeSpinJump)
         {
             suspiciousSaveCount++;
@@ -1290,7 +1326,6 @@ public class GameData : MonoBehaviour
             return false;
         }
 
-        // Detect frozen values on rapid saves
         bool isFirstSave = lastSaveTime == DateTime.MinValue;
         if (!isFirstSave)
         {
@@ -1340,244 +1375,6 @@ public class GameData : MonoBehaviour
             return true;
         }
         return true;
-    }
-
-    private void PopulateConfigureValues(bool isTesterSave)
-    {
-        Debug.Log("[PopulateConfigureValues] Start populating...");
-        SetOrAddSingle("Save", "IAPResend_android", Iap_Resend.Get_IAP_android_list());
-        SetOrAddSingle("Save", "Cash", total_cash.ToString());
-        SetOrAddSingle("Save", "Crystal", total_crystal.ToString());
-        SetOrAddSingle("Save", "Voucher", total_voucher.ToString());
-
-        string dataToHash = total_cash.ToString() + "|" + total_crystal.ToString() + "|" + total_voucher.ToString()
-                            + "|" + tapjoyPoints.ToString()
-                            + "|" + day_level.ToString()
-                            + "|" + enter_shop_count.ToString()
-                            + "|" + lastSavedCash.ToString()
-                            + "|" + lastSavedCrystal.ToString()
-                            + "|" + lastSavedVoucher.ToString();
-        string dataHash = GenerateDataHash(configure);
-        SetOrAddSingle("Save", "DataHash", dataHash);
-        SetOrAddSingle("Save", "TapjoyPoints", tapjoyPoints.ToString());
-        SetOrAddSingle("Save", "DayLevel", day_level.ToString());
-        SetOrAddSingle("Save", "AvatarType", ((int)cur_avatar).ToString());
-        SetOrAddSingle("Save", "SensitivityRatio", sensitivity_ratio.ToString());
-        SetOrAddSingle("Save", "Version", game_version);
-        SetOrAddSingle("Save", "EnterShopCount", enter_shop_count.ToString());
-        SetOrAddSingle("Save", "TimeserverUrl", timeserver_url);
-        SetOrAddSingle("Save", "StatisticsUrl", statistics_url);
-        SetOrAddSingle("Save", "NeedsUpdate", needsUpdate ? "1" : "0");
-        Debug.Log("Saving NeedsUpdate: " + (needsUpdate ? "1" : "0"));
-        SetOrAddSingle("Save", "IapUrl", iap_check_url);
-        SetOrAddSingle("Save", "RedeemGetUrl", redeem_get_url);
-        SetOrAddSingle("Save", "RedeemAcceptUrl", redeem_accept_url);
-        SetOrAddSingle("Save", "RedeemAwardRatio", redeem_change_ratio.ToString());
-        SetOrAddSingle("Save", "NickName", NickName);
-        SetOrAddSingle("Save", "ShowNicknamePrompt", showNicknamePrompt ? "0" : "1");
-        SetOrAddSingle("Save", "Blackname", blackname ? "1" : "0");
-        SetOrAddSingle("Save", "LastResetDate", lastResetDate.ToString("o"));
-        SetOrAddSingle("Save", "LastResetSystemTime", lastResetSystemTime.ToString("o"));
-        SetOrAddSingle("Save", "MaxDateReached", maxDateReached.ToString("o"));
-        SetOrAddSingle("Save", "EnterTutorial", is_enter_tutorial ? "1" : "0");
-        SetOrAddSingle("Save", "ShowUITutorial", show_ui_tutorial ? "1" : "0");
-        SetOrAddSingle("Save", "ShowUITutorialWeapon", show_ui_tutorial_weapon ? "1" : "0");
-        SetOrAddSingle("Save", "IapCheck", TRINITI_IAP_CEHCK ? "1" : "0");
-        SetOrAddSingle("Save", "LastSafeCash", lastSavedCash.ToString());
-        SetOrAddSingle("Save", "LastSafeCrystal", lastSavedCrystal.ToString());
-        SetOrAddSingle("Save", "LastSafeVoucher", lastSavedVoucher.ToString());
-        SetOrAddSingle("Save", "LastSavedFreeSpins", lastSavedFreeSpins.ToString());
-        SetOrAddSingle("Save", "DailyMissionCount", daily_mission_count.ToString());
-        SetOrAddSingle("Save", "LastMissionCompleteDate", lastMissionCompleteDate);
-
-        SaveFreeSpinCount();
-
-        string usedPromoCodesJoined = string.Join(",", new List<string>(usedPromoCodes).ToArray());
-        SetOrAddSingle("Save", "UsedPromoCodes", usedPromoCodesJoined);
-    }
-
-    private void SaveWeaponsData()
-    {
-        if (configure.GetSection("Save") == null)
-            configure.AddSection("Save", "", "");
-
-        var weaponsArray = new ArrayList();
-        foreach (WeaponData weapon in WeaponData_Set.Values)
-        {
-            var line = new StringLine();
-            line.AddString(weapon.weapon_name);
-            line.AddString(((int)weapon.weapon_type).ToString());
-            line.AddString(weapon.level.ToString());
-            line.AddString(weapon.total_bullet_count.ToString());
-            line.AddString(((int)weapon.exist_state).ToString());
-            line.AddString(weapon.damage_level.ToString());
-            line.AddString(weapon.frequency_level.ToString());
-            line.AddString(weapon.clip_level.ToString());
-            line.AddString(weapon.range_level.ToString());
-            line.AddString(weapon.stretch_level.ToString());
-            weaponsArray.Add(line.content);
-        }
-
-        AddValueArray2("Save", "WeaponsData", weaponsArray);
-        SetOrAddSingle("Save", "WeaponsDataCount", weaponsArray.Count.ToString());
-    }
-
-    private void SaveAvatarsData()
-    {
-        if (configure.GetSection("Save") == null)
-            configure.AddSection("Save", "", "");
-
-        var avatarsArray = new ArrayList();
-        foreach (AvatarData avatar in AvatarData_Set.Values)
-        {
-            var line = new StringLine();
-            line.AddString(avatar.avatar_name);
-            line.AddString(((int)avatar.avatar_type).ToString());
-            line.AddString("null"); // legacy placeholder
-            line.AddString(avatar.level.ToString());
-            line.AddString(avatar.armor_level.ToString());
-            line.AddString(avatar.cur_exp.ToString());
-            line.AddString(((int)avatar.exist_state).ToString());
-            line.AddString(avatar.primary_equipment);
-            line.AddString(avatar.hp_level.ToString());
-            line.AddString(avatar.damage_level.ToString());
-            foreach (string skill in avatar.skill_list)
-                line.AddString(skill);
-            avatarsArray.Add(line.content);
-        }
-
-        AddValueArray2("Save", "AvatarsData", avatarsArray);
-        SetOrAddSingle("Save", "AvatarsDataCount", avatarsArray.Count.ToString());
-    }
-
-    private void SaveSkillAvatarData()
-    {
-        if (configure.GetSection("Save") == null)
-            configure.AddSection("Save", "", "");
-
-        var skillArray = new ArrayList();
-        foreach (SkillData skillData in Skill_Avatar_Set.Values)
-        {
-            var line = new StringLine();
-            line.AddString(skillData.skill_name);
-            line.AddString(skillData.level.ToString());
-            line.AddString(((int)skillData.exist_state).ToString());
-            skillArray.Add(line.content);
-        }
-
-        AddValueArray2("Save", "SkillAvatarData", skillArray);
-        SetOrAddSingle("Save", "SkillAvatarDataCount", skillArray.Count.ToString());
-    }
-
-    private void SaveStoryProbData()
-    {
-        if (configure.GetSection("Save") == null)
-            configure.AddSection("Save", "", "");
-
-        var storyProbArray = new ArrayList();
-        foreach (string key in GameStoryProbs_Set.Keys)
-        {
-            var line = new StringLine();
-            line.AddString(key);
-            line.AddString(GameStoryProbs_Set[key].count.ToString());
-            storyProbArray.Add(line.content);
-        }
-
-        AddValueArray2("Save", "StoryProbData", storyProbArray);
-        SetOrAddSingle("Save", "StoryProbDataCount", storyProbArray.Count.ToString());
-    }
-
-    private void SaveFragmentProbData()
-    {
-        if (configure.GetSection("Save") == null)
-            configure.AddSection("Save", "", "");
-
-        var fragmentProbArray = new ArrayList();
-        foreach (string key in WeaponFragmentProbs_Set.Keys)
-        {
-            var line = new StringLine();
-            line.AddString(key);
-            line.AddString(WeaponFragmentProbs_Set[key].count.ToString());
-            fragmentProbArray.Add(line.content);
-        }
-
-        AddValueArray2("Save", "FragmentProbData", fragmentProbArray);
-        SetOrAddSingle("Save", "FragmentProbDataCount", fragmentProbArray.Count.ToString());
-    }
-
-    private void SaveIntensifierProbData()
-    {
-        if (configure.GetSection("Save") == null)
-            configure.AddSection("Save", "", "");
-
-        var intensifierProbArray = new ArrayList();
-        foreach (string key in WeaponIntensifierProbs_Set.Keys)
-        {
-            var line = new StringLine();
-            line.AddString(key);
-            line.AddString(WeaponIntensifierProbs_Set[key].count.ToString());
-            intensifierProbArray.Add(line.content);
-        }
-
-        AddValueArray2("Save", "IntensifierProbData", intensifierProbArray);
-        SetOrAddSingle("Save", "IntensifierProbDataCount", intensifierProbArray.Count.ToString());
-    }
-
-    private void SaveEnemyLoadData()
-    {
-        if (configure.GetSection("Save") == null)
-            configure.AddSection("Save", "", "");
-
-        var enemyLoadArray = new ArrayList();
-        foreach (string key in Enemy_Loading_Set.Keys)
-        {
-            var line = new StringLine();
-            line.AddString(key);
-            line.AddString(Enemy_Loading_Set[key].ToString());
-            enemyLoadArray.Add(line.content);
-        }
-
-        AddValueArray2("Save", "EnemyLoadData", enemyLoadArray);
-        SetOrAddSingle("Save", "EnemyLoadDataCount", enemyLoadArray.Count.ToString());
-    }
-
-    private void SaveLotterySeatData()
-    {
-        if (configure.GetSection("Save") == null)
-            configure.AddSection("Save", "", "");
-
-        var lotterySeatLine = new StringLine();
-        foreach (string seat in lottery_seat_state)
-            lotterySeatLine.AddString(seat);
-
-        // Add the combined string (like original)
-        AddValueArray("Save", "LotterySeatData", lotterySeatLine.content);
-
-        SetOrAddSingle("Save", "LotterySeatCount", lottery_seat_state.Count.ToString());
-
-        var dailySeatArray = new ArrayList();
-        for (int i = 0; i < lottery_seat_state.Count; i++)
-            dailySeatArray.Add(lottery_seat_state[i] ?? "null");
-
-        AddValueArray2("Save", "LotterySeatState", dailySeatArray);
-    }
-
-    private void SaveConfigVersionData()
-    {
-        if (configure.GetSection("Save") == null)
-            configure.AddSection("Save", "", "");
-
-        var configVersionArray = new ArrayList();
-        foreach (string key in GameConfig.Instance.Config_Version_Set.Keys)
-        {
-            var line = new StringLine();
-            line.AddString(key);
-            line.AddString(GameConfig.Instance.Config_Version_Set[key]);
-            configVersionArray.Add(line.content);
-        }
-
-        AddValueArray2("Save", "ConfigVersion", configVersionArray);
-        SetOrAddSingle("Save", "ConfigVersionCount", configVersionArray.Count.ToString());
     }
 
     public void AddFreeLotterySpins(int amount, bool force = false)
@@ -1710,6 +1507,63 @@ public class GameData : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    public void DumpConfigureSectionFull(string sectionName)
+    {
+        /*if (configure == null)
+        {
+            Debug.LogWarning("DumpConfigureSectionFull: configure is null!");
+            return;
+        }
+
+        var keys = configure.GetAllKeysInSection(sectionName);
+        Debug.Log("[DumpConfigureSectionFull] Dumping keys and values for section: " + sectionName);
+
+        foreach (var key in keys)
+        {
+            var val = configure.GetSingle(sectionName, key);
+
+            if (val != null)
+            {
+                // Single value, print directly
+                Debug.Log(string.Format("[{0}] {1} = {2}", sectionName, key, val));
+                continue;
+            }
+
+            int countArray = configure.CountArray(sectionName, key);
+            if (countArray > 0)
+            {
+                string arrayValues = "";
+                for (int i = 0; i < countArray; i++)
+                {
+                    arrayValues += configure.GetArray(sectionName, key, i);
+                    if (i < countArray - 1) arrayValues += ", ";
+                }
+                Debug.Log(string.Format("[{0}] {1} = [ {2} ]", sectionName, key, arrayValues));
+                continue;
+            }
+
+            int countArray2 = configure.CountArray2(sectionName, key);
+            if (countArray2 > 0)
+            {
+                Debug.Log(string.Format("[{0}] {1} = [ Array2 count: {2} ]", sectionName, key, countArray2));
+                for (int i = 0; i < countArray2; i++)
+                {
+                    int innerCount = configure.CountArray2(sectionName, key, i);
+                    string innerValues = "";
+                    for (int j = 0; j < innerCount; j++)
+                    {
+                        innerValues += configure.GetArray2(sectionName, key, i, j);
+                        if (j < innerCount - 1) innerValues += ", ";
+                    }
+                    Debug.Log(string.Format("\t[{0}]: {1}", i, innerValues));
+                }
+                continue;
+            }
+
+            Debug.Log(string.Format("[{0}] {1} = <unknown or empty>", sectionName, key));
+        }*/
     }
 
     private void SaveFreeSpinCount()
@@ -1917,6 +1771,30 @@ public class GameData : MonoBehaviour
         return usedPromoCodes;
     }
 
+    public void SaveBlacklistFlagOnly()
+    {
+        Configure configure = new Configure();
+        configure.AddSection("Save", string.Empty, string.Empty);
+
+        // Save just the blacklist flag + required fields with safe defaults
+        configure.AddValueSingle("Save", "Blackname", "1", "", "");
+
+        // Add minimal required fields with default/empty values to keep format valid
+        configure.AddValueSingle("Save", "Cash", total_cash.ToString(), "", "");
+        configure.AddValueSingle("Save", "Crystal", total_crystal.ToString(), "", "");
+        configure.AddValueSingle("Save", "Voucher", total_voucher.ToString(), "", "");
+        // ... add any other required fields with defaults or last known good values
+
+        // Generate the hash for the current minimal configure
+        string dataHash = GenerateDataHash(configure);
+        configure.AddValueSingle("Save", "DataHash", dataHash, "", "");
+
+        string dataString = configure.Save();
+        dataString = DataEncipher(dataString);
+        Utils.FileWriteString(Utils.SavePath() + MD5Sample.GetMd5String("CoMZ2") + ".bytes", dataString);
+    }
+
+
     public void SetMapMissionList(ref List<QuestInfo> mInfos)
     {
         int key;
@@ -2054,6 +1932,34 @@ public class GameData : MonoBehaviour
         return list;
     }
 
+    private bool CheckSaveFrequency()
+    {
+        DateTime now = DateTime.Now;
+
+        while (recentSaveTimestamps.Count > 0 && (now - recentSaveTimestamps.Peek()) > SaveWindow)
+        {
+            recentSaveTimestamps.Dequeue();
+        }
+
+        recentSaveTimestamps.Enqueue(now);
+
+        if (recentSaveTimestamps.Count > MaxSavesInWindow)
+        {
+            suspiciousSaveCount++;
+            Debug.LogWarning("Save spam detected, incrementing suspiciousSaveCount: " + suspiciousSaveCount);
+
+            if (suspiciousSaveCount >= maxSuspiciousSaves)
+            {
+                blackname = true;
+                Debug.LogWarning("Player blacklisted due to rapid save spam!");
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
     public float GetSideEnemyStandardReward()
     {
         float paraA = GameConfig.Instance.Standary_Enemy_Info.ParaA;
@@ -2075,6 +1981,7 @@ public class GameData : MonoBehaviour
     {
         float sideEnemyStandardRewardTotal = GetSideEnemyStandardRewardTotal();
         int result = 0;
+        Debug.Log("[RewardCalc] is_crazy_daily: " + Instance.is_crazy_daily + ", crazy_daily param: " + crazy_daily);
 
         switch (mission_day_type)
         {
@@ -2133,31 +2040,6 @@ public class GameData : MonoBehaviour
         return result;
     }
 
-    private void AddValueArray(string section, string key, ArrayList values)
-    {
-        if (configure.GetSection(section) == null)
-            configure.AddSection(section, "", "");
-
-        if (configure.GetValue(section, key) != null)
-            configure.RemoveValue(section, key);
-
-        string combined = string.Join(",", (string[])values.ToArray(typeof(string)));
-
-        configure.AddValueArray(section, key, combined, "", "");
-    }
-
-    private void AddValueArray(string section, string key, string singleValue)
-    {
-        if (configure.GetSection(section) == null)
-            configure.AddSection(section, "", "");
-
-        if (configure.GetValue(section, key) != null)
-            configure.RemoveValue(section, key);
-
-        configure.AddValueArray(section, key, singleValue, "", "");
-    }
-
-
     public int GetMissionRewardCrystal(MissionType mission_type, MissionDayType mission_day_type)
     {
         int result = 0;
@@ -2184,28 +2066,36 @@ public class GameData : MonoBehaviour
     }
 
     // Important Daily Stuff
-    public int GetMissionRewardVoucher(MissionType mission_type, MissionDayType mission_day_type, int crazy_daily = 0)
+    public int GetMissionRewardVoucher(MissionType mission_type, MissionDayType mission_day_type, int crazy_daily = 0, bool applyMultiplier = true)
     {
         int result = 0;
+        var info = GameConfig.Instance.Mission_Finish_Reward_Info;
+        float multiplier = 1f;
+
+        if (applyMultiplier)
+        {
+            if (Instance.day_level >= 85)
+                multiplier = 2f;
+            else if (Instance.day_level >= 35)
+                multiplier = 1.5f;
+        }
+
         switch (mission_day_type)
         {
             case MissionDayType.Daily:
                 switch (crazy_daily)
                 {
-                    case 0:
-                        result = !Instance.is_crazy_daily
-                            ? (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_base * GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_a)
-                            : (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_base * GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_b);
+                    case 0:  // Normal daily
+                        result = (int)(info.daily_ratio_voucher_base * info.daily_ratio_voucher_a * multiplier);
                         break;
-                    case 1:
-                        result = (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_base * GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_a);
-                        if (GameData.Instance.day_level > 35)
-                            result = (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_a * 20); // scale vouchers with day level
+                    case 1:  // Crazy daily type A
+                        result = (int)(info.daily_ratio_voucher_base * info.daily_ratio_voucher_a * multiplier);
                         break;
-                    case 2:
-                        result = (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_base * GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_b);
-                        if (GameData.Instance.day_level > 85)
-                            result = (int)(GameConfig.Instance.Mission_Finish_Reward_Info.daily_ratio_voucher_b * 20); // scale vouchers with day level
+                    case 2:  // Crazy daily type B
+                        result = (int)(info.daily_ratio_voucher_base * info.daily_ratio_voucher_b * multiplier);
+                        break;
+                    default:
+                        result = (int)(info.daily_ratio_voucher_base * info.daily_ratio_voucher_a * multiplier);
                         break;
                 }
                 break;
@@ -2231,8 +2121,34 @@ public class GameData : MonoBehaviour
                 result = 5;
                 break;
         }
+
         return result;
     }
+
+    private void AddValueArray(string section, string key, ArrayList values)
+    {
+        if (configure.GetSection(section) == null)
+            configure.AddSection(section, "", "");
+
+        if (configure.GetValue(section, key) != null)
+            configure.RemoveValue(section, key);
+
+        string combined = string.Join(",", (string[])values.ToArray(typeof(string)));
+
+        configure.AddValueArray(section, key, combined, "", "");
+    }
+
+    private void AddValueArray(string section, string key, string singleValue)
+    {
+        if (configure.GetSection(section) == null)
+            configure.AddSection(section, "", "");
+
+        if (configure.GetValue(section, key) != null)
+            configure.RemoveValue(section, key);
+
+        configure.AddValueArray(section, key, singleValue, "", "");
+    }
+
 
     private void AddValueArray2(string section, string key, ArrayList values)
     {

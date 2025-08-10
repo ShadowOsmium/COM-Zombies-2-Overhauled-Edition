@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using CoMZ2;
 using TNetSdk;
@@ -65,7 +65,7 @@ public class HalloweenSubController : EnemyController
 
     public override void Init()
     {
-        Debug.Log("HalloweenSubController.Init() running � self: " + gameObject.name);
+        Debug.Log("HalloweenSubController.Init() running — self: " + gameObject.name);
 
         if (enemy_data == null || enemy_data.config == null || enemy_data.config.Ex_conf == null)
         {
@@ -76,25 +76,62 @@ public class HalloweenSubController : EnemyController
         ApplyInit(GameSceneController.Instance.GetBossData());
     }
 
-    public void ApplyInit(EnemyData bossData)
+    public void ApplyInit(EnemyData linkedBossData)
     {
-        if (bossData == null)
+        EnemyData bossData = null;
+
+        if (linkedBossData != null && linkedBossData != this.enemy_data)
         {
-            Debug.LogError("[HalloweenSubController.ApplyInit] Boss data is NULL for " + gameObject.name);
-            return;
+            Debug.Log("[HalloweenSubController] Using linked boss data for " + gameObject.name);
+            bossData = linkedBossData;
+        }
+        else if (GameSceneController.Instance != null &&
+                 GameSceneController.Instance.GetBossData() != null &&
+                 GameSceneController.Instance.GetBossData() != this.enemy_data)
+        {
+            Debug.Log("[HalloweenSubController] Using GameSceneController boss data for " + gameObject.name);
+            bossData = GameSceneController.Instance.GetBossData();
+        }
+        else
+        {
+            Debug.LogWarning("[HalloweenSubController] Boss data missing or same as minion. Using fallback scaling for " + gameObject.name);
+            bossData = this.enemy_data;
         }
 
+        float finalHp = 1000f; // safe default
+        bool usingFallback = (bossData == this.enemy_data);
+
+        if (!usingFallback)
+        {
+            // ✅ Proper scaling from boss data
+            float hp_ratio = (enemy_data != null && enemy_data.config != null && enemy_data.config.Ex_conf.ContainsKey("replicationHpRatio"))
+                ? (float)enemy_data.config.Ex_conf["replicationHpRatio"]
+                : 0.15f;
+
+            finalHp = bossData.hp_capacity * hp_ratio;
+            Debug.Log("[HalloweenSubController] Minion HP scaled from boss: " + finalHp);
+        }
+        else
+        {
+            // ✅ Fallback scaling
+            float baseHp = (enemy_data.hp_capacity > 0f) ? enemy_data.hp_capacity : 1000f;
+            float scalingRatio = 0.25f; // fallback 25% of minion's own HP
+            finalHp = baseHp * scalingRatio;
+
+            Debug.LogWarning("[HalloweenSubController] Fallback minion HP used: " + finalHp);
+        }
+
+        enemy_data.hp_capacity = finalHp;
+        enemy_data.cur_hp = finalHp;
+
+        // --- Rest of your initialization ---
         ANI_IDLE = "Zombie_Hook_Demon_Idle01";
         ANI_ATTACK = "Zombie_Hook_Demon_Attack01";
         ANI_INJURED = "Zombie_Hook_Demon_Damage01";
         ANI_DEAD = "Zombie_Hook_Demon_Death01";
         ANI_RUN = "Zombie_Hook_Demon_Run01";
-        ANI_SHOW = "Zombie_Hook_Demon_Show01";
-        ANI_HALF_HP = "Zombie_Hook_Demon_Bellow01";
         ANI_SHOW = ANI_REPLICATION_02;
-
-        float hp_ratio = (float)enemy_data.config.Ex_conf["replicationHpRatio"];
-        enemy_data.cur_hp = (enemy_data.hp_capacity = bossData.hp_capacity * hp_ratio);
+        ANI_HALF_HP = "Zombie_Hook_Demon_Bellow01";
 
         base.Init();
 

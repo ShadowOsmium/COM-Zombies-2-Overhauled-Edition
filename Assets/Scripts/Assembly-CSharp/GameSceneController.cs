@@ -1036,7 +1036,7 @@ public class GameSceneController : MonoBehaviour
         bool isEndless = GameData.Instance.cur_quest_info != null &&
                          GameData.Instance.cur_quest_info.mission_day_type == MissionDayType.Endless;
 
-        int maxRevives = isEndless ? 2 : int.MaxValue;
+        int maxRevives = isEndless ? 3 : int.MaxValue;
 
         if (player_death_count >= maxRevives)
         {
@@ -1049,22 +1049,15 @@ public class GameSceneController : MonoBehaviour
 
         int cur_rebirth_cost;
 
-        if (isEndless)
+        if (!isEndless)
         {
-            if (player_death_count == 0)
-            {
-                cur_rebirth_cost = 5;
-            }
-            else
-            {
-                cur_rebirth_cost = 10;
-            }
+            cur_rebirth_cost = 5 * (player_death_count);
+            if (cur_rebirth_cost > 25)
+                cur_rebirth_cost = 25;
         }
         else
         {
-            cur_rebirth_cost = 5 * (player_death_count + 1);
-            if (cur_rebirth_cost > 25)
-                cur_rebirth_cost = 25;
+            cur_rebirth_cost = (player_death_count == 0) ? 5 : 10;
         }
 
         this.cur_rebirth_cost = cur_rebirth_cost;
@@ -1095,53 +1088,16 @@ public class GameSceneController : MonoBehaviour
         int num = 0;  // Cash
         int num2 = 0; // Crystal
         int num3 = 0; // Voucher
-
+        int crazyDailyType = GameData.Instance.is_crazy_daily ? 2 : 1;
         MissionDayType mission_day_type = GameData.Instance.cur_quest_info.mission_day_type;
 
         // --- Base mission reward calculation ---
+        MissionController mc = GetComponent<MissionController>();
 
-        if (mission_day_type == MissionDayType.Main)
-        {
-            int rewardDayLevel = GameData.Instance.day_level - 1;
-            if (rewardDayLevel < 1)
-                rewardDayLevel = 1;
+        num = GameData.Instance.GetMissionRewardCash(mc.mission_type, mission_day_type);
+        num2 = GameData.Instance.GetMissionRewardCrystal(mc.mission_type, mission_day_type);
 
-            if (GameConfig.Instance.Main_Quest_Difficulty_Set.ContainsKey(rewardDayLevel))
-            {
-                num = (int)GameConfig.Instance.Main_Quest_Difficulty_Set[rewardDayLevel].finish_reward;
-            }
-            else
-            {
-                Debug.LogWarning("No main mission reward data for day_level: " + rewardDayLevel);
-                num = 0;
-            }
-
-            // You can add similar logic for crystals and vouchers if needed, or set to fixed/default:
-            num2 = GameData.Instance.GetMissionRewardCrystal(
-                GetComponent<MissionController>().mission_type,
-                mission_day_type
-            );
-            num3 = GameData.Instance.GetMissionRewardVoucher(
-                GetComponent<MissionController>().mission_type,
-                mission_day_type
-            );
-        }
-        else
-        {
-            // Non-main missions just use existing getters as usual
-            num = GameData.Instance.GetMissionRewardCash(
-                GetComponent<MissionController>().mission_type,
-                mission_day_type
-            );
-            num2 = GameData.Instance.GetMissionRewardCrystal(
-                GetComponent<MissionController>().mission_type,
-                mission_day_type
-            );
-            num3 = GameData.Instance.GetMissionRewardVoucher(
-                GetComponent<MissionController>().mission_type,
-                mission_day_type
-            );
-        }
+        num3 = GameData.Instance.GetMissionRewardVoucher(mc.mission_type, mission_day_type, crazyDailyType, false);
 
         // --- Daily mission bonus (only for Daily missions) ---
         bool isDaily = (mission_day_type == MissionDayType.Daily);
@@ -1150,19 +1106,16 @@ public class GameSceneController : MonoBehaviour
 
         if (isDaily && dayBonus85)
         {
-            num = Mathf.RoundToInt(num * 3f);
-            //num2 = Mathf.RoundToInt(num2 * 2f);
+            //num = Mathf.RoundToInt(num * 3f);
             num3 = Mathf.RoundToInt(num3 * 2f);
         }
         else if (isDaily && dayBonus35)
         {
-            num = Mathf.RoundToInt(num * 1.5f);
-            //num2 = Mathf.RoundToInt(num2 * 1.5f);
+            //num = Mathf.RoundToInt(num * 1.5f);
             num3 = Mathf.RoundToInt(num3 * 1.5f);
         }
 
         // --- Add rewards to GameData and create reward list ---
-
         if (num > 0)
         {
             GameData.Instance.total_cash.SetIntVal(
@@ -1196,8 +1149,7 @@ public class GameSceneController : MonoBehaviour
             Debug.Log("Mission reward voucher: " + num3);
         }
 
-        // --- Handle unlocks for main and tutorial missions (unchanged) ---
-
+        // --- Handle unlocks for main and tutorial missions ---
         if (mission_day_type != MissionDayType.Daily)
         {
             if (mission_day_type == MissionDayType.Tutorial)
@@ -1206,44 +1158,57 @@ public class GameSceneController : MonoBehaviour
             }
             else if (mission_day_type == MissionDayType.Main)
             {
-                string empty = string.Empty;
-
-                if (GameConfig.Instance.Main_Quest_Order.ContainsKey(GameData.Instance.day_level) &&
-                    GameConfig.Instance.Main_Quest_Order[GameData.Instance.day_level].reward_weapon != string.Empty)
+                // Detect which main quest day this mission belongs to
+                int completedDay = -1;
+                foreach (KeyValuePair<int, QuestInfo> kvp in GameConfig.Instance.Main_Quest_Order)
                 {
-                    string reward_weapon = GameConfig.Instance.Main_Quest_Order[GameData.Instance.day_level].reward_weapon;
-                    Debug.Log("unlock weapon:" + reward_weapon);
-                    if (GameData.Instance.WeaponData_Set[reward_weapon].Unlock())
+                    if (kvp.Value.scene_name == GameData.Instance.cur_quest_info.scene_name)
                     {
-                        Debug.Log("weapon:" + reward_weapon + " is unlocked, buy in the shop.");
-                        unlock_new_weapon_name = reward_weapon;
-                        unlock_new_weapon = true;
-
-                        UnlockInGame unlockInGame = new UnlockInGame();
-                        unlockInGame.Type = UnlockInGame.UnlockType.Weapon;
-                        unlockInGame.Name = reward_weapon;
-                        GameData.Instance.UnlockList.Add(unlockInGame);
+                        completedDay = kvp.Key;
+                        break;
                     }
                 }
 
-                if (GameConfig.Instance.Main_Quest_Order.ContainsKey(GameData.Instance.day_level) &&
-                    GameConfig.Instance.Main_Quest_Order[GameData.Instance.day_level].avatar != AvatarType.None)
+                if (completedDay != -1)
                 {
-                    AvatarType avatar = GameConfig.Instance.Main_Quest_Order[GameData.Instance.day_level].avatar;
-                    if (GameData.Instance.AvatarData_Set[avatar].Unlock())
+                    QuestInfo questData = GameConfig.Instance.Main_Quest_Order[completedDay];
+
+                    // --- Weapon unlock ---
+                    if (!string.IsNullOrEmpty(questData.reward_weapon))
                     {
-                        Debug.Log(string.Concat(avatar, " unlocked."));
-                        empty = empty + " " + avatar;
-                        unlock_new_avatar_name = GameData.Instance.AvatarData_Set[avatar].avatar_name;
-                        unlock_new_avatar = true;
+                        string reward_weapon = questData.reward_weapon;
+                        Debug.Log("unlock weapon: " + reward_weapon);
+                        if (GameData.Instance.WeaponData_Set[reward_weapon].Unlock())
+                        {
+                            Debug.Log("weapon: " + reward_weapon + " is unlocked, buy in the shop.");
+                            unlock_new_weapon_name = reward_weapon;
+                            unlock_new_weapon = true;
 
-                        gameReward = new GameReward(GameReward.GameRewardType.AVATAR, avatar.ToString() + "_01_icon", 1);
-                        list.Add(gameReward);
+                            UnlockInGame unlockInGame = new UnlockInGame();
+                            unlockInGame.Type = UnlockInGame.UnlockType.Weapon;
+                            unlockInGame.Name = reward_weapon;
+                            GameData.Instance.UnlockList.Add(unlockInGame);
+                        }
+                    }
 
-                        UnlockInGame unlockInGame2 = new UnlockInGame();
-                        unlockInGame2.Type = UnlockInGame.UnlockType.Avatar;
-                        unlockInGame2.Name = GameData.Instance.AvatarData_Set[avatar].avatar_name;
-                        GameData.Instance.UnlockList.Add(unlockInGame2);
+                    // --- Avatar unlock ---
+                    if (questData.avatar != AvatarType.None)
+                    {
+                        AvatarType avatar = questData.avatar;
+                        if (GameData.Instance.AvatarData_Set[avatar].Unlock())
+                        {
+                            Debug.Log(avatar + " unlocked.");
+                            unlock_new_avatar_name = GameData.Instance.AvatarData_Set[avatar].avatar_name;
+                            unlock_new_avatar = true;
+
+                            gameReward = new GameReward(GameReward.GameRewardType.AVATAR, avatar.ToString() + "_01_icon", 1);
+                            list.Add(gameReward);
+
+                            UnlockInGame unlockInGame2 = new UnlockInGame();
+                            unlockInGame2.Type = UnlockInGame.UnlockType.Avatar;
+                            unlockInGame2.Name = GameData.Instance.AvatarData_Set[avatar].avatar_name;
+                            GameData.Instance.UnlockList.Add(unlockInGame2);
+                        }
                     }
                 }
             }
@@ -1971,8 +1936,6 @@ public class GameSceneController : MonoBehaviour
             return;
         }
 
-        Debug.Log("[GameSceneController] Skip button pressed via StopCameraRoam()");
-
         isCutsceneEnding = true;
         is_skip_cg = true;
         is_play_cg = false;
@@ -1980,17 +1943,6 @@ public class GameSceneController : MonoBehaviour
         if (roam_order != null)
         {
             roam_order.OnEnd();
-        }
-
-        if (BossRoamEvent.Instance != null)
-        {
-            BossRoamEvent.Instance.CancelInvoke();
-            BossRoamEvent.Instance.StopAllCoroutines();
-            BossRoamEvent.Instance.SkipCutsceneManually();
-        }
-        else
-        {
-            Debug.LogWarning("BossRoamEvent.Instance not found during skip.");
         }
 
         Cursor.lockState = CursorLockMode.Locked;

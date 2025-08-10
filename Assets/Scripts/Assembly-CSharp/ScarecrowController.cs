@@ -61,16 +61,18 @@ public class ScarecrowController : GuardianForceController
 		SetState(DEAD_STATE);
 		StartCoroutine(RemoveOnTime(3f));
 		Invoke("OnScarecrowTriger", 0.03f);
-		Object.Instantiate(broken_eff_ref, base.transform.position, base.transform.rotation);
-		//if (GameData.Instance.cur_game_type == GameData.GamePlayType.Coop && tnetObj != null)
-		//{
-		//	SFSObject sFSObject = new SFSObject();
-		//	sFSObject.PutUtfString("skillEvent", "ScarecrowTriger");
-		//	tnetObj.Send(new BroadcastMessageRequest(sFSObject));
-		//}
-	}
+        GameObject broken = Object.Instantiate(broken_eff_ref, transform.position, transform.rotation);
+        Destroy(broken, 3f); // pieces disappear after 3 seconds
 
-	public override void OnGuardianBirth()
+        //if (GameData.Instance.cur_game_type == GameData.GamePlayType.Coop && tnetObj != null)
+        //{
+        //	SFSObject sFSObject = new SFSObject();
+        //	sFSObject.PutUtfString("skillEvent", "ScarecrowTriger");
+        //	tnetObj.Send(new BroadcastMessageRequest(sFSObject));
+        //}
+    }
+
+    public override void OnGuardianBirth()
 	{
 		Debug.Log("ScarecrowController OnGuardianBirth...");
 		TauntMonster();

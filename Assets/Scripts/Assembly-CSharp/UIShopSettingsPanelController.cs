@@ -1,11 +1,13 @@
 using CoMZ2;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIShopSettingsPanelController : UIShopPanelController
 {
     public TUIButtonPush MusicButton;
     public TUIButtonPush SoundButton;
+    public TUIButtonClick ResetDataPromptButton;
     public TUIButtonClick NicknamePromptButton;
 
     public override void Show()
@@ -66,6 +68,37 @@ public class UIShopSettingsPanelController : UIShopPanelController
             delegate
             {
                 Debug.Log("Cancelled nickname prompt toggle");
+            },
+            true
+        );
+    }
+
+    public void OnResetDataButton(TUIControl control, int eventType, float wparam, float lparam, object data)
+    {
+        if (eventType != 3) return; // Only on click/tap end event
+
+        Debug.Log("Reset data button clicked");
+
+        GameMsgBoxController.ShowMsgBox(
+            GameMsgBoxController.MsgBoxType.DoubleButton,
+            gameObject,
+            "Are you sure you want to reset your data? This action cannot be undone.",
+            delegate
+            {
+                // Stop shop/menu music so it doesn't overlap with videos/init scene
+                MenuAudioController.DestroyGameMenuAudio();
+                GameData.Instance.didResetSave = true;
+                GameData.Instance.Init();
+                GameData.Instance.blackname = false;
+                GameData.Instance.SaveData();
+                SceneManager.LoadScene("InitScene");
+
+                Debug.Log("Data reset.");
+            },
+            delegate
+            {
+                // Cancelled reset
+                Debug.Log("Reset data cancelled");
             },
             true
         );

@@ -1,4 +1,4 @@
-/*using UnityEngine;
+using UnityEngine;
 
 public class AlphaAnimationScript : MonoBehaviour
 {
@@ -94,4 +94,4 @@ public class AlphaAnimationScript : MonoBehaviour
 		base.GetComponent<Renderer>().material.SetColor(colorPropertyName, color);
 		deltaTime = 0f;
 	}
-}*/
+}

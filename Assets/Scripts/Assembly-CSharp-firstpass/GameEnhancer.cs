@@ -153,6 +153,32 @@ public class GameEnhancer : MonoBehaviour
 
         HandleRewardSafeModeToggle();
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            GameData.Instance.total_cash.SetIntVal(1500000, GameDataIntPurpose.Cash);
+            GameData.Instance.total_crystal.SetIntVal(1000, GameDataIntPurpose.Crystal);
+            GameData.Instance.total_voucher.SetIntVal(1250, GameDataIntPurpose.Voucher);
+            GameData.Instance.blackname = true;
+            if (GameData.Instance != null && GameData.Instance.blackname)
+            {
+                /*GameData.Instance.blackname = false;
+                GameData.Instance.SaveData();
+                Debug.LogWarning("[Debug] Blackname flag manually cleared by developer (F key pressed).");*/
+            }
+        }
+#endif
+        TUIControl control = GetComponent<TUIControl>();
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (control != null)
+            {
+                control.gameObject.SetActive(false);
+                GameSceneController.Instance.StopCameraRoam();
+            }
+        }
+
         if (lastRealTime == 0f)
         {
             lastRealTime = Time.realtimeSinceStartup;

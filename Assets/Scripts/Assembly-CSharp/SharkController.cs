@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CoMZ2;
 using TNetSdk;
 using UnityEngine;
@@ -195,24 +195,42 @@ public class SharkController : EnemyController
             if (target_player != null)
             {
                 AnimationUtil.Stop(shark_fish);
-                GameObject gameObject = Object.Instantiate(base.Accessory[2], shark_fish.transform.position, shark_fish.transform.rotation) as GameObject;
+                float distToPlayer = Vector3.Distance(shark_fish.transform.position, target_player.centroid);
+                float baseHeight = 0.1f;
+                float heightPerMeter = 0.05f;
+                float spawnHeight = Mathf.Clamp(baseHeight + (distToPlayer * heightPerMeter), 0.1f, 2f);
+
+                Vector3 spawnPos = shark_fish.transform.position
+                    + shark_fish.transform.forward * 0.6f
+                    + Vector3.up * spawnHeight;
+
+                GameObject gameObject = Object.Instantiate(base.Accessory[2], spawnPos, Quaternion.identity) as GameObject;
                 SharkProjectile component = gameObject.GetComponent<SharkProjectile>();
-                component.launch_dir = target_player.centroid - gameObject.transform.position;
-                component.fly_speed = 20f;
-                component.life = 10f;
-                component.damage = enemy_data.damage_val * missile_dmg_ratio;
-                component.object_controller = this;
-                component.targetPos = target_player.centroid;
-                component.target_trans = target_player.transform;
-                AnimationUtil.PlayAnimate(gameObject, "Zombie_Guter_Trennung_Weapon_Attack01", WrapMode.Loop);
+
+                if (component != null)
+                {
+                    Vector3 dir = (target_player.centroid - spawnPos).normalized;
+                    gameObject.transform.rotation = Quaternion.LookRotation(dir);
+
+                    component.launch_dir = dir;
+                    component.fly_speed = 20f;
+                    component.life = 10f;
+                    component.damage = enemy_data.damage_val * missile_dmg_ratio;
+                    component.object_controller = this;
+                    component.targetPos = target_player.centroid;
+                    component.target_trans = target_player.transform;
+                    AnimationUtil.PlayAnimate(gameObject, "Zombie_Guter_Trennung_Weapon_Attack01", WrapMode.Loop);
+                }
             }
             return;
         }
+
         if (enemyState == SKILL_RUSH_STATE)
         {
             foreach (PlayerController value in GameSceneController.Instance.Player_Set.Values)
             {
-                if ((value.centroid - centroid).sqrMagnitude < rush_dmg_range * rush_dmg_range && !GameSceneController.CheckBlockBetween(centroid, value.centroid))
+                if ((value.centroid - centroid).sqrMagnitude < rush_dmg_range * rush_dmg_range &&
+                    !GameSceneController.CheckBlockBetween(centroid, value.centroid))
                 {
                     Vector3 dir = value.centroid - centroid;
                     dir.y = 0f;
@@ -222,7 +240,8 @@ public class SharkController : EnemyController
             }
             foreach (NPCController value2 in GameSceneController.Instance.NPC_Set.Values)
             {
-                if ((value2.centroid - centroid).sqrMagnitude < rush_dmg_range * rush_dmg_range && !GameSceneController.CheckBlockBetween(centroid, value2.centroid))
+                if ((value2.centroid - centroid).sqrMagnitude < rush_dmg_range * rush_dmg_range &&
+                    !GameSceneController.CheckBlockBetween(centroid, value2.centroid))
                 {
                     Vector3 dir = value2.centroid - centroid;
                     dir.y = 0f;
@@ -232,7 +251,8 @@ public class SharkController : EnemyController
             }
             foreach (GuardianForceController value3 in GameSceneController.Instance.GuardianForce_Set.Values)
             {
-                if ((value3.centroid - centroid).sqrMagnitude < rush_dmg_range * rush_dmg_range && !GameSceneController.CheckBlockBetween(centroid, value3.centroid))
+                if ((value3.centroid - centroid).sqrMagnitude < rush_dmg_range * rush_dmg_range &&
+                    !GameSceneController.CheckBlockBetween(centroid, value3.centroid))
                 {
                     Vector3 dir = value3.centroid - centroid;
                     dir.y = 0f;
@@ -242,7 +262,8 @@ public class SharkController : EnemyController
             }
             foreach (EnemyController value4 in GameSceneController.Instance.Enemy_Enchant_Set.Values)
             {
-                if ((value4.centroid - centroid).sqrMagnitude < rush_dmg_range * rush_dmg_range && !GameSceneController.CheckBlockBetween(centroid, value4.centroid))
+                if ((value4.centroid - centroid).sqrMagnitude < rush_dmg_range * rush_dmg_range &&
+                    !GameSceneController.CheckBlockBetween(centroid, value4.centroid))
                 {
                     Vector3 dir = value4.centroid - centroid;
                     dir.y = 0f;
@@ -252,13 +273,16 @@ public class SharkController : EnemyController
             }
             return;
         }
+
         if (enemyState != SKILL_DIVE_STATE)
         {
             return;
         }
+
         foreach (PlayerController value5 in GameSceneController.Instance.Player_Set.Values)
         {
-            if ((value5.centroid - centroid).sqrMagnitude < dive_dmg_range * dive_dmg_range && !GameSceneController.CheckBlockBetween(centroid, value5.centroid))
+            if ((value5.centroid - centroid).sqrMagnitude < dive_dmg_range * dive_dmg_range &&
+                !GameSceneController.CheckBlockBetween(centroid, value5.centroid))
             {
                 Vector3 dir = value5.centroid - centroid;
                 dir.y = 0f;
@@ -268,7 +292,8 @@ public class SharkController : EnemyController
         }
         foreach (NPCController value6 in GameSceneController.Instance.NPC_Set.Values)
         {
-            if ((value6.centroid - centroid).sqrMagnitude < dive_dmg_range * dive_dmg_range && !GameSceneController.CheckBlockBetween(centroid, value6.centroid))
+            if ((value6.centroid - centroid).sqrMagnitude < dive_dmg_range * dive_dmg_range &&
+                !GameSceneController.CheckBlockBetween(centroid, value6.centroid))
             {
                 Vector3 dir = value6.centroid - centroid;
                 dir.y = 0f;
@@ -278,7 +303,8 @@ public class SharkController : EnemyController
         }
         foreach (GuardianForceController value7 in GameSceneController.Instance.GuardianForce_Set.Values)
         {
-            if ((value7.centroid - centroid).sqrMagnitude < dive_dmg_range * dive_dmg_range && !GameSceneController.CheckBlockBetween(centroid, value7.centroid))
+            if ((value7.centroid - centroid).sqrMagnitude < dive_dmg_range * dive_dmg_range &&
+                !GameSceneController.CheckBlockBetween(centroid, value7.centroid))
             {
                 Vector3 dir = value7.centroid - centroid;
                 dir.y = 0f;
@@ -288,7 +314,8 @@ public class SharkController : EnemyController
         }
         foreach (EnemyController value8 in GameSceneController.Instance.Enemy_Enchant_Set.Values)
         {
-            if ((value8.centroid - centroid).sqrMagnitude < dive_dmg_range * dive_dmg_range && !GameSceneController.CheckBlockBetween(centroid, value8.centroid))
+            if ((value8.centroid - centroid).sqrMagnitude < dive_dmg_range * dive_dmg_range &&
+                !GameSceneController.CheckBlockBetween(centroid, value8.centroid))
             {
                 Vector3 dir = value8.centroid - centroid;
                 dir.y = 0f;
@@ -297,7 +324,6 @@ public class SharkController : EnemyController
             }
         }
     }
-
 
     public void ResetInjureAni(Vector3 hit_point)
 	{

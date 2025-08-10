@@ -4,9 +4,11 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
   m_Name: Avatar_Joe_B_01
-  m_Shader: {fileID: 4800000, guid: 5fdb7b05edb094943aedbcc71b7873d4, type: 3}
-  m_ShaderKeywords:
+  m_Shader: {fileID: 4800000, guid: 7f4f836b9930fff438bad0b2d35030f8, type: 3}
+  m_ShaderKeywords: 
   m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -18,6 +20,10 @@ Material:
     m_TexEnvs:
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: 3d6a9ebe3d3abd8438ab9f2da9a72e42, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ToonShade:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:

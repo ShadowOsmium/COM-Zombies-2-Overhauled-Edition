@@ -1099,6 +1099,12 @@ public class EnemyController : ObjectController
             dailyMission.OnEnemyKilled();
         }
 
+        CleanerMissionController cleaner = GameSceneController.Instance.mission_controller as CleanerMissionController;
+        if (cleaner != null)
+        {
+            cleaner.OnEnemyKilled();
+        }
+
         if (GameData.Instance != null && GameData.Instance.blackname)
         {
             Debug.Log("Enemy died — no drops due to blacklist.");

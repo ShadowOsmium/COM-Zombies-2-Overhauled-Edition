@@ -2,7 +2,7 @@
   <!--SkillUpPriceCfg-->
   <SkillUpPriceCfg ParaA="3.43069" ParaB="5" ParaK="1.8" />
   <!--Human-->
-  <Skill name="Whirlwind" showName="Whirlwind" unlockLevel="1" maxLevel="15" unlockPrice="0" upPriceRatio="1.1" damagePara="1.4446" 
+  <Skill name="Whirlwind" showName="Whirlwind" unlockLevel="1" maxLevel="20" unlockPrice="0" upPriceRatio="1.1" damagePara="1.3846" 
          existState ="2" ownerType="Avatar" owner="Human" content="Spin into a frenzy, striking everything in your path." >
     <CDTime base="18" max="14" />
     <LifeTime base="4" max="7" />
@@ -12,17 +12,17 @@
     <Range base="5" max="5" />
   </Skill>
   <!--Swat-->
-  <Skill name="Grenade" showName="Grenade" unlockLevel="1" maxLevel="15" unlockPrice="0" upPriceRatio="1.4" damagePara="1.54"
+  <Skill name="Grenade" showName="Grenade" unlockLevel="1" maxLevel="20" unlockPrice="0" upPriceRatio="1.1" damagePara="1.44"
          existState ="2" ownerType="Avatar" owner="Swat" content="Throw a grenade that damages any zombies caught in the blast radius." >
     <CDTime base="10" max="6.5" />
     <LifeTime base="0" max="0" />
     <HP base="0" max="0" />
     <Frequency base="0" max="0" />
     <Damage base="21" max="22" />
-    <Range base="3" max="6" />
+    <Range base="3" max="8" />
   </Skill>
   <!--Mike-->
-  <Skill name="BaseballRobot" showName="Robo Pitcher" unlockLevel="1" maxLevel="15" unlockPrice="0" upPriceRatio="1.1" damagePara="1.49"
+  <Skill name="BaseballRobot" showName="Robo Pitcher" unlockLevel="1" maxLevel="20" unlockPrice="0" upPriceRatio="1.1" damagePara="1.42"
      existState ="2" ownerType="Avatar" owner="Mike" content="Set up a robo pitcher that fires baseballs at zombies in range." >
     <CDTime base="22" max="18" />
     <LifeTime base="12" max="12" />
@@ -32,17 +32,17 @@
     <Range base="30" max="45" />
   </Skill>
   <!--Cowboy-->
-  <Skill name="Scarecrow" showName="Trap" unlockLevel="1" maxLevel="10" unlockPrice="0" upPriceRatio="0.9" damagePara="1.6273"
+  <Skill name="Scarecrow" showName="Trap" unlockLevel="1" maxLevel="20" unlockPrice="0" upPriceRatio="1.1" damagePara="1.3673"
        existState ="2" ownerType="Avatar" owner="Cowboy" content="Throw a trap to distract and damage zombies." >
-    <CDTime base="30" max="25" />
+    <CDTime base="30" max="20" />
     <LifeTime base="0" max="0" />
-    <HP base="300" max="2000" />
+    <HP base="300" max="10424" />
     <Frequency base="5" max="5" />
-    <Damage base="30" max="810" />
+    <Damage base="30" max="31" />
     <Range base="10" max="10" />
   </Skill>
   <!--Doctor-->
-  <Skill name="Enchant" showName="Charm" unlockLevel="1" maxLevel="12" unlockPrice="0" upPriceRatio="1.0" damagePara="0"
+  <Skill name="Enchant" showName="Charm" unlockLevel="1" maxLevel="20" unlockPrice="0" upPriceRatio="1.1" damagePara="0"
      existState ="2" ownerType="Avatar" owner="Doctor" content="Charm a zombie to fight along with you." >
     <CDTime base="20" max="14" />
     <LifeTime base="0" max="0" />

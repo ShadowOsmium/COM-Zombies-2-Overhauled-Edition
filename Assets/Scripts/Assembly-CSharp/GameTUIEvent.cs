@@ -9,7 +9,7 @@ public class GameTUIEvent : MonoBehaviour
 
 	private void Update()
 	{
-	}
+    }
 
 	private void OnPauseButton(TUIControl control, int eventType, float wparam, float lparam, object data)
 	{
@@ -108,31 +108,19 @@ public class GameTUIEvent : MonoBehaviour
         if (eventType == 3)
         {
             control.gameObject.SetActive(false);
-
-            IRoamEvent roamEvent = FindObjectOfType(typeof(MonoBehaviour)) as IRoamEvent;
-
-            if (roamEvent != null)
-            {
-                Debug.Log("[GameTUIEvent] RoamEvent found, calling SkipCutsceneManually()");
-                roamEvent.SkipCutsceneManually();
-            }
-            else
-            {
-                Debug.LogWarning("[GameTUIEvent] No IRoamEvent found, calling StopCameraRoam()");
-                GameSceneController.Instance.StopCameraRoam();
-            }
+            GameSceneController.Instance.StopCameraRoam();
         }
     }
 
     private void OnTutorialSkip(TUIControl control, int eventType, float wparam, float lparam, object data)
-	{
-		if (eventType == 3)
-		{
-			control.gameObject.SetActive(false);
-		}
-	}
+    {
+        if (eventType == 3)
+        {
+            control.gameObject.SetActive(false);
+        }
+    }
 
-	private void OnRetryQuitButton(TUIControl control, int eventType, float wparam, float lparam, object data)
+    private void OnRetryQuitButton(TUIControl control, int eventType, float wparam, float lparam, object data)
 	{
 		if (eventType == 3)
 		{

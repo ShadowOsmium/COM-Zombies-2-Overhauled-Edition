@@ -49,9 +49,11 @@ public class ScarecrowCoopController : GuardianForceCoopController
 			SetState(DEAD_STATE);
 			StartCoroutine(RemoveOnTime(3f));
 			Invoke("OnScarecrowTriger", 0.03f);
-			Object.Instantiate(broken_eff_ref, base.transform.position, base.transform.rotation);
-		}
-	}
+            GameObject broken = Object.Instantiate(broken_eff_ref, transform.position, transform.rotation);
+            Destroy(broken, 3f); // pieces disappear after 3 seconds
+
+        }
+    }
 
 	public override void OnGuardianBirth()
 	{

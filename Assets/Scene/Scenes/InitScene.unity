@@ -261,8 +261,8 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1.0014826
-    height: 1.1630901
+    width: 0.33333334
+    height: 0.5327414
   near clip plane: -128
   far clip plane: 128
   field of view: 60
@@ -516,8 +516,8 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1351
-    height: 271
+    width: 640
+    height: 480
 --- !u!1 &5316492
 GameObject:
   m_ObjectHideFlags: 0
@@ -1116,6 +1116,33 @@ MonoBehaviour:
   m_GameObject: {fileID: 2111685267}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5608464cd70c05b4791fd13b28c224f7, type: 3}
+  m_Script: {fileID: 11500000, guid: fa190fcd3eab996429c96601175b7318, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  prefabsToPreload:
+  - prefab: {fileID: 1235850648008942, guid: dc98c423f2c0f0e49a83ea42cd10587d, type: 2}
+  - prefab: {fileID: 1533245998061096, guid: 42ba9e3ccd279f242a955716f25a967e, type: 2}
+  - prefab: {fileID: 1864583468083862, guid: ef90bcc2f6f438e4b93a58c643ad7aca, type: 2}
+  - prefab: {fileID: 1407204154858478, guid: 8359a61a9710e5c4ba12e750c12b6147, type: 2}
+  - prefab: {fileID: 1554953817310140, guid: 499aa6f5c493dc44f87d2dee2219dfc7, type: 2}
+  - prefab: {fileID: 1273903739122302, guid: 645d056b3d628304d9ccb620d9b1a8a4, type: 2}
+  - prefab: {fileID: 1318266854723304, guid: 0b5d2828639c52448baf906b9b7842a7, type: 2}
+  - prefab: {fileID: 1752988725422568, guid: 07cb713b230ec7349b91f77e94876e63, type: 2}
+  - prefab: {fileID: 1235580296257686, guid: 9f7c2fc30d8ab4c4c823fce612eaf8ca, type: 2}
+  - prefab: {fileID: 1211444671105762, guid: 6ea61264e7330c547bf4032fe15b038b, type: 2}
+  - prefab: {fileID: 1068877577610962, guid: 499e539e4d79d354fbd83e66773bdce1, type: 2}
+  - prefab: {fileID: 1745341506536144, guid: 37b4c6f5dbffeb44c9463d1774e89ba1, type: 2}
+  - prefab: {fileID: 1362804581217108, guid: 7c1506b933f8af648851f0fb4226010a, type: 2}
+  - prefab: {fileID: 1940378318228748, guid: 7d147b3e1b51ff443a7e7c04fbd39a9d, type: 2}
+  - prefab: {fileID: 1363501550707696, guid: 314f8e15c9f822248aa7c1b390998cf5, type: 2}
+  - prefab: {fileID: 1553678075842352, guid: 24dcf199170617d4e88e4b6ff0107247, type: 2}
+  - prefab: {fileID: 1271157843633686, guid: edbe826c6794dcb41abf467980208622, type: 2}
+  - prefab: {fileID: 1735723970363436, guid: 06ac2073effc6914cab06254f5a3be7c, type: 2}
+  - prefab: {fileID: 1040176519763135, guid: d0cc90aba63162749af54c081bb94a54, type: 2}
+  - prefab: {fileID: 1670437569745406, guid: e0086a59962d8ef4698230d5b6ab9a8d, type: 2}
+  - prefab: {fileID: 1924019790773985, guid: 236519bc45040384d98b1436dacf6883, type: 2}
+  - prefab: {fileID: 1924019790773985, guid: 381ae914bd7ed1e4d812c83dda21d450, type: 2}
+  - prefab: {fileID: 1392477047350194, guid: 6d00a7942b5083945a91dadd95b4ec7f, type: 2}
+  - prefab: {fileID: 1691087853564248, guid: 498f11bd057727e41b5efd145cdf96c2, type: 2}
+  - prefab: {fileID: 1601659317116608, guid: c403dca564980e64dac035efabc142fb, type: 2}
+  - prefab: {fileID: 1865939485205114, guid: 6b5ca3f440ab3a746a823f0bb95fdf4a, type: 2}

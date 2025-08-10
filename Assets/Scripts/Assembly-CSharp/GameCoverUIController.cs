@@ -31,7 +31,9 @@ public class GameCoverUIController : MonoBehaviour
 
 	public UIRedeemAwardPanelController redeem_award_panel;
 
-	public UIRedeemPanelController redeem_panel;
+    public static bool HasBeenInGameCoverScene = false;
+
+    public UIRedeemPanelController redeem_panel;
 
 	public static GameCoverUIController Instance
 	{
@@ -41,10 +43,19 @@ public class GameCoverUIController : MonoBehaviour
 		}
 	}
 
-	private void Awake()
+    private void OnEnable()
+    {
+        if (SceneManager.GetActiveScene().name == "GameCover")
+        {
+            HasBeenInGameCoverScene = true;
+            Debug.Log("[Backup] Player entered GameCover scene, backups allowed.");
+        }
+    }
+
+    private void Awake()
 	{
 		instance = this;
-		GameConfig.CheckGameConfig();
+        GameConfig.CheckGameConfig();
 		GameData.CheckGameData();
 		MenuAudioController.CheckGameMenuAudio();
 	}
@@ -188,6 +199,29 @@ public class GameCoverUIController : MonoBehaviour
             false
         );
     }
+
+    /*public static void CreateBackupSave()
+    {
+        string mainSavePath = Utils.SavePath() + MD5Sample.GetMd5String("CoMZ2") + ".bytes";
+        string backupSavePath = Utils.SavePath() + MD5Sample.GetMd5String("CoMZ2_backup") + ".bytes";
+
+        if (System.IO.File.Exists(mainSavePath))
+        {
+            try
+            {
+                System.IO.File.Copy(mainSavePath, backupSavePath, true);
+                Debug.Log("[Backup] Created backup save file.");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("[Backup] Failed to create backup save file: " + e.Message);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[Backup] Main save file not found. No backup created.");
+        }
+    }*/
 
     private void OnVersionUpdate()
     {

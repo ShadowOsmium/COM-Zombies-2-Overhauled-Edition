@@ -16,7 +16,7 @@ public class EndlessMissionController : MissionController
     }
     protected EnemyController boss;
 
-    private const int DayLevelStart = 45;
+    private const int DayLevelStart = 30;
     private const int DayLevelIncrement = 5;
     private const float DayLevelIncrementInterval = 45f;
     private int lastBossDayLevel = -1;
@@ -292,89 +292,75 @@ public class EndlessMissionController : MissionController
 
         spawnedBossTypes.Clear();
 
-        Debug.Log("[Endless] Boss wave triggered at day " + dayLevel);
-
         List<EnemyWaveInfo> waveList = GetBossWaveInfoForDay(dayLevel);
         if (waveList == null || waveList.Count == 0)
         {
             Debug.Log("[Endless] No boss wave data found for day " + dayLevel);
-            bossCoroutine = null;
             spawnBossInProgress = false;
             bossActive = false;
+            bossCoroutine = null;
             yield break;
         }
 
         int bossCount = GetBossCountForDay(dayLevel);
         int spawnedCount = 0;
 
-        EnemyType lastSpawnedType = EnemyType.E_NONE;
-
+        List<EnemyType> availableBosses = new List<EnemyType>();
         foreach (EnemyWaveInfo wave in waveList)
         {
             foreach (EnemySpawnInfo spawnInfo in wave.spawn_info_list)
             {
-                for (int i = 0; i < spawnInfo.Count; i++)
-                {
-                    if (spawnedCount >= bossCount)
-                        break;
-
-                    if (spawnInfo.EType == lastSpawnedType)
-                    {
-                        Debug.Log("[Endless] Skipping back-to-back duplicate boss: " + spawnInfo.EType);
-                        continue;
-                    }
-
-                    GameObject grave = FindClosedGrave(GameSceneController.Instance.player_controller.transform.position);
-                    if (grave == null)
-                    {
-                        Debug.LogWarning("[Endless] No grave found for boss spawn: " + spawnInfo.EType);
-                        continue;
-                    }
-
-                    EnemyController boss = SpawnBossFromNest(spawnInfo.EType, grave);
-                    if (boss != null)
-                    {
-                        if (GameData.Instance.cur_quest_info != null &&
-                            GameData.Instance.cur_quest_info.mission_day_type == MissionDayType.Endless)
-                        {
-                            float originalHp = boss.enemy_data.hp_capacity;
-                            boss.enemy_data.hp_capacity *= 2.5f;
-                            boss.enemy_data.cur_hp = boss.enemy_data.hp_capacity;
-
-                            Debug.Log(string.Format("[Endless] Boss spawned: {0}, HP scaled from {1} to {2}",
-                                spawnInfo.EType, originalHp, boss.enemy_data.cur_hp));
-                        }
-                        else
-                        {
-                            Debug.Log("[Endless] Boss spawned: " + spawnInfo.EType +
-                                      ", HP: " + boss.enemy_data.cur_hp);
-                        }
-
-                        GameSceneController.Instance.SetBossData(boss.enemy_data);
-                        boss.IsBoss = true;
-                        boss.enemyType = spawnInfo.EType;
-                        boss.ignoreSpawnLimit = true;
-                        spawnedBossTypes.Add(spawnInfo.EType);
-
-                        lastSpawnedType = spawnInfo.EType;
-
-                        spawnedCount++;
-                    }
-                    else
-                    {
-                        Debug.LogError("[Endless] Failed to spawn boss: " + spawnInfo.EType);
-                    }
-
-                    yield return new WaitForSeconds(3f);
-
-                    if (spawnedCount >= bossCount)
-                        break;
-                }
-                if (spawnedCount >= bossCount)
-                    break;
+                if (!availableBosses.Contains(spawnInfo.EType))
+                    availableBosses.Add(spawnInfo.EType);
             }
-            if (spawnedCount >= bossCount)
+        }
+
+        while (spawnedCount < bossCount && availableBosses.Count > 0)
+        {
+            int index = UnityEngine.Random.Range(0, availableBosses.Count);
+            EnemyType selectedBoss = availableBosses[index];
+
+            GameObject grave = FindClosedGrave(GameSceneController.Instance.player_controller.transform.position);
+            if (grave == null)
+            {
+                Debug.LogWarning("[Endless] No grave found for boss spawn: " + selectedBoss);
                 break;
+            }
+
+            EnemyController boss = SpawnBossFromNest(selectedBoss, grave);
+            if (boss != null)
+            {
+                if (GameData.Instance.cur_quest_info != null &&
+                    GameData.Instance.cur_quest_info.mission_day_type == MissionDayType.Endless)
+                {
+                    float originalHp = boss.enemy_data.hp_capacity;
+                    boss.enemy_data.hp_capacity *= 2.5f;
+                    boss.enemy_data.cur_hp = boss.enemy_data.hp_capacity;
+
+                    Debug.Log(string.Format("[Endless] Boss spawned: {0}, HP scaled from {1} to {2}",
+                        selectedBoss, originalHp, boss.enemy_data.cur_hp));
+                }
+                else
+                {
+                    Debug.Log("[Endless] Boss spawned: " + selectedBoss + ", HP: " + boss.enemy_data.cur_hp);
+                }
+
+                GameSceneController.Instance.SetBossData(boss.enemy_data);
+                boss.IsBoss = true;
+                boss.enemyType = selectedBoss;
+                boss.ignoreSpawnLimit = true;
+
+                spawnedBossTypes.Add(selectedBoss);
+                spawnedCount++;
+            }
+            else
+            {
+                Debug.LogError("[Endless] Failed to spawn boss: " + selectedBoss);
+            }
+
+            availableBosses.RemoveAt(index);
+
+            yield return new WaitForSeconds(3f);
         }
 
         Debug.Log("[BossCoroutine] Boss wave spawned, finishing coroutine.");
@@ -383,7 +369,6 @@ public class EndlessMissionController : MissionController
         bossActive = false;
         bossCoroutine = null;
         bossSpawnLockTimestamp = Time.time + 3f;
-
         spawnLock = false;
     }
 
@@ -706,11 +691,11 @@ public class EndlessMissionController : MissionController
         StringBuilder sb = new StringBuilder();
         sb.AppendLine("Day: " + dayLevel + " (" + waveLabel + ")");
         sb.AppendLine("Enemies: " + count + " / " + maxEnemyCount);
-        /*sb.AppendLine("Spawn Rate: " + (1f / spawnRate).ToString("F1") + " per sec");
+        sb.AppendLine("Spawn Rate: " + (1f / spawnRate).ToString("F1") + " per sec");
         sb.AppendLine("Crystal Drop: " + crystalDropChance.ToString("F1") + "%");
         sb.AppendLine("Crystals Collected: " + crystalsCollected);
         sb.AppendLine("Gold Drop: " + goldDropChance.ToString("F1") + "%");
-        sb.AppendLine("Gold Collected: " + goldCollected);*/
+        sb.AppendLine("Gold Collected: " + goldCollected);
 
         enemyCounterText.text = sb.ToString();
     }
