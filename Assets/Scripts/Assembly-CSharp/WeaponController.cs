@@ -17,7 +17,7 @@ public class WeaponController : MonoBehaviour
 
 	public List<GameObject> Accessory;
 
-	protected float fire_interval = 9999f;
+	protected float fire_interval = 1f;
 
 	protected string ANI_SHIFT_WEAPON = "AK_UpperBody_Run01";
 
@@ -119,7 +119,7 @@ public class WeaponController : MonoBehaviour
 
 	public virtual void ResetFireInterval()
 	{
-		fire_interval = 9999f;
+		fire_interval = 1f;
 	}
 
 	public virtual void SetWeaponData(WeaponData data)

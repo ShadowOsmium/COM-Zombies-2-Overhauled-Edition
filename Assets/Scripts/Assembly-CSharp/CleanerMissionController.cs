@@ -82,7 +82,7 @@ public class CleanerMissionController : MissionController
         }
 
         totalEnemies = 0;
-        float scaleFactor = Mathf.Clamp(0.2f + (GameSceneController.Instance.DayLevel / 300f), 0.3f, 0.4f);
+        float scaleFactor = Mathf.Clamp(0.2f + (GameSceneController.Instance.DayLevel / 300f), 0.5f, 0.6f);
 
         foreach (EnemyWaveInfo wave in currentWaveInfoList.wave_info_list)
         {
@@ -101,7 +101,6 @@ public class CleanerMissionController : MissionController
             GameSceneController.Instance.enemy_ref_map.ResetEnemyMapInfo(GetMissionEnemyTypeList());
         }
 
-        // Wait for CG state to finish
         while (GameSceneController.Instance.GamePlayingState == PlayingState.CG)
         {
             yield return null;
@@ -120,7 +119,6 @@ public class CleanerMissionController : MissionController
 
                 for (int i = 0; i < Count; i++)
                 {
-                    // Increased active enemy cap
                     while (GameSceneController.Instance.Enemy_Set.Count >= 8)
                     {
                         yield return new WaitForSeconds(0.3f);

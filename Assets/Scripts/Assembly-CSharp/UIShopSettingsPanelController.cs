@@ -75,7 +75,7 @@ public class UIShopSettingsPanelController : UIShopPanelController
 
     public void OnResetDataButton(TUIControl control, int eventType, float wparam, float lparam, object data)
     {
-        if (eventType != 3) return; // Only on click/tap end event
+        if (eventType != 3) return;
 
         Debug.Log("Reset data button clicked");
 
@@ -85,7 +85,6 @@ public class UIShopSettingsPanelController : UIShopPanelController
             "Are you sure you want to reset your data? This action cannot be undone.",
             delegate
             {
-                // Stop shop/menu music so it doesn't overlap with videos/init scene
                 MenuAudioController.DestroyGameMenuAudio();
                 GameData.Instance.didResetSave = true;
                 GameData.Instance.Init();
@@ -97,7 +96,6 @@ public class UIShopSettingsPanelController : UIShopPanelController
             },
             delegate
             {
-                // Cancelled reset
                 Debug.Log("Reset data cancelled");
             },
             true

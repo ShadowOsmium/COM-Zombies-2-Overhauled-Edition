@@ -4,7 +4,7 @@ public class SceneRoamEvent : MonoBehaviour, IRoamEvent
 {
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && GameSceneController.Instance.is_play_cg)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             GameSceneController.Instance.StopCameraRoam();
             OnGameCgEnd();
@@ -45,5 +45,18 @@ public class SceneRoamEvent : MonoBehaviour, IRoamEvent
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    public void SkipCutsceneManually()
+    {
+        Debug.Log("[SceneRoamEvent] SkipCutsceneManually called");
+
+        GameSceneController.Instance.is_skip_cg = true;
+        GameSceneController.Instance.is_play_cg = false;
+
+        CancelInvoke();
+        StopAllCoroutines();
+
+        OnGameCgEnd();
     }
 }

@@ -16,10 +16,6 @@ public class TutorialMissionController : MissionController
 
     public override void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            MissionFinished();
-        }
     }
 
     public override IEnumerator Start()
@@ -53,7 +49,7 @@ public class TutorialMissionController : MissionController
 
         yield return null;
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 3; i++)
         {
             SpwanZombiesFromNest(EnemyType.E_ZOMBIE, zombie_nest_array[0]);
         }

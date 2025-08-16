@@ -1007,8 +1007,8 @@ public class GameSceneController : MonoBehaviour
         mission_check_finished = true;
         Invoke("SetWinState", 1f);
         Invoke("MissionFinished", 4f);
-        IncrementDayLevelIfNeeded();
         MissionReward();
+        IncrementDayLevelIfNeeded();
         GameData.Instance.SaveData();
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

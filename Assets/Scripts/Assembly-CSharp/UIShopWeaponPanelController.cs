@@ -203,7 +203,7 @@ public class UIShopWeaponPanelController : UIShopPanelController
             return;
 
         int priceVal = currentWeapon.config.price.GetIntVal();
-        if (priceVal < 0)
+        if (priceVal <= 0)
         {
             Debug.LogWarning("AntiCheat: Negative price detected for weapon: " + currentWeapon.weapon_name);
             GameData.Instance.blackname = true;
@@ -301,7 +301,7 @@ public class UIShopWeaponPanelController : UIShopPanelController
 		if (eventType == 3)
 		{
             int priceVal = currentWeapon.config.price.GetIntVal();
-            if (priceVal < 0)
+            if (priceVal <= 0)
             {
                 Debug.LogWarning("AntiCheat: Negative price detected for weapon: " + currentWeapon.weapon_name);
                 GameData.Instance.blackname = true;
@@ -333,7 +333,7 @@ public class UIShopWeaponPanelController : UIShopPanelController
         if (eventType != 3) return;
 
         int priceVal = currentWeapon.config.price.GetIntVal();
-        if (priceVal < 0)
+        if (priceVal <= 0)
         {
             Debug.LogWarning("AntiCheat: Negative price detected for weapon: " + currentWeapon.weapon_name);
             GameData.Instance.blackname = true;

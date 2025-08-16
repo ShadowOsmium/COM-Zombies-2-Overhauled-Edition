@@ -75,6 +75,8 @@ public class GameData : MonoBehaviour
 
     public bool hasEnteredLottery = false;
 
+    private bool isResetting = false;
+
     public bool daily_mode_enable;
 
     public bool isNewSave;
@@ -433,13 +435,23 @@ public class GameData : MonoBehaviour
 
     public void SaveData()
     {
+        if (isResetting)
+        {
+            Debug.LogWarning("[SaveData] Reset already in progress, skipping SaveData to prevent recursion.");
+            return;
+        }
+
         if (blackname == true)
         {
             Debug.LogWarning("Suspicious save detected.");
+            isResetting = true;
             MenuAudioController.DestroyGameMenuAudio();
             Instance.didResetSave = true;
             Instance.Init();
             Instance.blackname = false;
+
+            isResetting = false;  // Reset here before reload
+
             SceneManager.LoadScene("InitScene");
             return;
         }

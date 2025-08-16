@@ -124,7 +124,6 @@ public class GameEnhancer : MonoBehaviour
     {
         if (GameData.Instance != null)
         {
-            
             lastCash = GameData.Instance.total_cash.GetIntVal();
             lastCrystal = GameData.Instance.total_crystal.GetIntVal();
             lastVoucher = GameData.Instance.total_voucher.GetIntVal();
@@ -152,32 +151,6 @@ public class GameEnhancer : MonoBehaviour
         if (UILotterManager.Instance != null && UILotterManager.Instance.IsSpinning) return;
 
         HandleRewardSafeModeToggle();
-
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            GameData.Instance.total_cash.SetIntVal(1500000, GameDataIntPurpose.Cash);
-            GameData.Instance.total_crystal.SetIntVal(1000, GameDataIntPurpose.Crystal);
-            GameData.Instance.total_voucher.SetIntVal(1250, GameDataIntPurpose.Voucher);
-            GameData.Instance.blackname = true;
-            if (GameData.Instance != null && GameData.Instance.blackname)
-            {
-                /*GameData.Instance.blackname = false;
-                GameData.Instance.SaveData();
-                Debug.LogWarning("[Debug] Blackname flag manually cleared by developer (F key pressed).");*/
-            }
-        }
-#endif
-        TUIControl control = GetComponent<TUIControl>();
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if (control != null)
-            {
-                control.gameObject.SetActive(false);
-                GameSceneController.Instance.StopCameraRoam();
-            }
-        }
 
         if (lastRealTime == 0f)
         {
@@ -207,7 +180,7 @@ public class GameEnhancer : MonoBehaviour
         bool current = GameData.Instance.rewardSafeMode;
         if (current != lastRewardSafeMode)
         {
-            Debug.LogWarning("[GameEnhancer] rewardSafeMode changed: " + lastRewardSafeMode + " -> " + current + " at time: " + Time.time);
+            //Debug.LogWarning("[GameEnhancer] rewardSafeMode changed: " + lastRewardSafeMode + " -> " + current + " at time: " + Time.time);
 
             if (Time.time - rewardSafeModeWindowStart > TOGGLE_TIME_WINDOW)
             {
@@ -219,7 +192,7 @@ public class GameEnhancer : MonoBehaviour
                 rewardSafeModeToggleCount++;
                 if (rewardSafeModeToggleCount > MAX_TOGGLES_ALLOWED)
                 {
-                    Debug.LogWarning("[GameEnhancer] rewardSafeMode toggled too frequently, possible cheat.");
+                    //Debug.LogWarning("[GameEnhancer] rewardSafeMode toggled too frequently, possible cheat.");
                     ResetSuspiciousCounters();
                 }
             }
@@ -265,7 +238,7 @@ public class GameEnhancer : MonoBehaviour
                 speedHackDetectionCount++;
                 lastSpeedHackDetectionTime = Time.time;
 
-                Debug.LogWarning(string.Format("[GameEnhancer] Speed hack detected! Count: {0}, Average timescale: {1:F3}", speedHackDetectionCount, averageRatio));
+                //Debug.LogWarning(string.Format("[GameEnhancer] Speed hack detected! Count: {0}, Average timescale: {1:F3}", speedHackDetectionCount, averageRatio));
 
                 if (speedHackDetectionCount >= SPEED_HACK_DETECTION_THRESHOLD)
                 {
@@ -291,7 +264,7 @@ public class GameEnhancer : MonoBehaviour
         int current = GameData.Instance.day_level;
         if (current > MAX_REASONABLE_DAY_LEVEL)
         {
-            Debug.LogWarning("[AntiCheat] day_level exceeds max allowed: " + current);
+            //Debug.LogWarning("[AntiCheat] day_level exceeds max allowed: " + current);
             GameData.Instance.suspiciousSaveCount++;
             GameData.Instance.day_level = MAX_REASONABLE_DAY_LEVEL;
             return;
@@ -341,24 +314,24 @@ public class GameEnhancer : MonoBehaviour
         int currentCrystal = GameData.Instance.total_crystal.GetIntVal();
         int currentVoucher = GameData.Instance.total_voucher.GetIntVal();
 
-        Debug.Log("[AntiCheat] Checking rollback:");
-        Debug.Log("CurrentCash: " + currentCash + " LastSavedCash: " + GameData.Instance.lastSavedCash);
-        Debug.Log("CurrentCrystal: " + currentCrystal + " LastSavedCrystal: " + GameData.Instance.lastSavedCrystal);
-        Debug.Log("CurrentVoucher: " + currentVoucher + " LastSavedVoucher: " + GameData.Instance.lastSavedVoucher);
+        //Debug.Log("[AntiCheat] Checking rollback:");
+        //Debug.Log("CurrentCash: " + currentCash + " LastSavedCash: " + GameData.Instance.lastSavedCash);
+        //Debug.Log("CurrentCrystal: " + currentCrystal + " LastSavedCrystal: " + GameData.Instance.lastSavedCrystal);
+        //Debug.Log("CurrentVoucher: " + currentVoucher + " LastSavedVoucher: " + GameData.Instance.lastSavedVoucher);
 
         if (currentCash < GameData.Instance.lastSavedCash)
         {
-            Debug.LogWarning("[AntiCheat] Cash rollback detected.");
+            //Debug.LogWarning("[AntiCheat] Cash rollback detected.");
             BlacklistPlayer("Cash rollback after spending");
         }
         if (currentCrystal < GameData.Instance.lastSavedCrystal)
         {
-            Debug.LogWarning("[AntiCheat] Crystal rollback detected.");
+            //Debug.LogWarning("[AntiCheat] Crystal rollback detected.");
             BlacklistPlayer("Crystal rollback after spending");
         }
         if (currentVoucher < GameData.Instance.lastSavedVoucher)
         {
-            Debug.LogWarning("[AntiCheat] Voucher rollback detected.");
+            //Debug.LogWarning("[AntiCheat] Voucher rollback detected.");
             BlacklistPlayer("Voucher rollback after spending");
         }
     }
@@ -388,7 +361,7 @@ public class GameEnhancer : MonoBehaviour
         int spins = GameData.Instance.free_lottery_spins.GetIntVal();
         if (spins > MAX_FREE_SPINS)
         {
-            Debug.LogWarning("[GameEnhancer] Clamping free spins from " + spins + " to max " + MAX_FREE_SPINS);
+            //Debug.LogWarning("[GameEnhancer] Clamping free spins from " + spins + " to max " + MAX_FREE_SPINS);
             GameData.Instance.free_lottery_spins.SetIntVal(MAX_FREE_SPINS, GameDataIntPurpose.FreeSpin);
         }
     }
@@ -464,7 +437,7 @@ public class GameEnhancer : MonoBehaviour
             float timeScale = Time.timeScale;
             if (timeScale > MAX_ALLOWED_TIMESCALE || timeScale < MIN_ALLOWED_TIMESCALE)
             {
-                Debug.LogWarning("[GameEnhancer] Time.timeScale out of range: " + timeScale + ", resetting to 1.0");
+                //Debug.LogWarning("[GameEnhancer] Time.timeScale out of range: " + timeScale + ", resetting to 1.0");
                 Time.timeScale = 1f;
             }
             yield return new WaitForSeconds(1f);
@@ -482,7 +455,7 @@ public class GameEnhancer : MonoBehaviour
 
         if (timeSinceLast.TotalDays > 60)
         {
-            Debug.Log("[AntiCheat] Date rollback skipped — player returning after long break.");
+            //Debug.Log("[AntiCheat] Date rollback skipped — player returning after long break.");
             GameData.Instance.lastRollbackDate = today;
             GameData.Instance.SaveData();
             return;
@@ -490,13 +463,13 @@ public class GameEnhancer : MonoBehaviour
 
         if (lastRollback != today)
         {
-            Debug.LogWarning("[AntiCheat] Detected system clock rollback — warning issued.");
+            //Debug.LogWarning("[AntiCheat] Detected system clock rollback — warning issued.");
             GameData.Instance.lastRollbackDate = today;
             GameData.Instance.SaveData();
         }
         else
         {
-            Debug.LogWarning("[AntiCheat] Multiple rollbacks in same day — blacklisting.");
+            //Debug.LogWarning("[AntiCheat] Multiple rollbacks in same day — blacklisting.");
             BlacklistPlayer("[AntiCheat] Multiple rollbacks in same day.");
         }
     }
@@ -536,7 +509,7 @@ public class GameEnhancer : MonoBehaviour
         {
             if (weapon.Value.total_bullet_count > BULLET_SUSPICIOUS_THRESHOLD)
             {
-                Debug.LogWarning("[AntiCheat] Clamping bullet count on " + weapon.Key);
+                ////Debug.LogWarning("[AntiCheat] Clamping bullet count on " + weapon.Key);
                 weapon.Value.total_bullet_count = BULLET_SUSPICIOUS_THRESHOLD;
             }
         }
@@ -637,12 +610,12 @@ public class GameEnhancer : MonoBehaviour
 
             ClampBullets();
 
-            Debug.LogWarning(reason + " Player marked blackname.");
+            //Debug.LogWarning(reason + " Player marked blackname.");
             ResetSuspiciousCounters();
         }
         else
         {
-            Debug.Log("[Blacklist] Player already blacklisted; ignoring duplicate call.");
+            //Debug.Log("[Blacklist] Player already blacklisted; ignoring duplicate call.");
         }
     }
 
@@ -659,7 +632,7 @@ public class GameEnhancer : MonoBehaviour
 
         if (GameData.Instance.blackname)
         {
-            Debug.LogWarning("[SaveData] Save blocked: player is blacklisted.");
+            //Debug.LogWarning("[SaveData] Save blocked: player is blacklisted.");
             return false;
         }
 
